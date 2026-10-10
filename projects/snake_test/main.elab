@@ -1,0 +1,3 @@
+<Script Name="main" Version="v0.0.0" Type="3" ChipsetType="ChipArea_192_256_96_SIRO" ActiveTec="1">
+    <Flow ID="1" Name="snake_test" Include="snake_test.elab" Repeats="1" Timeout="342" />
+</Script>

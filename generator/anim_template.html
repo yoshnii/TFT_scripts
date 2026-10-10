@@ -1,0 +1,223 @@
+<meta charset="utf-8">
+<title>PTseq SIRO96 片上回放</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --bg: #f4f5f2; --panel: #ffffff; --ink: #1c2024; --muted: #5d6670; --line: #d9ddd6;
+    --accent: #0f6e63; --accent-ink: #ffffff; --chip: #fbfbf9; --zone: #e6e8e3; --tec: #f0dcef; --gap: #eef0ec;
+    --hole: #7c8cf2; --mag: #1c2024; --grid: #e2e5df; --hilite: rgba(28,32,36,.55);
+    --c-lib: #2f6fd6; --c-reag: #2fb36b; --c-slug: #1d8a4c; --c-waste: #e0823a; --c-blob: #9c5b2a; --c-bar: #d84c8a; --c-quant: #8a5cd6;
+    --shadow: 0 1px 2px rgba(0,0,0,.06);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #16181c; --panel: #1f2227; --ink: #e8eaed; --muted: #9aa3ad; --line: #30353c;
+      --accent: #3fb8a8; --accent-ink: #0d1a18; --chip: #1a1d21; --zone: #2b3037; --tec: #4a2f48; --gap: #22262b;
+      --hole: #8b98ff; --mag: #e8eaed; --grid: #262a30; --hilite: rgba(232,234,237,.6);
+      --c-lib: #5b93ee; --c-reag: #46c982; --c-slug: #2fae66; --c-waste: #f0965a; --c-blob: #c07a45; --c-bar: #ee6fa6; --c-quant: #a985ec;
+      --shadow: none;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #16181c; --panel: #1f2227; --ink: #e8eaed; --muted: #9aa3ad; --line: #30353c;
+    --accent: #3fb8a8; --accent-ink: #0d1a18; --chip: #1a1d21; --zone: #2b3037; --tec: #4a2f48; --gap: #22262b;
+    --hole: #8b98ff; --mag: #e8eaed; --grid: #262a30; --hilite: rgba(232,234,237,.6);
+    --c-lib: #5b93ee; --c-reag: #46c982; --c-slug: #2fae66; --c-waste: #f0965a; --c-blob: #c07a45; --c-bar: #ee6fa6; --c-quant: #a985ec;
+    --shadow: none;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.5 "IBM Plex Sans", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif; }
+  .mono { font-family: "IBM Plex Mono", "SF Mono", Menlo, Consolas, monospace; font-variant-numeric: tabular-nums; }
+  header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 18px; padding: 14px 20px 10px; border-bottom: 1px solid var(--line); }
+  header h1 { font-size: 18px; font-weight: 600; margin: 0; letter-spacing: .01em; }
+  header .sub { color: var(--muted); font-size: 13px; }
+  .layout { display: grid; grid-template-columns: 300px minmax(0, 1fr) 260px; gap: 14px; padding: 14px 20px 24px; }
+  @media (max-width: 1100px) { .layout { grid-template-columns: 1fr; } aside { max-height: 320px; } }
+  aside, .stage, .side { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; box-shadow: var(--shadow); }
+  aside { overflow: auto; max-height: calc(100vh - 120px); }
+  aside h2, .side h2 { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 0; padding: 12px 14px 6px; }
+  .seg { padding: 4px 0 8px; }
+  .seg .segname { padding: 6px 14px 2px; font-weight: 600; font-size: 13px; }
+  .flow { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 5px 14px 5px 22px; cursor: pointer; border-left: 3px solid transparent; font-size: 13px; }
+  .flow:hover { background: var(--gap); }
+  .flow.cur { border-left-color: var(--accent); background: var(--gap); }
+  .flow .t { color: var(--muted); font-size: 12px; }
+  .stage { padding: 12px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+  .canvaswrap { position: relative; width: 100%; aspect-ratio: 4 / 3; background: var(--chip); border-radius: 4px; overflow: hidden; }
+  canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .now { display: grid; grid-template-columns: 1fr auto; gap: 6px 16px; align-items: baseline; }
+  .now .flowname { font-weight: 600; }
+  .now .cmdname { color: var(--muted); font-size: 13px; }
+  .now .time { font-size: 13px; color: var(--muted); text-align: right; white-space: nowrap; }
+  .now .time b { color: var(--ink); font-weight: 500; }
+  .transport { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  button, select { font: inherit; color: var(--ink); background: var(--panel); border: 1px solid var(--line); border-radius: 4px; padding: 5px 10px; cursor: pointer; }
+  button:hover, select:hover { border-color: var(--accent); }
+  button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); min-width: 72px; font-weight: 600; }
+  input[type=range] { width: 100%; accent-color: var(--accent); }
+  .side { padding-bottom: 10px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  td, th { padding: 4px 14px; text-align: left; border-top: 1px solid var(--line); }
+  th { color: var(--muted); font-weight: 500; font-size: 12px; }
+  td.v { text-align: right; }
+  .sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
+  .legend { padding: 4px 14px 6px; display: grid; grid-template-columns: 1fr 1fr; gap: 3px 8px; font-size: 12px; color: var(--muted); }
+  .note { padding: 6px 14px 0; font-size: 12px; color: var(--muted); }
+  .loading { padding: 40px; text-align: center; color: var(--muted); }
+  kbd { font: 11px "IBM Plex Mono", monospace; border: 1px solid var(--line); border-radius: 3px; padding: 0 4px; color: var(--muted); }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<header>
+  <h1>PTseq SIRO96 片上回放</h1>
+  <span class="sub" id="summary">读取动画数据…</span>
+</header>
+<div class="layout">
+  <aside id="flows"><h2>流程</h2><div class="loading">…</div></aside>
+  <section class="stage">
+    <div class="now">
+      <div><span class="flowname" id="flowname">—</span><br><span class="cmdname" id="cmdname">—</span></div>
+      <div class="time mono" id="time">—</div>
+    </div>
+    <div class="canvaswrap"><canvas id="chip"></canvas></div>
+    <input type="range" id="slider" min="0" max="0" value="0" aria-label="步进度">
+    <div class="transport">
+      <button id="play" class="primary" aria-label="播放/暂停">▶ 播放</button>
+      <button id="prevflow" title="上一流程">⏮</button>
+      <button id="stepb" title="上一步 (←)">−1</button>
+      <button id="stepf" title="下一步 (→)">+1</button>
+      <button id="nextflow" title="下一流程">⏭</button>
+      <select id="speed" aria-label="播放速度">
+        <option value="s30">30 步/秒</option>
+        <option value="s60" selected>60 步/秒</option>
+        <option value="s150">150 步/秒</option>
+        <option value="s400">400 步/秒</option>
+        <option value="r60">真实时长 ×60</option>
+        <option value="r600">真实时长 ×600</option>
+      </select>
+      <label style="font-size:12px;color:var(--muted)"><input type="checkbox" id="hl" checked> 高亮本步变化</label>
+      <span style="font-size:12px;color:var(--muted)"><kbd>空格</kbd> 播放 · <kbd>←</kbd><kbd>→</kbd> 单步 · <kbd>Shift</kbd>+箭头 ×20</span>
+    </div>
+  </section>
+  <section class="side">
+    <h2>A1 反应区 · 当前体系</h2>
+    <table id="sys"><tbody></tbody></table>
+    <h2>本步</h2>
+    <table id="stepinfo"><tbody></tbody></table>
+    <h2>图例</h2>
+    <div class="legend" id="legend"></div>
+    <p class="note">本页仅回放电极动作，不用于运行设备。循环段（×30）只回放一次；时长按 Duration 累加。标有“手工加液”的承接帧在动画中简化显示，真实工程在加液承接流程组结束，人工加液后运行下一个分液/移液流程组，不需要切换工程；等待时间不计入播放时长。温控/磁控的实际执行以工程指令及外部控制配置为准。</p>
+  </section>
+</div>
+<script id="anim-data" type="application/octet-stream">__DATA__</script>
+<script>
+(async function () {
+  const $ = s => document.querySelector(s);
+  const KINDS = [
+    ["lib", "文库 / 样本 / 产物", "--c-lib"], ["reag", "试剂份（剥离到泳道）", "--c-reag"], ["slug", "试剂液柱（孔下方框→空隙）", "--c-slug"],
+    ["waste", "废液 / 液指", "--c-waste"], ["blob", "底边孔大滴", "--c-blob"], ["bar", "条形码接头", "--c-bar"], ["quant", "定量份 / 定量滴", "--c-quant"],
+  ];
+  const kindOf = n => n.startsWith("BLOB") ? "blob" : n[0] === "W" ? "slug" : n[0] === "T" ? "reag" : (n[0] === "E" || n[0] === "A") ? "waste"
+                    : n[0] === "K" ? "bar" : (n[0] === "Q" || n[0] === "H") ? "quant" : "lib";
+  const kindLabel = { lib: "文库/样本", reag: "试剂份", slug: "试剂液柱", waste: "废液", blob: "大滴", bar: "条形码", quant: "定量" };
+  const css = () => getComputedStyle(document.documentElement);
+  const cv = v => css().getPropertyValue(v).trim();
+
+  // ── 解压数据 ──
+  let D;
+  try {
+    const b64 = $("#anim-data").textContent.trim();
+    const bytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+    const text = await new Response(new Blob([bytes]).stream().pipeThrough(new DecompressionStream("gzip"))).text();
+    D = JSON.parse(text);
+  } catch (e) {
+    $("#summary").textContent = "浏览器不支持内置解压（需要 Chrome 80+ / Safari 16.4+ / Firefox 113+）：" + e;
+    return;
+  }
+  const N = D.steps.length, [GW, GH] = D.grid;
+  const cum = new Float64Array(N + 1); for (let i = 0; i < N; i++) cum[i + 1] = cum[i] + D.steps[i][0];
+  // 标记: 每步 → 指令 / 流程
+  const markStart = D.marks.map(m => m[0]); const flowStart = D.flows.map(f => markStart[f[0]]);
+  const flowOfStep = new Int32Array(N), markOfStep = new Int32Array(N);
+  { let m = 0, f = 0; for (let i = 0; i < N; i++) { while (m + 1 < markStart.length && markStart[m + 1] <= i) m++; while (f + 1 < flowStart.length && flowStart[f + 1] <= i) f++; markOfStep[i] = m; flowOfStep[i] = f; } }
+  const SEGNAME = { A: "A 段 · cDNA 合成 → 靶向 PCR", R1: "刷新点 1 · 磁珠纯化 + 洗脱", Q: "Q 段 · 片上定量", B: "B 段 · 末端修复 → 接头连接", C: "刷新点 2 · 纯化 → 成品" };
+  const hms = ms => { const s = Math.round(ms / 1000); return `${Math.floor(s / 3600)}:${String(Math.floor(s / 60) % 60).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`; };
+  $("#summary").textContent = `${D.lanes.length} 道 · ${Object.keys(SEGNAME).length} 段 · ${D.flows.length} 流程 · ${N.toLocaleString()} 步 · 累计 ${hms(D.total_ms)}（不含人工等待；PCR ×30 循环按一次计）`;
+
+  // ── 状态回放 (关键帧 + 增量) ──
+  const K = 250, keys = [];
+  let state = new Map();
+  const apply = i => { const ch = D.steps[i][2]; for (let p = 0; p < ch.length;) { const id = ch[p], n = ch[p + 1]; if (n === 0) { state.delete(id); p += 2; continue; }
+      const vol = ch[p + 2] / 100, rects = []; p += 3; for (let r = 0; r < n; r++, p += 4) rects.push([ch[p], ch[p + 1], ch[p + 2], ch[p + 3]]); state.set(id, { rects, vol }); } };
+  const snap = () => { const a = []; state.forEach((v, k) => a.push([k, v])); return a; };
+  for (let i = 0; i < N; i++) { if (i % K === 0) keys.push(snap()); apply(i); }
+  let cur = -1;
+  const seek = i => { i = Math.max(0, Math.min(N - 1, i)); if (i === cur) return; if (i < cur || Math.floor(i / K) > Math.floor(cur / K) || cur < 0) { const kf = Math.floor(i / K); state = new Map(keys[kf].map(([k, v]) => [k, v])); for (let j = kf * K; j <= i; j++) apply(j); } else { for (let j = cur + 1; j <= i; j++) apply(j); } cur = i; tclock = cum[i]; render(); };
+
+  // ── 画布 ──
+  const canvas = $("#chip"), ctx = canvas.getContext("2d"); let S = 5, back;
+  const drawBack = () => {
+    const c = document.createElement("canvas"); c.width = GW * S; c.height = GH * S; const g = c.getContext("2d");
+    g.fillStyle = cv("--chip"); g.fillRect(0, 0, c.width, c.height);
+    g.fillStyle = cv("--gap"); for (const gx of D.gaps) g.fillRect(gx * S, 27 * S, 4 * S, 141 * S);
+    g.fillStyle = cv("--grid"); for (let x = 0; x <= GW; x += 8) g.fillRect(x * S, 0, 1, GH * S); for (let y = 0; y <= GH; y += 8) g.fillRect(0, y * S, GW * S, 1);
+    for (const [cc, r, X0, Y0] of D.lanes) { g.fillStyle = cv("--zone"); g.fillRect(X0 * S, Y0 * S, 36 * S, 6 * S); g.fillStyle = cv("--tec"); g.fillRect(X0 * S, Y0 * S, 18 * S, 6 * S);
+      g.fillStyle = cv("--mag"); g.beginPath(); g.arc((X0 + 27.5) * S, (Y0 + 3) * S, S * .5, 0, 7); g.fill();
+      g.strokeStyle = cv("--hole"); g.lineWidth = 1; g.beginPath(); g.arc((X0 + 13) * S, (Y0 - 1) * S, S * .9, 0, 7); g.stroke(); g.beginPath(); g.arc((X0 + 23) * S, (Y0 - 1) * S, S * .9, 0, 7); g.stroke();
+      if (r === 1) { g.fillStyle = cv("--muted"); g.font = `${S * 2.6}px IBM Plex Sans, sans-serif`; g.textAlign = "center"; g.fillText("ABCDEF"[cc - 1], (X0 + 18) * S, (Y0 - 4) * S); }
+      if (cc === 1) { g.fillStyle = cv("--muted"); g.font = `${S * 2.2}px IBM Plex Mono, monospace`; g.textAlign = "right"; g.fillText(String(r), (X0 - 1.5) * S, (Y0 + 4.6) * S); } }
+    g.strokeStyle = cv("--hole"); g.lineWidth = 1.5; g.fillStyle = cv("--muted"); g.font = `${S * 2.2}px IBM Plex Mono, monospace`; g.textAlign = "center";
+    for (const k in D.holes) { const x = D.holes[k]; g.beginPath(); g.arc(x * S, 1.5 * S, S, 0, 7); g.stroke(); g.beginPath(); g.arc(x * S, 190.5 * S, S, 0, 7); g.stroke(); g.fillText("E" + k, (x + 4) * S, 3 * S); g.fillText("F" + k, (x + 4) * S, 191.5 * S); }
+    back = c;
+  };
+  const fit = () => { const dpr = Math.min(2, window.devicePixelRatio || 1); const w = canvas.clientWidth || 1024; S = Math.max(2, Math.round(w * dpr / GW)); canvas.width = GW * S; canvas.height = GH * S; drawBack(); if (cur >= 0) render(); };
+  const changedNow = () => { const s = new Set(); if (cur < 0) return s; const ch = D.steps[cur][2]; for (let p = 0; p < ch.length;) { const n = ch[p + 1]; s.add(ch[p]); p += n === 0 ? 2 : 3 + 4 * n; } return s; };
+  const render = () => {
+    ctx.drawImage(back, 0, 0); const hl = $("#hl").checked ? changedNow() : null;
+    state.forEach((v, id) => { const kind = kindOf(D.names[id]); ctx.fillStyle = cv("--c-" + kind);
+      for (const [x, y, w, h] of v.rects) { ctx.fillRect(x * S, y * S, w * S, h * S); if (hl && hl.has(id)) { ctx.strokeStyle = cv("--hilite"); ctx.lineWidth = 1; ctx.strokeRect(x * S + .5, y * S + .5, w * S - 1, h * S - 1); } } });
+    // 文字
+    const st = D.steps[cur], f = D.flows[flowOfStep[cur]], m = D.marks[markOfStep[cur]];
+    $("#flowname").textContent = `${SEGNAME[f[1]] ? SEGNAME[f[1]].split(" · ")[0] : f[1]} › ${f[2]}${f[3] > 1 ? ` （×${f[3]}）` : ""}`;
+    $("#cmdname").textContent = m[1];
+    $("#time").innerHTML = `第 <b>${(cur + 1).toLocaleString()}</b> / ${N.toLocaleString()} 步 &nbsp; 流程时间 <b>${hms(cum[cur + 1])}</b>`;
+    $("#slider").value = cur;
+    document.querySelectorAll(".flow").forEach((el, i) => el.classList.toggle("cur", i === flowOfStep[cur]));
+    // 体系: A1
+    const rows = []; state.forEach((v, id) => { const n = D.names[id]; if (/^[A-Z]+A1$/.test(n) || (n[0] === "W" && n.endsWith("1")) || n === "BLOB1") rows.push([n, kindLabel[kindOf(n)], v.vol]); });
+    rows.sort((a, b) => b[2] - a[2]);
+    $("#sys tbody").innerHTML = rows.map(([n, k, v]) => `<tr><td><span class="sw" style="background:${cv("--c-" + kindOf(n))}"></span>${k} <span class="mono" style="color:var(--muted)">${n}</span></td><td class="v mono">${v.toFixed(2)} µL</td></tr>`).join("") || `<tr><td colspan="2" style="color:var(--muted)">（空）</td></tr>`;
+    $("#stepinfo tbody").innerHTML = `<tr><td>通电时长</td><td class="v mono">${st[0]} ms</td></tr><tr><td>电压</td><td class="v mono">${st[1]} V</td></tr><tr><td>片上液滴数</td><td class="v mono">${state.size}</td></tr><tr><td>本步变化</td><td class="v mono">${hl ? hl.size : changedNow().size}</td></tr>`;
+  };
+  $("#legend").innerHTML = KINDS.map(([k, l, v]) => `<span><span class="sw" style="background:${cv(v)}"></span>${l}</span>`).join("");
+
+  // ── 流程列表 ──
+  { const box = $("#flows"); box.innerHTML = "<h2>流程</h2>"; let seg = null, wrap;
+    D.flows.forEach((f, i) => { if (f[1] !== seg) { seg = f[1]; wrap = document.createElement("div"); wrap.className = "seg"; wrap.innerHTML = `<div class="segname">${SEGNAME[seg] || seg}</div>`; box.appendChild(wrap); }
+      const a = flowStart[i], b = i + 1 < D.flows.length ? flowStart[i + 1] : N; const el = document.createElement("div"); el.className = "flow"; el.tabIndex = 0;
+      el.innerHTML = `<span>${f[2]}${f[3] > 1 ? ` ×${f[3]}` : ""}</span><span class="t mono">${hms(cum[b] - cum[a])}</span>`; el.onclick = () => { pause(); seek(a); }; el.onkeydown = e => { if (e.key === "Enter") el.onclick(); }; wrap.appendChild(el); }); }
+
+  // ── 播放 ──
+  let playing = false, raf = 0, last = 0, acc = 0, tclock = 0;          // tclock: 真实时长模式下的流程时钟 (ms)
+  const setPlay = p => { playing = p; $("#play").textContent = p ? "⏸ 暂停" : "▶ 播放"; if (p) { last = performance.now(); acc = 0; tclock = cum[cur]; raf = setTimeout(tick, 16); } else clearTimeout(raf); };
+  const pause = () => setPlay(false);
+  const tick = () => { if (!playing) return; const now = performance.now(); const dt = Math.min(0.25, (now - last) / 1000); last = now; const mode = $("#speed").value; let target = cur;
+    if (mode[0] === "s") { acc += dt * +mode.slice(1); const n = Math.floor(acc); acc -= n; target = cur + n; }
+    else { tclock += dt * 1000 * +mode.slice(1); while (target + 1 < N && cum[target + 1] <= tclock) target++; }
+    if (target !== cur) { const t = tclock; seek(target); tclock = t; }
+    if (cur >= N - 1) { pause(); return; } raf = setTimeout(tick, 16); };
+  $("#play").onclick = () => { if (cur >= N - 1) seek(0); setPlay(!playing); };
+  $("#stepf").onclick = () => { pause(); seek(cur + 1); }; $("#stepb").onclick = () => { pause(); seek(cur - 1); };
+  $("#nextflow").onclick = () => { pause(); const f = flowOfStep[cur]; seek(f + 1 < D.flows.length ? flowStart[f + 1] : N - 1); };
+  $("#prevflow").onclick = () => { pause(); const f = flowOfStep[cur]; seek(cur - flowStart[f] > 5 ? flowStart[f] : flowStart[Math.max(0, f - 1)]); };
+  $("#slider").max = N - 1; $("#slider").oninput = e => { pause(); seek(+e.target.value); };
+  $("#hl").onchange = () => render();
+  document.addEventListener("keydown", e => { if (e.target.tagName === "SELECT" || e.target.tagName === "INPUT" && e.target.type !== "range") return;
+    if (e.code === "Space") { e.preventDefault(); $("#play").onclick(); } else if (e.key === "ArrowRight") { e.preventDefault(); pause(); seek(cur + (e.shiftKey ? 20 : 1)); } else if (e.key === "ArrowLeft") { e.preventDefault(); pause(); seek(cur - (e.shiftKey ? 20 : 1)); } });
+  new ResizeObserver(fit).observe(canvas.parentElement);
+  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => { drawBack(); render(); });
+  new MutationObserver(() => { drawBack(); render(); }).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+  fit(); seek(0);
+})();
+</script>

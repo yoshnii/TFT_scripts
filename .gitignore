@@ -1,0 +1,17 @@
+.DS_Store
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+.env.*
+*.hex
+*.key
+*.pem
+*.exe
+*.zip
+*.app/
+build/
+dist/
+generator/out/
+~$*

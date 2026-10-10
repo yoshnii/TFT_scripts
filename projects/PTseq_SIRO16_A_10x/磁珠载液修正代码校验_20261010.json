@@ -1,0 +1,1837 @@
+{
+  "status": "contour_release_pass",
+  "model_frames": 28120,
+  "native_frames": 28119,
+  "sections": 62,
+  "commands": 134,
+  "actual_electrode_quantum_ul": 0.05,
+  "all_liquid_frames_match_exact_volume": true,
+  "all_liquid_contours_connected": true,
+  "morphology_max_boundary_motion_cells_per_frame": 1,
+  "morphology_drop_frames": 1728,
+  "morphology_method": "coordinated rectangular edge bands; constant actual area",
+  "fixed_contour_one_cell_moves": 225332,
+  "manual_load_sections": 16,
+  "manual_aspiration_sections": 21,
+  "previous_aspiration_sections": 17,
+  "compact_waste_dock_shapes": [
+    [
+      16,
+      10
+    ],
+    [
+      16,
+      10
+    ],
+    [
+      16,
+      10
+    ],
+    [
+      16,
+      16
+    ],
+    [
+      16,
+      16
+    ],
+    [
+      12,
+      16
+    ],
+    [
+      16,
+      16
+    ],
+    [
+      12,
+      16
+    ],
+    [
+      12,
+      16
+    ],
+    [
+      16,
+      16
+    ],
+    [
+      16,
+      12
+    ],
+    [
+      16,
+      12
+    ],
+    [
+      16,
+      12
+    ],
+    [
+      16,
+      12
+    ],
+    [
+      16,
+      12
+    ],
+    [
+      8,
+      16
+    ],
+    [
+      16,
+      10
+    ],
+    [
+      16,
+      12
+    ],
+    [
+      16,
+      12
+    ],
+    [
+      16,
+      12
+    ],
+    [
+      16,
+      12
+    ],
+    [
+      16,
+      12
+    ],
+    [
+      16,
+      12
+    ],
+    [
+      16,
+      12
+    ],
+    [
+      16,
+      12
+    ],
+    [
+      16,
+      12
+    ],
+    [
+      16,
+      12
+    ],
+    [
+      16,
+      12
+    ],
+    [
+      16,
+      12
+    ],
+    [
+      16,
+      12
+    ],
+    [
+      16,
+      12
+    ]
+  ],
+  "gradual_split_groups": 476,
+  "split_partition_preserves_mother_cells": true,
+  "split_max_gap_growth_cells_per_frame": 1,
+  "split_gap_sequences": [
+    {
+      "gaps": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "count": 476
+    }
+  ],
+  "barcode_receiving_cells": [
+    5,
+    4
+  ],
+  "barcode_loaded_ul": 1.0,
+  "barcode_retained_ul": 0.6,
+  "barcode_discarded_ul": 0.4,
+  "all_merges_synchronized": [
+    {
+      "guest_tag": "TG4",
+      "rows": 16,
+      "merge_frame": 367
+    },
+    {
+      "guest_tag": "TAMP",
+      "rows": 16,
+      "merge_frame": 2929
+    },
+    {
+      "guest_tag": "TG14",
+      "rows": 16,
+      "merge_frame": 4731
+    },
+    {
+      "guest_tag": "E",
+      "rows": 16,
+      "merge_frame": 9688
+    },
+    {
+      "guest_tag": "E",
+      "rows": 16,
+      "merge_frame": 10344
+    },
+    {
+      "guest_tag": "E",
+      "rows": 16,
+      "merge_frame": 11005
+    },
+    {
+      "guest_tag": "TG8",
+      "rows": 16,
+      "merge_frame": 14322
+    },
+    {
+      "guest_tag": "K",
+      "rows": 16,
+      "merge_frame": 15589
+    },
+    {
+      "guest_tag": "TLIG",
+      "rows": 16,
+      "merge_frame": 16589
+    },
+    {
+      "guest_tag": "TEDTA",
+      "rows": 16,
+      "merge_frame": 17495
+    },
+    {
+      "guest_tag": "TG16",
+      "rows": 16,
+      "merge_frame": 19093
+    },
+    {
+      "guest_tag": "E",
+      "rows": 16,
+      "merge_frame": 23838
+    },
+    {
+      "guest_tag": "E",
+      "rows": 16,
+      "merge_frame": 24588
+    },
+    {
+      "guest_tag": "E",
+      "rows": 16,
+      "merge_frame": 25338
+    }
+  ],
+  "thermal_commands_unchanged": true,
+  "pcr_cycles": 30,
+  "liquid_removed_only_after_manual_gate": true,
+  "external_magnet_sequence": [
+    {
+      "target": "down",
+      "reason": "R1 结合混匀前",
+      "frame": 4733,
+      "previous": "down",
+      "hardware_control": false
+    },
+    {
+      "target": "up",
+      "reason": "R1 全部液滴到右侧后捕获",
+      "frame": 5480,
+      "previous": "down",
+      "hardware_control": false
+    },
+    {
+      "target": "down",
+      "reason": "R1 第1次洗脱液覆盖磁珠后重悬前",
+      "frame": 9689,
+      "previous": "up",
+      "hardware_control": false
+    },
+    {
+      "target": "up",
+      "reason": "R1 第1次洗脱孵育完成且液滴到右侧后",
+      "frame": 10283,
+      "previous": "down",
+      "hardware_control": false
+    },
+    {
+      "target": "down",
+      "reason": "R1 第2次洗脱液覆盖磁珠后重悬前",
+      "frame": 10345,
+      "previous": "up",
+      "hardware_control": false
+    },
+    {
+      "target": "up",
+      "reason": "R1 第2次洗脱孵育完成且液滴到右侧后",
+      "frame": 10939,
+      "previous": "down",
+      "hardware_control": false
+    },
+    {
+      "target": "down",
+      "reason": "R1 两次产物吸出且额外3.00µL载液覆盖磁珠后，重悬排珠",
+      "frame": 11006,
+      "previous": "up",
+      "hardware_control": false
+    },
+    {
+      "target": "down",
+      "reason": "C 结合混匀前",
+      "frame": 19136,
+      "previous": "down",
+      "hardware_control": false
+    },
+    {
+      "target": "up",
+      "reason": "C 全部液滴到右侧后捕获",
+      "frame": 19597,
+      "previous": "down",
+      "hardware_control": false
+    },
+    {
+      "target": "down",
+      "reason": "C 第1次洗脱液覆盖磁珠后重悬前",
+      "frame": 23839,
+      "previous": "up",
+      "hardware_control": false
+    },
+    {
+      "target": "up",
+      "reason": "C 第1次洗脱孵育完成且液滴到右侧后",
+      "frame": 24549,
+      "previous": "down",
+      "hardware_control": false
+    },
+    {
+      "target": "down",
+      "reason": "C 第2次洗脱液覆盖磁珠后重悬前",
+      "frame": 24589,
+      "previous": "up",
+      "hardware_control": false
+    },
+    {
+      "target": "up",
+      "reason": "C 第2次洗脱孵育完成且液滴到右侧后",
+      "frame": 25299,
+      "previous": "down",
+      "hardware_control": false
+    },
+    {
+      "target": "down",
+      "reason": "C 两次产物吸出且额外3.00µL载液覆盖磁珠后，重悬排珠",
+      "frame": 25339,
+      "previous": "up",
+      "hardware_control": false
+    }
+  ],
+  "magnet_hardware_controlled": false,
+  "bead_cleanup_events": [
+    {
+      "stage": "R1",
+      "per_lane_ul": 3.0,
+      "total_ul": 48.0,
+      "reagent": "G15",
+      "loading_hole": "S孔×16",
+      "mix_cycles": 12,
+      "reference": "260902_96sampleV2_1.elab Flow2267 Command2268：8滴×60格",
+      "waste_begin_frame": 11649,
+      "magnet_state": "down",
+      "waste_end_frame": 13787
+    },
+    {
+      "stage": "C",
+      "per_lane_ul": 3.0,
+      "total_ul": 48.0,
+      "reagent": "G18",
+      "loading_hole": "S孔×16",
+      "mix_cycles": 12,
+      "reference": "260902_96sampleV2_1.elab Flow2267 Command2268：8滴×60格",
+      "waste_begin_frame": 25982,
+      "magnet_state": "down",
+      "waste_end_frame": 28120
+    }
+  ],
+  "no_zero_liquid_bead_transport": true,
+  "bead_binding_mix_cycles": {
+    "R1": 20,
+    "C": 12
+  },
+  "bead_elution_mix_cycles": 12,
+  "bead_elution_incubation_events": [
+    {
+      "stage": "R1",
+      "round": 1,
+      "initial_mix_cycles": 12,
+      "incubation_seconds": 300,
+      "periodic_mixing": [
+        {
+          "start_seconds": 120,
+          "cycles": 2,
+          "end_seconds": 168.0
+        },
+        {
+          "start_seconds": 240,
+          "cycles": 2,
+          "end_seconds": 288.0
+        }
+      ]
+    },
+    {
+      "stage": "R1",
+      "round": 2,
+      "initial_mix_cycles": 12,
+      "incubation_seconds": 300,
+      "periodic_mixing": [
+        {
+          "start_seconds": 120,
+          "cycles": 2,
+          "end_seconds": 168.0
+        },
+        {
+          "start_seconds": 240,
+          "cycles": 2,
+          "end_seconds": 288.0
+        }
+      ]
+    },
+    {
+      "stage": "C",
+      "round": 1,
+      "initial_mix_cycles": 12,
+      "incubation_seconds": 180,
+      "periodic_mixing": []
+    },
+    {
+      "stage": "C",
+      "round": 2,
+      "initial_mix_cycles": 12,
+      "incubation_seconds": 180,
+      "periodic_mixing": []
+    }
+  ],
+  "half_region_holds": [
+    {
+      "section": "A04 cDNA合成 37℃10min→85℃5s→4℃ [热盖105℃]",
+      "command": "1017",
+      "side": "left",
+      "per_lane_cells": [
+        40
+      ],
+      "authorized_590_crossing": false
+    },
+    {
+      "section": "A08 预变性 95℃3min [热盖105℃]",
+      "command": "1032",
+      "side": "left",
+      "per_lane_cells": [
+        50
+      ],
+      "authorized_590_crossing": false
+    },
+    {
+      "section": "A09 循环 95℃30s/60℃60s/72℃45s ×30 [热盖105℃]",
+      "command": "1040",
+      "side": "left",
+      "per_lane_cells": [
+        50
+      ],
+      "authorized_590_crossing": false
+    },
+    {
+      "section": "A10 终延伸 72℃1min→4℃ [热盖105℃]",
+      "command": "1046",
+      "side": "left",
+      "per_lane_cells": [
+        50
+      ],
+      "authorized_590_crossing": false
+    },
+    {
+      "section": "R02-R03 混匀结合5min → 移至磁铁 → 磁吸",
+      "command": "2009",
+      "side": "right",
+      "per_lane_cells": [
+        100
+      ],
+      "authorized_590_crossing": false
+    },
+    {
+      "section": "R05 纯化1第1次洗脱：溶解液 5.00µL → 产物离片 · S孔×16 待手工吸液（保持全部液滴上电）",
+      "command": "2019",
+      "side": "right",
+      "per_lane_cells": [
+        100
+      ],
+      "authorized_590_crossing": false
+    },
+    {
+      "section": "R06 纯化1第2次洗脱：溶解液 5.00µL → 产物离片 · S孔×16 待手工吸液（保持全部液滴上电）",
+      "command": "2029",
+      "side": "right",
+      "per_lane_cells": [
+        100
+      ],
+      "authorized_590_crossing": false
+    },
+    {
+      "section": "B04 末端修复加A 37℃4min→4℃ [热盖105℃]",
+      "command": "3015",
+      "side": "left",
+      "per_lane_cells": [
+        40
+      ],
+      "authorized_590_crossing": false
+    },
+    {
+      "section": "B09 连接反应 25℃10min→4℃ [热盖75℃]",
+      "command": "3036",
+      "side": "left",
+      "per_lane_cells": [
+        80
+      ],
+      "authorized_590_crossing": false
+    },
+    {
+      "section": "C02-C03 混匀孵育3min → 移至磁铁 → 磁吸",
+      "command": "4009",
+      "side": "right",
+      "per_lane_cells": [
+        118
+      ],
+      "authorized_590_crossing": true
+    },
+    {
+      "section": "C05 纯化2第1次洗脱：EB 3.00µL → 成品离片 · S孔×16 待手工吸液（保持全部液滴上电）",
+      "command": "4019",
+      "side": "right",
+      "per_lane_cells": [
+        60
+      ],
+      "authorized_590_crossing": false
+    },
+    {
+      "section": "C06 纯化2第2次洗脱：EB 3.00µL → 成品离片并汇聚 pooling · S孔×16 待手工吸液（保持全部液滴上电）",
+      "command": "4029",
+      "side": "right",
+      "per_lane_cells": [
+        60
+      ],
+      "authorized_590_crossing": false
+    }
+  ],
+  "only_590_magnetic_crossing_authorized": true,
+  "waste_rows_merge_only_after_whole_row_ready": true,
+  "waste_row_terminal_shapes_complete": true,
+  "concurrent_multiport_cut_frames": 24,
+  "full_column_ready_before_fusion": true,
+  "waste_grid_tiles": 352,
+  "waste_collection_columns": [
+    4,
+    8
+  ],
+  "waste_collection_max_rows": 4,
+  "waste_collection_minimum_ports_per_batch": true,
+  "waste_batches": [
+    {
+      "tile_shape": [
+        4,
+        5
+      ],
+      "count": 16,
+      "minimum_ports": 2,
+      "plans": [
+        {
+          "port": 2,
+          "count": 8,
+          "columns": 4,
+          "rows": 2
+        },
+        {
+          "port": 3,
+          "count": 8,
+          "columns": 4,
+          "rows": 2
+        }
+      ],
+      "collection_group": "A05",
+      "retained_port": null,
+      "retained_ports": [
+        2,
+        3
+      ],
+      "whole_port_pipeline": true
+    },
+    {
+      "tile_shape": [
+        2,
+        5
+      ],
+      "count": 16,
+      "minimum_ports": 1,
+      "plans": [
+        {
+          "port": 1,
+          "count": 16,
+          "columns": 8,
+          "rows": 2
+        }
+      ],
+      "collection_group": "A05",
+      "retained_port": null,
+      "retained_ports": [
+        1
+      ],
+      "whole_port_pipeline": true
+    },
+    {
+      "tile_shape": [
+        4,
+        4
+      ],
+      "count": 16,
+      "minimum_ports": 1,
+      "plans": [
+        {
+          "port": 3,
+          "count": 16,
+          "columns": 4,
+          "rows": 4
+        }
+      ],
+      "collection_group": 1,
+      "retained_port": 3,
+      "retained_ports": [
+        3
+      ],
+      "whole_port_pipeline": true
+    },
+    {
+      "tile_shape": [
+        4,
+        4
+      ],
+      "count": 16,
+      "minimum_ports": 1,
+      "plans": [
+        {
+          "port": 2,
+          "count": 16,
+          "columns": 4,
+          "rows": 4
+        }
+      ],
+      "collection_group": 1,
+      "retained_port": 2,
+      "retained_ports": [
+        2
+      ],
+      "whole_port_pipeline": true
+    },
+    {
+      "tile_shape": [
+        3,
+        4
+      ],
+      "count": 16,
+      "minimum_ports": 1,
+      "plans": [
+        {
+          "port": 1,
+          "count": 16,
+          "columns": 4,
+          "rows": 4
+        }
+      ],
+      "collection_group": 1,
+      "retained_port": 1,
+      "retained_ports": [
+        1
+      ],
+      "whole_port_pipeline": true
+    },
+    {
+      "tile_shape": [
+        4,
+        4
+      ],
+      "count": 16,
+      "minimum_ports": 1,
+      "plans": [
+        {
+          "port": 3,
+          "count": 16,
+          "columns": 4,
+          "rows": 4
+        }
+      ],
+      "collection_group": 2,
+      "retained_port": 3,
+      "retained_ports": [
+        3
+      ],
+      "whole_port_pipeline": true
+    },
+    {
+      "tile_shape": [
+        3,
+        4
+      ],
+      "count": 16,
+      "minimum_ports": 1,
+      "plans": [
+        {
+          "port": 2,
+          "count": 16,
+          "columns": 4,
+          "rows": 4
+        }
+      ],
+      "collection_group": 2,
+      "retained_port": 2,
+      "retained_ports": [
+        2
+      ],
+      "whole_port_pipeline": true
+    },
+    {
+      "tile_shape": [
+        3,
+        4
+      ],
+      "count": 16,
+      "minimum_ports": 1,
+      "plans": [
+        {
+          "port": 1,
+          "count": 16,
+          "columns": 4,
+          "rows": 4
+        }
+      ],
+      "collection_group": 2,
+      "retained_port": 1,
+      "retained_ports": [
+        1
+      ],
+      "whole_port_pipeline": true
+    },
+    {
+      "tile_shape": [
+        4,
+        4
+      ],
+      "count": 16,
+      "minimum_ports": 1,
+      "plans": [
+        {
+          "port": 1,
+          "count": 16,
+          "columns": 4,
+          "rows": 4
+        }
+      ],
+      "collection_group": 3,
+      "retained_port": 1,
+      "retained_ports": [
+        1
+      ],
+      "whole_port_pipeline": true
+    },
+    {
+      "tile_shape": [
+        4,
+        6
+      ],
+      "count": 16,
+      "minimum_ports": 2,
+      "plans": [
+        {
+          "port": 1,
+          "count": 8,
+          "columns": 4,
+          "rows": 2
+        },
+        {
+          "port": 2,
+          "count": 8,
+          "columns": 4,
+          "rows": 2
+        }
+      ],
+      "collection_group": null,
+      "retained_port": null,
+      "retained_ports": null,
+      "whole_port_pipeline": false
+    },
+    {
+      "tile_shape": [
+        4,
+        6
+      ],
+      "count": 16,
+      "minimum_ports": 2,
+      "plans": [
+        {
+          "port": 1,
+          "count": 8,
+          "columns": 4,
+          "rows": 2
+        },
+        {
+          "port": 2,
+          "count": 8,
+          "columns": 4,
+          "rows": 2
+        }
+      ],
+      "collection_group": null,
+      "retained_port": null,
+      "retained_ports": null,
+      "whole_port_pipeline": false
+    },
+    {
+      "tile_shape": [
+        2,
+        6
+      ],
+      "count": 16,
+      "minimum_ports": 1,
+      "plans": [
+        {
+          "port": 1,
+          "count": 16,
+          "columns": 8,
+          "rows": 2
+        }
+      ],
+      "collection_group": null,
+      "retained_port": null,
+      "retained_ports": null,
+      "whole_port_pipeline": false
+    },
+    {
+      "tile_shape": [
+        2,
+        4
+      ],
+      "count": 16,
+      "minimum_ports": 1,
+      "plans": [
+        {
+          "port": 1,
+          "count": 16,
+          "columns": 4,
+          "rows": 4
+        }
+      ],
+      "collection_group": null,
+      "retained_port": null,
+      "retained_ports": null,
+      "whole_port_pipeline": false
+    },
+    {
+      "tile_shape": [
+        2,
+        5
+      ],
+      "count": 16,
+      "minimum_ports": 1,
+      "plans": [
+        {
+          "port": 1,
+          "count": 16,
+          "columns": 8,
+          "rows": 2
+        }
+      ],
+      "collection_group": null,
+      "retained_port": null,
+      "retained_ports": null,
+      "whole_port_pipeline": false
+    },
+    {
+      "tile_shape": [
+        4,
+        6
+      ],
+      "count": 16,
+      "minimum_ports": 2,
+      "plans": [
+        {
+          "port": 1,
+          "count": 8,
+          "columns": 4,
+          "rows": 2
+        },
+        {
+          "port": 2,
+          "count": 8,
+          "columns": 4,
+          "rows": 2
+        }
+      ],
+      "collection_group": null,
+      "retained_port": null,
+      "retained_ports": null,
+      "whole_port_pipeline": false
+    },
+    {
+      "tile_shape": [
+        4,
+        6
+      ],
+      "count": 16,
+      "minimum_ports": 2,
+      "plans": [
+        {
+          "port": 1,
+          "count": 8,
+          "columns": 4,
+          "rows": 2
+        },
+        {
+          "port": 2,
+          "count": 8,
+          "columns": 4,
+          "rows": 2
+        }
+      ],
+      "collection_group": null,
+      "retained_port": null,
+      "retained_ports": null,
+      "whole_port_pipeline": false
+    },
+    {
+      "tile_shape": [
+        4,
+        6
+      ],
+      "count": 16,
+      "minimum_ports": 2,
+      "plans": [
+        {
+          "port": 1,
+          "count": 8,
+          "columns": 4,
+          "rows": 2
+        },
+        {
+          "port": 2,
+          "count": 8,
+          "columns": 4,
+          "rows": 2
+        }
+      ],
+      "collection_group": null,
+      "retained_port": null,
+      "retained_ports": null,
+      "whole_port_pipeline": false
+    },
+    {
+      "tile_shape": [
+        4,
+        6
+      ],
+      "count": 16,
+      "minimum_ports": 2,
+      "plans": [
+        {
+          "port": 1,
+          "count": 8,
+          "columns": 4,
+          "rows": 2
+        },
+        {
+          "port": 2,
+          "count": 8,
+          "columns": 4,
+          "rows": 2
+        }
+      ],
+      "collection_group": null,
+      "retained_port": null,
+      "retained_ports": null,
+      "whole_port_pipeline": false
+    },
+    {
+      "tile_shape": [
+        2,
+        6
+      ],
+      "count": 16,
+      "minimum_ports": 1,
+      "plans": [
+        {
+          "port": 1,
+          "count": 16,
+          "columns": 8,
+          "rows": 2
+        }
+      ],
+      "collection_group": null,
+      "retained_port": null,
+      "retained_ports": null,
+      "whole_port_pipeline": false
+    },
+    {
+      "tile_shape": [
+        4,
+        6
+      ],
+      "count": 16,
+      "minimum_ports": 2,
+      "plans": [
+        {
+          "port": 1,
+          "count": 8,
+          "columns": 4,
+          "rows": 2
+        },
+        {
+          "port": 2,
+          "count": 8,
+          "columns": 4,
+          "rows": 2
+        }
+      ],
+      "collection_group": null,
+      "retained_port": null,
+      "retained_ports": null,
+      "whole_port_pipeline": false
+    },
+    {
+      "tile_shape": [
+        4,
+        6
+      ],
+      "count": 16,
+      "minimum_ports": 2,
+      "plans": [
+        {
+          "port": 1,
+          "count": 8,
+          "columns": 4,
+          "rows": 2
+        },
+        {
+          "port": 2,
+          "count": 8,
+          "columns": 4,
+          "rows": 2
+        }
+      ],
+      "collection_group": null,
+      "retained_port": null,
+      "retained_ports": null,
+      "whole_port_pipeline": false
+    },
+    {
+      "tile_shape": [
+        2,
+        6
+      ],
+      "count": 16,
+      "minimum_ports": 1,
+      "plans": [
+        {
+          "port": 1,
+          "count": 16,
+          "columns": 8,
+          "rows": 2
+        }
+      ],
+      "collection_group": null,
+      "retained_port": null,
+      "retained_ports": null,
+      "whole_port_pipeline": false
+    }
+  ],
+  "r04_aspiration_groups": 3,
+  "r04_group_volumes_ul": [
+    35.2,
+    32.0,
+    12.8
+  ],
+  "r04_completed_docks_retained_until_group_aspiration": true,
+  "b07_delivery_identical_to_baseline": true,
+  "no_exported_empty_electrode_frames": true,
+  "waste_whole_port_pipeline_events": [
+    {
+      "port": 3,
+      "scheduled_drops": 8,
+      "start_frame": 1087,
+      "entries": [
+        {
+          "ticket": 0,
+          "frame": 1087
+        },
+        {
+          "ticket": 1,
+          "frame": 1099
+        },
+        {
+          "ticket": 2,
+          "frame": 1111
+        },
+        {
+          "ticket": 3,
+          "frame": 1123
+        },
+        {
+          "ticket": 4,
+          "frame": 1135
+        },
+        {
+          "ticket": 5,
+          "frame": 1147
+        },
+        {
+          "ticket": 6,
+          "frame": 1159
+        },
+        {
+          "ticket": 7,
+          "frame": 1171
+        }
+      ],
+      "row_merges": [
+        1300,
+        1474
+      ],
+      "end_frame": 1476
+    },
+    {
+      "port": 2,
+      "scheduled_drops": 8,
+      "start_frame": 1476,
+      "entries": [
+        {
+          "ticket": 0,
+          "frame": 1476
+        },
+        {
+          "ticket": 1,
+          "frame": 1488
+        },
+        {
+          "ticket": 2,
+          "frame": 1500
+        },
+        {
+          "ticket": 3,
+          "frame": 1512
+        },
+        {
+          "ticket": 4,
+          "frame": 1524
+        },
+        {
+          "ticket": 5,
+          "frame": 1536
+        },
+        {
+          "ticket": 6,
+          "frame": 1548
+        },
+        {
+          "ticket": 7,
+          "frame": 1560
+        }
+      ],
+      "row_merges": [
+        1707,
+        1827
+      ],
+      "end_frame": 1829
+    },
+    {
+      "port": 1,
+      "scheduled_drops": 16,
+      "start_frame": 1838,
+      "entries": [
+        {
+          "ticket": 0,
+          "frame": 1838
+        },
+        {
+          "ticket": 1,
+          "frame": 1850
+        },
+        {
+          "ticket": 2,
+          "frame": 1862
+        },
+        {
+          "ticket": 3,
+          "frame": 1874
+        },
+        {
+          "ticket": 4,
+          "frame": 1886
+        },
+        {
+          "ticket": 5,
+          "frame": 1898
+        },
+        {
+          "ticket": 6,
+          "frame": 1910
+        },
+        {
+          "ticket": 7,
+          "frame": 1922
+        },
+        {
+          "ticket": 8,
+          "frame": 1934
+        },
+        {
+          "ticket": 9,
+          "frame": 1946
+        },
+        {
+          "ticket": 10,
+          "frame": 1958
+        },
+        {
+          "ticket": 11,
+          "frame": 1970
+        },
+        {
+          "ticket": 12,
+          "frame": 1982
+        },
+        {
+          "ticket": 13,
+          "frame": 1994
+        },
+        {
+          "ticket": 14,
+          "frame": 2006
+        },
+        {
+          "ticket": 15,
+          "frame": 2069
+        }
+      ],
+      "row_merges": [
+        2057,
+        2271
+      ],
+      "end_frame": 2273
+    },
+    {
+      "port": 3,
+      "scheduled_drops": 16,
+      "start_frame": 5838,
+      "entries": [
+        {
+          "ticket": 0,
+          "frame": 5838
+        },
+        {
+          "ticket": 1,
+          "frame": 5849
+        },
+        {
+          "ticket": 2,
+          "frame": 5860
+        },
+        {
+          "ticket": 3,
+          "frame": 5871
+        },
+        {
+          "ticket": 4,
+          "frame": 5882
+        },
+        {
+          "ticket": 5,
+          "frame": 5893
+        },
+        {
+          "ticket": 6,
+          "frame": 5904
+        },
+        {
+          "ticket": 7,
+          "frame": 5915
+        },
+        {
+          "ticket": 8,
+          "frame": 5926
+        },
+        {
+          "ticket": 9,
+          "frame": 5937
+        },
+        {
+          "ticket": 10,
+          "frame": 5948
+        },
+        {
+          "ticket": 11,
+          "frame": 5959
+        },
+        {
+          "ticket": 12,
+          "frame": 5970
+        },
+        {
+          "ticket": 13,
+          "frame": 5981
+        },
+        {
+          "ticket": 14,
+          "frame": 5992
+        },
+        {
+          "ticket": 15,
+          "frame": 6003
+        }
+      ],
+      "row_merges": [
+        6049,
+        6222,
+        6391,
+        6556
+      ],
+      "end_frame": 6558
+    },
+    {
+      "port": 2,
+      "scheduled_drops": 16,
+      "start_frame": 6572,
+      "entries": [
+        {
+          "ticket": 0,
+          "frame": 6572
+        },
+        {
+          "ticket": 1,
+          "frame": 6583
+        },
+        {
+          "ticket": 2,
+          "frame": 6594
+        },
+        {
+          "ticket": 3,
+          "frame": 6605
+        },
+        {
+          "ticket": 4,
+          "frame": 6616
+        },
+        {
+          "ticket": 5,
+          "frame": 6627
+        },
+        {
+          "ticket": 6,
+          "frame": 6638
+        },
+        {
+          "ticket": 7,
+          "frame": 6649
+        },
+        {
+          "ticket": 8,
+          "frame": 6660
+        },
+        {
+          "ticket": 9,
+          "frame": 6671
+        },
+        {
+          "ticket": 10,
+          "frame": 6682
+        },
+        {
+          "ticket": 11,
+          "frame": 6693
+        },
+        {
+          "ticket": 12,
+          "frame": 6739
+        },
+        {
+          "ticket": 13,
+          "frame": 6750
+        },
+        {
+          "ticket": 14,
+          "frame": 6761
+        },
+        {
+          "ticket": 15,
+          "frame": 6772
+        }
+      ],
+      "row_merges": [
+        6729,
+        6848,
+        6963,
+        7074
+      ],
+      "end_frame": 7076
+    },
+    {
+      "port": 1,
+      "scheduled_drops": 16,
+      "start_frame": 7090,
+      "entries": [
+        {
+          "ticket": 0,
+          "frame": 7090
+        },
+        {
+          "ticket": 1,
+          "frame": 7100
+        },
+        {
+          "ticket": 2,
+          "frame": 7110
+        },
+        {
+          "ticket": 3,
+          "frame": 7120
+        },
+        {
+          "ticket": 4,
+          "frame": 7130
+        },
+        {
+          "ticket": 5,
+          "frame": 7140
+        },
+        {
+          "ticket": 6,
+          "frame": 7150
+        },
+        {
+          "ticket": 7,
+          "frame": 7160
+        },
+        {
+          "ticket": 8,
+          "frame": 7204
+        },
+        {
+          "ticket": 9,
+          "frame": 7214
+        },
+        {
+          "ticket": 10,
+          "frame": 7224
+        },
+        {
+          "ticket": 11,
+          "frame": 7234
+        },
+        {
+          "ticket": 12,
+          "frame": 7244
+        },
+        {
+          "ticket": 13,
+          "frame": 7254
+        },
+        {
+          "ticket": 14,
+          "frame": 7264
+        },
+        {
+          "ticket": 15,
+          "frame": 7274
+        }
+      ],
+      "row_merges": [
+        7201,
+        7307,
+        7409,
+        7507
+      ],
+      "end_frame": 7509
+    },
+    {
+      "port": 3,
+      "scheduled_drops": 16,
+      "start_frame": 7525,
+      "entries": [
+        {
+          "ticket": 0,
+          "frame": 7525
+        },
+        {
+          "ticket": 1,
+          "frame": 7536
+        },
+        {
+          "ticket": 2,
+          "frame": 7547
+        },
+        {
+          "ticket": 3,
+          "frame": 7558
+        },
+        {
+          "ticket": 4,
+          "frame": 7569
+        },
+        {
+          "ticket": 5,
+          "frame": 7580
+        },
+        {
+          "ticket": 6,
+          "frame": 7591
+        },
+        {
+          "ticket": 7,
+          "frame": 7602
+        },
+        {
+          "ticket": 8,
+          "frame": 7613
+        },
+        {
+          "ticket": 9,
+          "frame": 7624
+        },
+        {
+          "ticket": 10,
+          "frame": 7635
+        },
+        {
+          "ticket": 11,
+          "frame": 7646
+        },
+        {
+          "ticket": 12,
+          "frame": 7657
+        },
+        {
+          "ticket": 13,
+          "frame": 7668
+        },
+        {
+          "ticket": 14,
+          "frame": 7679
+        },
+        {
+          "ticket": 15,
+          "frame": 7690
+        }
+      ],
+      "row_merges": [
+        7736,
+        7909,
+        8078,
+        8243
+      ],
+      "end_frame": 8245
+    },
+    {
+      "port": 2,
+      "scheduled_drops": 16,
+      "start_frame": 8259,
+      "entries": [
+        {
+          "ticket": 0,
+          "frame": 8259
+        },
+        {
+          "ticket": 1,
+          "frame": 8269
+        },
+        {
+          "ticket": 2,
+          "frame": 8279
+        },
+        {
+          "ticket": 3,
+          "frame": 8289
+        },
+        {
+          "ticket": 4,
+          "frame": 8299
+        },
+        {
+          "ticket": 5,
+          "frame": 8309
+        },
+        {
+          "ticket": 6,
+          "frame": 8319
+        },
+        {
+          "ticket": 7,
+          "frame": 8329
+        },
+        {
+          "ticket": 8,
+          "frame": 8339
+        },
+        {
+          "ticket": 9,
+          "frame": 8349
+        },
+        {
+          "ticket": 10,
+          "frame": 8359
+        },
+        {
+          "ticket": 11,
+          "frame": 8369
+        },
+        {
+          "ticket": 12,
+          "frame": 8379
+        },
+        {
+          "ticket": 13,
+          "frame": 8424
+        },
+        {
+          "ticket": 14,
+          "frame": 8434
+        },
+        {
+          "ticket": 15,
+          "frame": 8444
+        }
+      ],
+      "row_merges": [
+        8414,
+        8532,
+        8646,
+        8756
+      ],
+      "end_frame": 8758
+    },
+    {
+      "port": 1,
+      "scheduled_drops": 16,
+      "start_frame": 8771,
+      "entries": [
+        {
+          "ticket": 0,
+          "frame": 8771
+        },
+        {
+          "ticket": 1,
+          "frame": 8781
+        },
+        {
+          "ticket": 2,
+          "frame": 8791
+        },
+        {
+          "ticket": 3,
+          "frame": 8801
+        },
+        {
+          "ticket": 4,
+          "frame": 8811
+        },
+        {
+          "ticket": 5,
+          "frame": 8821
+        },
+        {
+          "ticket": 6,
+          "frame": 8831
+        },
+        {
+          "ticket": 7,
+          "frame": 8841
+        },
+        {
+          "ticket": 8,
+          "frame": 8885
+        },
+        {
+          "ticket": 9,
+          "frame": 8895
+        },
+        {
+          "ticket": 10,
+          "frame": 8905
+        },
+        {
+          "ticket": 11,
+          "frame": 8915
+        },
+        {
+          "ticket": 12,
+          "frame": 8925
+        },
+        {
+          "ticket": 13,
+          "frame": 8935
+        },
+        {
+          "ticket": 14,
+          "frame": 8945
+        },
+        {
+          "ticket": 15,
+          "frame": 8955
+        }
+      ],
+      "row_merges": [
+        8882,
+        8988,
+        9090,
+        9188
+      ],
+      "end_frame": 9190
+    },
+    {
+      "port": 1,
+      "scheduled_drops": 16,
+      "start_frame": 9201,
+      "entries": [
+        {
+          "ticket": 0,
+          "frame": 9201
+        },
+        {
+          "ticket": 1,
+          "frame": 9214
+        },
+        {
+          "ticket": 2,
+          "frame": 9227
+        },
+        {
+          "ticket": 3,
+          "frame": 9240
+        },
+        {
+          "ticket": 4,
+          "frame": 9253
+        },
+        {
+          "ticket": 5,
+          "frame": 9266
+        },
+        {
+          "ticket": 6,
+          "frame": 9279
+        },
+        {
+          "ticket": 7,
+          "frame": 9328
+        },
+        {
+          "ticket": 8,
+          "frame": 9341
+        },
+        {
+          "ticket": 9,
+          "frame": 9354
+        },
+        {
+          "ticket": 10,
+          "frame": 9367
+        },
+        {
+          "ticket": 11,
+          "frame": 9380
+        },
+        {
+          "ticket": 12,
+          "frame": 9393
+        },
+        {
+          "ticket": 13,
+          "frame": 9406
+        },
+        {
+          "ticket": 14,
+          "frame": 9451
+        },
+        {
+          "ticket": 15,
+          "frame": 9464
+        }
+      ],
+      "row_merges": [
+        9326,
+        9446,
+        9562,
+        9674
+      ],
+      "end_frame": 9676
+    }
+  ],
+  "all_frames_avoid_other_column_tec": true,
+  "waste_transport_y_min": 172,
+  "waste_transport_preserves_tile_dimensions": true,
+  "waste_rigid_drop_frames": 134552,
+  "waste_ports_may_have_different_rectangle_sizes": true,
+  "waste_tile_shapes": [
+    [
+      2,
+      4
+    ],
+    [
+      2,
+      5
+    ],
+    [
+      2,
+      6
+    ],
+    [
+      3,
+      4
+    ],
+    [
+      4,
+      4
+    ],
+    [
+      4,
+      5
+    ],
+    [
+      4,
+      6
+    ]
+  ],
+  "waste_tile_areas": [
+    8,
+    10,
+    12,
+    16,
+    20,
+    24
+  ],
+  "gui_verified": false,
+  "visual_check_performed": false,
+  "hardware_verified": false,
+  "before_nominal_seconds": 42853,
+  "after_nominal_seconds": 46235,
+  "unverified": [
+    "液滴追踪/形变响应",
+    "分液体积精度",
+    "捕珠回收率",
+    "孔边溢出风险"
+  ]
+}

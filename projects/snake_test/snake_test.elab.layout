@@ -1,0 +1,9 @@
+<Script Name="snake_test" Version="v0.0.0.1">
+ <Flow Position="35,14" ID="1000" Name="T01 蛇形分液 2.00µL/道 × 16 道 (一根 32µL 液柱: E孔方框→拉成4格宽→进g0空隙下行→逐行剥离一份, 间距2)" Type="0" Expandgroup="">
+  <Command Position="0,0" SequenceTypeId="0" ID="1001" Name="液柱蠕动分液 (贪吃蛇)" Type="2" ScriptHead=""/>
+ </Flow>
+ <Flow Position="35,118.406" ID="1002" Name="T02 持续通电 8s (各道各留一份, 验证间距/形状是否稳定)" Type="0" Expandgroup="">
+  <Command Position="0,0" SequenceTypeId="0" ID="1003" Name="保持" Type="2" ScriptHead=""/>
+ </Flow>
+ <Arrow EndID="1002" StartID="1000"/>
+</Script>
