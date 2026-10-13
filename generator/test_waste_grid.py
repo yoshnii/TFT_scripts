@@ -63,7 +63,8 @@ class WasteGridTests(unittest.TestCase):
         self.assertEqual(shapes.count((2,5)),16)
         self.assertEqual(len(shapes),32)
         self.assertAlmostEqual(sum(info['volume_ul'] for relay,info in S.manual_aspirations),24.0)
-        self.assertEqual([info['hole'] for relay,info in S.manual_aspirations],['F2/F1','F1'])
+        # 两批跨批累积在一次停靠内；F2就绪区会靠近F3汇液框，因此改用F4/F3/F1。
+        self.assertEqual([info['hole'] for relay,info in S.manual_aspirations],['F4/F3/F1'])
         self.assertEqual([b['minimum_ports'] for b in S.waste_batch_events],[2,1])
 
     def test_full_batches_use_minimum_ports_without_overlap_or_rotation(self):
@@ -88,7 +89,7 @@ class WasteGridTests(unittest.TestCase):
                 self.assertTrue(all(e['row_ready'] for e in S.waste_grid_events))
                 self.assertAlmostEqual(info['volume_ul'],16*w*h*.05)
 
-    def test_r04_three_batches_keep_completed_docks_until_one_aspiration(self):
+    def test_r04_uses_all_four_ports_before_aspiration(self):
         S=Scene();S.manual_aspirations=[];lanes=[];completed={};previous_relay=[None]
         original=Scene._record
         for row in range(1,17):
@@ -119,14 +120,14 @@ class WasteGridTests(unittest.TestCase):
         with patch.object(Scene,'_record',trace),patch.object(rigid,'reshape',side_effect=unchanged):
             waste_grid.supernatant_bites(S,lanes,{k:None for k in waste_grid.PORTS},0,collect_three=True)
         infos=[info for relay,info in S.manual_aspirations]
-        self.assertEqual([i['hole'] for i in infos],['F3/F2/F1','F3/F2/F1','F1'])
-        self.assertEqual([i['volume_ul'] for i in infos],[35.2,32.0,12.8])
-        self.assertEqual(infos[0]['port_volumes'],{'F3':12.8,'F2':12.8,'F1':9.6})
-        self.assertEqual(infos[1]['port_volumes'],{'F3':12.8,'F2':9.6,'F1':9.6})
+        self.assertEqual([i['hole'] for i in infos],['F4/F3/F2/F1','F3/F2/F1'])
+        self.assertEqual([i['volume_ul'] for i in infos],[48.0,32.0])
+        self.assertEqual(infos[0]['port_volumes'],{'F4':12.8,'F3':12.8,'F2':9.6,'F1':12.8})
+        self.assertEqual(infos[1]['port_volumes'],{'F3':9.6,'F2':9.6,'F1':12.8})
         self.assertTrue(all(e['scheduled_drops']==16 for e in S.waste_parallel_events))
         self.assertTrue(all(e['entries'][4]['frame']<e['row_merges'][0] for e in S.waste_parallel_events))
         self.assertEqual(len(S.waste_grid_events),112)
-        self.assertEqual([e['retained_port'] for e in S.waste_batch_events],[3,2,1,3,2,1,1])
+        self.assertEqual([e['ports'] for e in S.waste_batch_events],[[4],[3],[2],[1],[3],[2],[1]])
         self.assertAlmostEqual(sum(i['volume_ul'] for i in infos),80)
         self.assertTrue(all(d.vol==0 and d.magnet_only for d in S.drops.values()))
 
@@ -148,5 +149,20 @@ class WasteGridTests(unittest.TestCase):
         info=S.manual_aspirations[0][1]
         self.assertEqual(info['port_volumes'],{'F3':8.0,'F2':8.0,'F1':8.0})
         self.assertEqual([r[2:] for r in info['rects']],[[16,10]]*3)
+
+    def test_schedule_fills_ports_before_aspirating(self):
+        import collections
+        rounds=[collections.Counter({s:16}) for s in [(2,5),(4,6),(4,6),(4,6),(4,6),(2,6)]]
+        schedule=waste_grid.port_schedule(rounds,True,46,False)
+        self.assertEqual(sum(s['flush'] for s in schedule),3)
+        self.assertTrue(schedule[-1]['flush'])
+        for i,s in enumerate(schedule):
+            if s['flush'] and i+1<len(schedule):
+                used=sum(len(t['ports']) for t in schedule if t['stop']==s['stop'])
+                self.assertGreater(used+len(schedule[i+1]['ports']),4,'下一批能放下时不得提前吸液')
+        for stop in {s['stop'] for s in schedule}:
+            ports=[p for s in schedule if s['stop']==stop for p in s['ports']]
+            self.assertEqual(ports,sorted(ports,reverse=True),'同次停靠须先远孔后近孔')
+        self.assertIn(4,[p for s in schedule for p in s['ports']])
 
 if __name__=='__main__':unittest.main()

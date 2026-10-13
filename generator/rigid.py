@@ -30,6 +30,7 @@ def in_reaction(r):
 def rect_ok(S, name, r, allow=frozenset()):
     """r 在片内, 且与其他液滴 (allow 里的除外) 间距 ≥ MIN_GAP。"""
     if not (0 <= r[0] and r[0] + r[2] <= geom.GRID_W and 0 <= r[1] and r[1] + r[3] <= geom.GRID_H): return False
+    if not geom.keep_out_ok(r) or geom.between_lanes(r): return False
     for n2, d2 in S.drops.items():
         if n2 == name or n2 in allow: continue
         for q in d2.rects():
@@ -363,6 +364,25 @@ def loading_plan(cells):
     raise ValueError(f'{cells}格无法用最多四孔、固定形状小滴配送')
 
 
+def _b02_two_part_fields(S,root,k,rows):
+    """B02 每道 0.70µL=14格，不存在既能走4格宽通道、又不超过6格反应区高度的完整矩形。
+    E1 母框 16×14 不变：先沿 Y 不等分为 16×8（每道 2×4=0.40µL）与 16×6（每道 2×3=0.30µL），
+    两块平移到顶部空白区左右并排，再按原有方式沿 X、Y 逐级对半切。全部小滴位于 Y≥SAFE_Y。"""
+    x,y,w,h=root.rect
+    assert (w,h)==(16,14) and abs(root.vol-11.2)<1e-7,'B02 母框须为 E1 单孔 16×14'
+    upper,lower=split_many(S,[(root,((x,y-geom.CUT_GAP//2,16,8),(x,y+8+geom.CUT_GAP//2,16,6)),
+                                  (6.4,4.8),(root.name+'a',root.name+'b'))],axis='y')[0]
+    nx,wf,p=8,2,2+geom.PREFERRED_GAP
+    span=nx*wf+(nx-1)*geom.PREFERRED_GAP
+    lefts=(geom.SAFE_X+geom.PREFERRED_GAP,geom.SAFE_X+geom.PREFERRED_GAP+span+2*geom.PREFERRED_GAP)
+    fields=[]
+    # 切后两排：2×4 在 Y10–13/18–21，2×3 在 Y11–13/18–20；Y≤22 不进入 TEC 起始行 23。
+    for d,hf,left,top in ((upper,4,lefts[0],12),(lower,3,lefts[1],13)):
+        fields.append(dict(wf=wf,hf=hf,k=k,part='a' if hf==4 else 'b',rows=rows,p=p,left=left,
+                           nx=nx,ny=2,cy=top+hf,nodes=[(d,0,nx-1)],start=(left+(span-16)//2,top)))
+    run(S,[(f['nodes'][0][0],go(f['nodes'][0][0],[('x',f['start'][0]),('y',f['start'][1])])) for f in fields])
+    return fields
+
 def deliver_drops(S, reagent, vol, cols, tag, on_before_load=None, on_load=None,controlled=False):
     assert len(cols)==1 and geom.odd(cols[0]), "仅支持单奇数列"
     c=cols[0]; gx=geom.gap_x(geom.reagent_gap(c))
@@ -391,8 +411,12 @@ def deliver_drops(S, reagent, vol, cols, tag, on_before_load=None, on_load=None,
     S.step(geom.HOLD_MS,changed=[])
     # 各孔就地同步拆分。保留原母框、小滴尺寸与切分动作，不再共用一个拆分工位。
     run(S,[(d,go(d,[("y",root_grids[id(d)][2]-d.rect[3]//2)])) for d,_,_,_,_ in roots])
+    two_part=controlled and reagent=='G8'
     fields=[]
-    for root,wf,hf,k,rows in roots:
+    if two_part:
+        root,wf,hf,k,rows=roots[0]
+        fields=_b02_two_part_fields(S,root,k,rows)
+    for root,wf,hf,k,rows in ([] if two_part else roots):
         nx,ny,cy=root_grids[id(root)];p=wf+geom.PREFERRED_GAP
         left=geom.HOLE_X[k]-(nx*wf+(nx-1)*geom.PREFERRED_GAP)//2
         fields.append(dict(wf=wf,hf=hf,k=k,rows=rows,p=p,left=left,nx=nx,ny=ny,cy=cy,nodes=[(root,0,nx-1)]))
@@ -445,31 +469,41 @@ def deliver_drops(S, reagent, vol, cols, tag, on_before_load=None, on_load=None,
     for f in fields:
         for j,d in enumerate(sorted((d for d,a,b in f['ynodes']),key=lambda d:(-d.rect[1],d.rect[0]))):
             ln=Lane(c,f['rows'][j]);S.remove(d.name)
-            d.name=f'{tag}E{f["k"]}_{ln.id}';d.port=f['k'];d.row=ln.r;S.add(d)
-            if controlled and reagent=='G8':d.controlled_entry=True
+            part=f.get('part','')
+            d.name=f'{tag}E{f["k"]}{part}_{ln.id}';d.port=f['k'];d.row=ln.r;d.part=part;S.add(d)
             packets.append((d,ln))
     S.step(CUT_MS,changed=[d.name for d,_ in packets])
     # 连续配送仅汇集同种试剂，不与原产物接触。所有道备齐后统一融合。
     locks={}
     channel_width=max(d.rect[2] for d,_ in packets)
     def path(d,ln):
-        yield from go(d,[("x",gx),("y",ln.Y0+(geom.LANE_H-d.rect[3])//2)])
-        while ln.id in locks:yield 'wait'
+        # 左上角大孔：X<SAFE_X 的区域只在 Y≥SAFE_Y 通过；先横移到 SAFE_X，再下到安全高度。
+        assert d.rect[0]>=geom.SAFE_X,'顶部分液区不得进入左上角大孔禁入范围'
+        yield from go(d,[("x",geom.SAFE_X)])
+        if d.rect[1]<geom.SAFE_Y:yield from go(d,[("y",geom.SAFE_Y)])
+        # B02 两份小滴与产物上沿对齐，接触后直接组成近矩形；其他试剂保持竖直居中。
+        lane_y=ln.Y0 if two_part else ln.Y0+(geom.LANE_H-d.rect[3])//2
+        yield from go(d,[("x",gx),("y",lane_y)])
+        if d.part=='b':
+            # 2×3 只在本道 2×4 停靠后进入，停在其左侧。
+            while ln.id in locks or f'{tag}{ln.id}' not in S.drops:yield 'wait'
+        else:
+            while ln.id in locks:yield 'wait'
         locks[ln.id]=d
-        staging_name=f'{tag}{ln.id}'
+        staging_name=f'{tag}2{ln.id}' if d.part=='b' else f'{tag}{ln.id}'
+        ahead=S.get(f'{tag}{ln.id}') if d.part=='b' else None
         collected=S.drops.get(staging_name)
         entry=ln.X0+geom.PREFERRED_GAP
         if collected:entry=min(entry,collected.rect[0]-d.rect[2]-geom.PREFERRED_GAP)
+        if ahead:entry=min(entry,ahead.rect[0]-d.rect[2]-geom.PREFERRED_GAP)
         assert entry>=gx+channel_width+geom.PREFERRED_GAP,'入口整形会阻断转运通道'
         yield from go(d,[("x",entry)])
-        if controlled and reagent=='G8':
-            yield ('reshape',(entry,ln.Y0,7,2))
         S.pipeline_events.append(dict(kind='enter',port=d.port,row=d.row,step=S.nsteps))
         # 进入反应区保持原小滴形状，不再强制扩展到6格高。
         host=S.drops.get(staging_name)
         if host is None:
             # 各道试剂固定停靠右边界，与产物间隔4格；后续同种试剂从左汇入。
-            right=S.get(ln.name).rect[0]-geom.PREFERRED_GAP
+            right=(ahead.rect[0] if ahead else S.get(ln.name).rect[0])-geom.PREFERRED_GAP
             yield from go(d,[("x",right-d.rect[2])])
             old_name=d.name;S.remove(old_name);d.name=staging_name;S.add(d)
             S.pipeline_events.append(dict(kind='reagent_collect',port=d.port,row=d.row,
@@ -495,17 +529,24 @@ def deliver_drops(S, reagent, vol, cols, tag, on_before_load=None, on_load=None,
         locks.pop(ln.id)
     S.pipeline_active=True
     try:
-        run(S,[(d,path(d,ln)) for d,ln in sorted(packets,key=lambda p:(-p[1].r,p[0].port))])
+        run(S,[(d,path(d,ln)) for d,ln in sorted(packets,key=lambda p:(-p[1].r,p[0].port,p[0].part))])
     finally:S.pipeline_active=False
     lanes=[Lane(c,r) for r in range(1,17)]
     for ln in lanes:
         assert abs(S.get(ln.name).vol-initial_volumes[ln.r])<1e-6,'全道备齐前产物不得融合'
-        assert abs(S.get(f'{tag}{ln.id}').vol-vol)<1e-6,'该道试剂未备齐'
+        if two_part:
+            a,b=S.get(f'{tag}{ln.id}'),S.get(f'{tag}2{ln.id}')
+            assert abs(a.vol+b.vol-vol)<1e-6,'该道试剂未备齐'
+            assert (a.rect[2:],b.rect[2:])==((2,4),(2,3)) and len(a.target_cells())==8 and len(b.target_cells())==6
+            assert _gap(b.rect,a.rect)>=geom.PREFERRED_GAP
+        else:
+            assert abs(S.get(f'{tag}{ln.id}').vol-vol)<1e-6,'该道试剂未备齐'
         assert _gap(S.get(f'{tag}{ln.id}').rect,S.get(ln.name).rect)>=geom.PREFERRED_GAP
     S.pipeline_events.append(dict(kind='all_ready',rows=list(range(1,17)),step=S.nsteps))
     # 再次发出静态就绪帧，所有液滴继续上电；沿用全道同距、同步接触/融合动作。
     S.step(geom.HOLD_MS,changed=[])
-    ops.merge_all(S,lanes,tag)
+    if two_part:ops.merge_chain(S,lanes,[tag,f'{tag}2'])
+    else:ops.merge_all(S,lanes,tag)
     final_volumes={r:S.get(Lane(c,r).name).vol for r in range(1,17)}
     assert all(abs(final_volumes[r]-initial_volumes[r]-vol)<1e-6 for r in final_volumes)
     assert not any(n.startswith(tag+'E') for n in S.drops)

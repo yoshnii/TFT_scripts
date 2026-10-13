@@ -30,18 +30,38 @@ class Review13Tests(unittest.TestCase):
             for lane in ops.lanes_all((1,)):S.add(Drop(lane.name,(30,lane.Y0,10,4),2))
             rigid.deliver_drops(S,'LIG',1.4,(1,),'TLIG',controlled=True)
 
-    def test_b02_single_port_one_aliquot_per_reaction(self):
-        S=Scene();S.manual_aspirations=[];loads=[]
+    def test_b02_single_port_two_rectangles_per_reaction(self):
+        """B02：E1单孔11.2µL；每道2×4(0.40µL)+2×3(0.30µL)两个完整矩形，运输与进入反应区不变形。"""
+        S=Scene();S.manual_aspirations=[];loads=[];original=Scene._record;shapes=set()
         for ln in ops.lanes_all((1,)):S.add(Drop(ln.name,(30,ln.Y0,7,4),1.3))
         S.step()
-        rigid.deliver_drops(S,'G8',.7,(1,),'TG8',controlled=True,on_load=loads.append)
+        def trace(scene,*args,**kw):
+            original(scene,*args,**kw)
+            for d in scene.drops.values():
+                if d.name.startswith('TG8'):
+                    cells=d.target_cells();b=contour.bounds(cells)
+                    self.assertEqual(len(cells),b[2]*b[3],'B02小滴须为完整矩形')
+                    shapes.add(b[2:])
+        with patch.object(Scene,'_record',trace):
+            rigid.deliver_drops(S,'G8',.7,(1,),'TG8',controlled=True,on_load=loads.append)
         self.assertEqual(loads[0]['port_volumes'],{'E1':11.2})
+        self.assertEqual(shapes,{(2,4),(2,3)})
         collected=[e for e in S.pipeline_events if e['kind']=='reagent_collect']
-        self.assertEqual(len(collected),16)
-        self.assertTrue(all(e['incoming_ul']==.7 for e in collected))
+        self.assertEqual(sorted(e['incoming_ul'] for e in collected),[.3]*16+[.4]*16)
+        merge=S.reaction_merge_events[-1]
+        self.assertEqual(sorted(merge['rows']),list(range(1,17)))
         for ln in ops.lanes_all((1,)):
-            self.assertEqual(S.get(ln.name).vol,2)
-            self.assertEqual(len(S.get(ln.name).target_cells()),40)
+            d=S.get(ln.name)
+            self.assertEqual(d.vol,2)
+            self.assertEqual(d.rect[2:],(8,5))
+            self.assertEqual(len(d.target_cells()),40)
+
+    def test_unused_wells_and_inter_lane_rows_are_rejected(self):
+        S=Scene();S.add(Drop('X',(6,6,2,4),.4))
+        with self.assertRaisesRegex(AssertionError,'未使用孔'):S.step()
+        S=Scene();S.add(Drop('X',(geom.SAFE_X,geom.SAFE_Y,2,4),.4));S.step()   # 左上角大孔恰留4格
+        S=Scene();ln=ops.Lane(1,8);S.add(Drop('Y',(14,ln.Y0-1,2,7),.7))
+        with self.assertRaisesRegex(AssertionError,'两行之间'):S.step()
 
     def test_b10_single_port_without_changing_dose(self):
         S=Scene();S.manual_aspirations=[];loads=[]

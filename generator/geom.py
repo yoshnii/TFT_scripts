@@ -98,6 +98,31 @@ def b_block(c, r, ul):
 
 WASTE_HOLE = {1: 1, 3: 2, 5: 4}             # 废液空隙 → 底边 F 孔 (g1→F1, g3→F2, g5→F4)
 
+# 不参与本流程的孔（取自 ChipArea_192_256_96_SIRO.csv）：液体与孔边保持间距。
+# 四角 4×4 大孔留 PREFERRED_GAP；两侧 2×2 小孔距固定进液空隙 X6 仅 3.4 格，留 MIN_GAP。
+OIL_WELLS = ((2, 2, 4, 4), (250, 2, 4, 4), (2, 186, 4, 4), (250, 186, 4, 4))
+SIDE_WELLS = tuple((0.6, y, 2, 2) for y in (20.3334, 41.666, 62.9986, 84.3312, 105.6638, 126.9964, 148.329, 169.6616)) \
+    + tuple((253.5, y, 2, 2) for y in (39, 75, 111, 147))
+KEEP_OUT = tuple((w, PREFERRED_GAP) for w in OIL_WELLS) + tuple((w, MIN_GAP) for w in SIDE_WELLS)
+SAFE_X = OIL_WELLS[0][0] + OIL_WELLS[0][2] + PREFERRED_GAP   # 10：左上角大孔右侧的禁入边界
+SAFE_Y = OIL_WELLS[0][1] + OIL_WELLS[0][3] + PREFERRED_GAP   # 10：左上角大孔下方的禁入边界
+
+def well_gap(rect, well):
+    """矩形电极与孔外接框的连续坐标间距（格）。"""
+    x, y, w, h = rect; wx, wy, ww, wh = well
+    gx = max(wx - (x + w), x - (wx + ww), 0); gy = max(wy - (y + h), y - (wy + wh), 0)
+    return max(gx, gy)
+
+def keep_out_ok(rect):
+    return all(well_gap(rect, well) >= gap for well, gap in KEEP_OUT)
+
+def between_lanes(rect):
+    """矩形电极是否有格子位于某列反应区的横向范围内、却落在上下两行反应区之间的空行。"""
+    x, y, w, h = rect
+    if not any(x < zone(c, 1)[0] + LANE_L and zone(c, 1)[0] < x + w for c in range(1, COLS + 1)):
+        return False
+    return any(27 <= yy < 27 + 9 * ROWS and (yy - 27) % 9 >= LANE_H for yy in range(y, y + h))
+
 def emit(rc):
     X, Y, W, H = rc
     return f"({Y},{X})({H},{W})"

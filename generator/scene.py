@@ -168,6 +168,8 @@ class Scene:
         codes, allr = [], [(n, r) for n, d in self.drops.items() for r in d.rects()]
         for n, r in allr:
             assert 0 <= r[0] and r[0] + r[2] <= geom.GRID_W and 0 <= r[1] and r[1] + r[3] <= geom.GRID_H, f"越界 {n} {r}"
+            assert geom.keep_out_ok(r), f"液滴离未使用孔过近 {n} {r} @step{self.nsteps}"
+            assert not geom.between_lanes(r), f"液滴越出反应区、落在两行之间 {n} {r} @step{self.nsteps}"
             codes.append(geom.emit(r))
         chk = {n for n in changed if n in self.drops} if changed is not None else set(self.drops)
         tset = {frozenset(p) for p in touching}

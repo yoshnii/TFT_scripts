@@ -1,5 +1,6 @@
 """废液原形逐格移到TEC下方；整批选最少孔，整排拼接，不旋转、不重塑。"""
 from functools import lru_cache
+import collections
 import geom,contour
 from scene import Drop
 
@@ -124,7 +125,9 @@ def _collect_port_pipeline(S,port_items,gx,blobs,plan,w,h):
     assert completed_rows[0]==rows
     event['end_frame']=S.nsteps
 
-def send(S,pieces,gx,blobs,final=False,retained_port=None,collection_group=None,retained_ports=None,parallel=False):
+def send(S,pieces,gx,blobs,final=False,ports=None,flush_after=True,parallel=False,collection_group=None):
+    """ports=None：本批独立收集（先吸走旧废液，用最近的孔，送完即吸）。
+    ports=[…]：由 bites 的整步调度给出本批各块的孔号（由远到近），不提前吸液，flush_after 决定送完后是否停靠吸液。"""
     import rigid as R
     pending=list(sorted(pieces,key=lambda t:-t[0].r))
     for ln,d in pending:
@@ -136,24 +139,23 @@ def send(S,pieces,gx,blobs,final=False,retained_port=None,collection_group=None,
     S.step(geom.HOLD_MS,changed=[])
     S.waste_grid_events=getattr(S,'waste_grid_events',[])
     S.waste_batch_events=getattr(S,'waste_batch_events',[])
-    # 默认每批吸走；R04三批合组时为本批保留一个未占用孔，不提前吸走前批。
-    if retained_port is not None:retained_ports=[retained_port]
-    if retained_ports is None:
+    if ports is None:
         flush(S,blobs)
     else:
-        assert all(k in PORTS and not blobs.get(k) for k in retained_ports),'合批收集孔已占用'
-        assert len({d.rect[2:] for ln,d in pending})==1,'保留孔的一批必须同形'
+        assert all(k in PORTS and not blobs.get(k) for k in ports),'调度给出的收集孔已占用'
+        assert len({d.rect[2:] for ln,d in pending})==1,'整步调度的一批必须同形'
     while pending:
         w,h=pending[0][1].rect[2:]
         group=[t for t in pending if t[1].rect[2:]==(w,h)]
         pending=[t for t in pending if t[1].rect[2:]!=(w,h)]
         plans=plan_batch(w,h,len(group))
-        if retained_ports is not None:
-            assert len(plans)==len(retained_ports),'合批保留孔容量不足，不能改变原汇液框'
-            plans=[dict(p,port=k) for p,k in zip(plans,retained_ports)]
+        if ports is not None:
+            assert len(plans)==len(ports),'整步调度的孔数与本批紧凑块数不一致'
+            # plans 按 reversed 顺序处理：最后一块最先送，分到最远的孔。
+            plans=[dict(p,port=k) for p,k in zip(plans,reversed(ports))]
         S.waste_batch_events.append(dict(tile_shape=[w,h],count=len(group),minimum_ports=len(plans),plans=plans,
-                                        collection_group=collection_group,retained_port=retained_port,
-                                        retained_ports=retained_ports,whole_port_pipeline=parallel))
+                                        collection_group=collection_group,ports=[p['port'] for p in plans],
+                                        flush_after=flush_after,whole_port_pipeline=parallel))
         # 先处理远孔，完成后不再穿过其停靠矩形。
         for plan in reversed(plans):
             fk=plan['port'];columns=plan['columns'];rows=plan['rows'];W=columns*w
@@ -216,7 +218,79 @@ def send(S,pieces,gx,blobs,final=False,retained_port=None,collection_group=None,
                         actual_area=area(host),rect=list(host.rect)))
                 S.step(geom.HOLD_MS,changed=[host.name])
         assert not group
-        if retained_ports is None:flush(S,blobs)
+        if flush_after:flush(S,blobs)
+
+def _take_width(index,n,collect_three):
+    return (4,4,3,4,3,3,4)[index] if collect_three else (2 if n==118 else geom.CH_W)
+
+def cut_rounds(items,collect_three=False):
+    """按 bites 的切法（不改动）逐批预测排废小滴形状；只用电极格数计算，不产生帧。"""
+    state={ln.id:(frozenset(d.target_cells()),d.rect[2],d.rect[3]) for ln,d in items}
+    rounds=[];index=0
+    while state:
+        shapes=collections.Counter()
+        for k,(cells,W,H) in list(state.items()):
+            n=len(cells);b=contour.bounds(cells)
+            if n in PACKET_AREAS and b[2]<=geom.CH_W:
+                shapes[b[2:]]+=1;del state[k];continue
+            wr=_take_width(index,n,collect_three);take=10 if n==118 else wr*H
+            right=contour.fill((0,0,wr,H),take);left=contour.fill((0,0,W-wr,H),n-take)
+            shapes[contour.bounds(right)[2:]]+=1;state[k]=(left,W-wr,H)
+        rounds.append(shapes);index+=1
+    return rounds
+
+def _block_areas(w,h,plan,port,gx,parallel):
+    """一块汇液框在孔旁的终态矩形，以及整排就绪/靠拢时在 Y172 占用的横向范围。"""
+    columns,rows=plan['columns'],plan['rows'];W,H=columns*w,rows*h
+    final=(geom.HOLE_X[port]-W//2,189-H,W,H)
+    width=W+(columns-1)*geom.CUT_GAP
+    left=max(gx+geom.CH_W+(geom.MIN_GAP if parallel else geom.PREFERRED_GAP),geom.HOLE_X[port]-width//2)
+    x0=min(left,final[0]);x1=max(left+width,final[0]+W)
+    return final,(x0,TRANSPORT_Y,x1-x0,h)
+
+def _place(groups,gx,parallel):
+    """groups：本次停靠内按送出顺序排列的 [(w,h,plan)]。在 F1–F4 中选递减孔号，
+    后送的块（更近的孔）就绪区与已停靠的远孔汇液框保持间距；孔号总和最小者优先（离废液空隙最近）。"""
+    import itertools
+    from scene import _gap
+    clearance=geom.MIN_GAP if parallel else geom.PREFERRED_GAP
+    for combo in sorted(itertools.combinations(sorted(PORTS,reverse=True),len(groups)),key=lambda c:(sum(c),c)):
+        placed=[];ok=True
+        for (w,h,plan),port in zip(groups,combo):
+            final,stage=_block_areas(w,h,plan,port,gx,parallel)
+            if any(_gap(stage,b)<clearance or _gap(final,b)<clearance for b in placed):ok=False;break
+            placed.append(final)
+        if ok:return list(combo)
+    return None
+
+def port_schedule(rounds,final=True,gx=None,parallel=False):
+    """每批仍按原紧凑块布局（plan_batch 的最少块数）；各批连续分配到 F1–F4，
+    一次停靠放入尽可能多的整批，放不下下一整批时才停靠吸液。
+    同一次停靠内先送的块放远孔，后送的块不经过已停靠的汇液框；孔位选离废液空隙最近的可行组合。"""
+    gx=geom.gap_x(1) if gx is None else gx
+    batches=[]
+    for shapes in rounds:
+        assert len(shapes)==1,'整步调度要求每批小滴同形'
+        (w,h),count=next(iter(shapes.items()))
+        plans=plan_batch(w,h,count)
+        batches.append([(w,h,plan) for plan in reversed(plans)])   # send 按 reversed(plans) 送出
+    stops=[];i=0
+    while i<len(batches):
+        best=None;j=i
+        while j<len(batches):
+            groups=[g for b in batches[i:j+1] for g in b]
+            ports=_place(groups,gx,parallel) if len(groups)<=len(PORTS) else None
+            if ports is None:break
+            best=(j,ports);j+=1
+        assert best,('单批无法放入 F1–F4',batches[i])
+        stops.append((list(range(i,best[0]+1)),best[1]));i=best[0]+1
+    schedule=[None]*len(rounds)
+    for number,(members,ports) in enumerate(stops,1):
+        k=0
+        for r in members:
+            n=len(batches[r]);schedule[r]=dict(ports=ports[k:k+n],stop=number,
+                flush=r==members[-1] and (final or number<len(stops)));k+=n
+    return schedule
 
 def bites(S,items,blobs,final=True,pellets=None,collect_three=False,collect_a05=False):
     """主排废块按4格通道宽度切；118格先分出右侧10格余量，余108格完整。"""
@@ -236,6 +310,12 @@ def bites(S,items,blobs,final=True,pellets=None,collect_three=False,collect_a05=
         if n==100:
             R.run(S,[(d,R.go(d,[('x',ln.X0+9)]))])
             R.reshape(S,d,(ln.X0+9,ln.Y0,25,4))
+    # 整步统一调度：先按切法预测每批小滴，再把各批依次分到 F 孔，四孔用尽才停靠吸液。
+    assert not any(blobs.get(k) for k in PORTS),'排废调度开始前必须无未吸出的旧废液'
+    rounds=cut_rounds(items,collect_three)
+    schedule=port_schedule(rounds,final,gx,collect_three or collect_a05)
+    S.waste_schedule_events=getattr(S,'waste_schedule_events',[])
+    S.waste_schedule_events.append(dict(rounds=[dict(r) for r in rounds],schedule=schedule,step=S.nsteps))
     while rem:
         touch=[(d.name,pellets[k].name) for k,d in rem.items()] if pellets else []
         R.run(S,[(d,R.go(d,[('x',lanes[k].X0+geom.LANE_L-geom.CUT_GAP//2-d.rect[2])])) for k,d in rem.items()])
@@ -247,7 +327,7 @@ def bites(S,items,blobs,final=True,pellets=None,collect_three=False,collect_a05=
                 cells=d.target_cells();d.rect=contour.bounds(cells);d.set_cells(cells)
                 pieces.append((ln,d));gone.append(k);continue
             H=d.rect[3]
-            wr=(4,4,3,4,3,3,4)[index] if collect_three else (2 if n==118 else geom.CH_W)
+            wr=_take_width(index,n,collect_three)
             take=10 if n==118 else wr*H
             assert n>take and H in (4,5,6)
             assert wr*H>=take
@@ -260,19 +340,11 @@ def bites(S,items,blobs,final=True,pellets=None,collect_three=False,collect_a05=
                 rem[k]=left;pieces.append((lanes[k],right))
         for k in gone:del rem[k]
         S.step(geom.HOLD_MS,changed=[d.name for ln,d in pieces],touching=touch)
-        if collect_three:
-            # 仅改变收集调度：每批仍是16个原形小滴，先远孔后近孔，已到齐的框一直保留。
-            retained_port=(3,2,1)[index%3] if index<6 else 1
-            group=index//3+1
-            send(S,pieces,gx,blobs,retained_port=retained_port,collection_group=group,parallel=True)
-            if index%3==2 or not rem:
-                flush(S,blobs)
-        elif collect_a05:
-            send(S,pieces,gx,blobs,retained_ports=[2,3] if index==0 else [1],
-                 collection_group='A05',parallel=True)
-            if not rem:flush(S,blobs)
-        else:
-            send(S,pieces,gx,blobs)
+        shapes=collections.Counter(contour.bounds(d.target_cells())[2:] for ln,d in pieces)
+        assert shapes==rounds[index],('排废切块与整步调度预测不一致',index,dict(shapes),dict(rounds[index]))
+        plan=schedule[index]
+        send(S,pieces,gx,blobs,ports=plan['ports'],flush_after=plan['flush'],
+             parallel=collect_three or collect_a05,collection_group=plan['stop'])
         index+=1
     if pellets:
         for k,p in pellets.items():

@@ -182,6 +182,47 @@ def merge_all(S, lanes, guest_tag, host_tag="L"):
     rigid.reshape_many(S,targets)
     S.step(2000, changed=[f"{host_tag}{ln.id}" for ln in lanes])
 
+def merge_chain(S, lanes, guest_tags, host_tag="L"):
+    """同一试剂的多份完整矩形小滴在宿主同一侧（进液端）依次排队：
+    全道同步逐格靠到 MIN_GAP → 依次贴合成一串 → 一次融合，再逐格整形为 lane_shape。
+    guest_tags 由宿主向外排列。各份不先彼此汇合，避免形成细长条。"""
+    lanes=list(lanes)
+    host_of=lambda ln:S.get(f'{host_tag}{ln.id}')
+    approach={}
+    for ln in lanes:
+        inner=host_of(ln).rect[0]
+        for t in guest_tags:
+            g=S.get(f'{t}{ln.id}')
+            assert g.rect[0]+g.rect[2]<=inner and g.rect[1]==ln.Y0,'各份须在宿主进液侧且与宿主上沿对齐'
+            inner-=geom.MIN_GAP+g.rect[2];approach[g.name]=inner
+    move_rects(S,approach)
+    sync=dict(guest_tag='+'.join(guest_tags),host_tag=host_tag,rows=[ln.r for ln in lanes],
+              ready_step=S.nsteps-1,host_volumes={host_of(ln).name:host_of(ln).vol for ln in lanes})
+    contact,pairs={},[]
+    for ln in lanes:
+        inner,chain=host_of(ln).rect[0],[host_of(ln).name]
+        for t in guest_tags:
+            g=S.get(f'{t}{ln.id}');inner-=g.rect[2];contact[g.name]=inner
+            pairs.extend((g.name,other) for other in chain);chain.append(g.name)
+    move_rects(S,contact,touching=pairs)
+    sync['contact_step']=S.nsteps-1
+    S.step(geom.HOLD_MS,touching=pairs,changed=[p[0] for p in pairs])
+    targets=[]
+    for ln in lanes:
+        h=host_of(ln);guests=[S.get(f'{t}{ln.id}') for t in guest_tags]
+        total=round(h.vol+sum(g.vol for g in guests),2);L,H=geom.lane_shape(total)
+        left=min(g.rect[0] for g in guests);right=h.rect[0]+h.rect[2]
+        h.rect=(left,ln.Y0,right-left,geom.LANE_H);h.vol=total
+        for g in guests:S.remove(g.name)
+        targets.append((h,(right-L,ln.Y0,L,H)))
+    S.step(geom.HOLD_MS,changed=[h.name for h,_ in targets])
+    sync['merge_step']=S.nsteps-1
+    S.reaction_merge_events=getattr(S,'reaction_merge_events',[])
+    S.reaction_merge_events.append(sync)
+    import rigid
+    rigid.reshape_many(S,targets)
+    S.step(2000, changed=[f"{host_tag}{ln.id}" for ln in lanes])
+
 def mix_all(S, lanes, cycles, span=None, tag="L",full_region=False):
     """在当前位置附近往复: 每道在 [X, X+span] 之间来回 (span 默认到 TEC 段末端)。"""
     lanes=list(lanes)

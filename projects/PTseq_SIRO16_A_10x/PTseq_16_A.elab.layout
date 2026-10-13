@@ -76,19 +76,16 @@
   <Command Position="0,90" SequenceTypeId="0" ID="2008" Name="等面积整形后逐格移入右半区（必要时允许缺角）" Type="2" ScriptHead=""/>
   <Command Position="0,120" SequenceTypeId="0" ID="2009" Name="[外部磁控]磁铁升起 捕获 180s 持续通电" Type="2" ScriptHead=""/>
  </Flow>
- <Flow Position="35,1788.9" ID="2010" Name="R04 液相移离磁珠 → 排废全部5.00µL（不保留计划液相） · F3/F2/F1 待手工吸液（保持全部液滴上电）" Type="0" Expandgroup="">
-  <Command Position="0,0" SequenceTypeId="0" ID="2011" Name="磁铁保持升起 · 分离 → 小矩形逐格切开移液 → 整排等齐汇液；三批连续收集至F3/F2/F1，全部到齐后统一吸液；待手工吸出后续行，反应区只留磁珠 · 【手工吸液・组结束】F3/F2/F1 35.200µL · 吸出后运行下一组" Type="2" ScriptHead=""/>
+ <Flow Position="35,1788.9" ID="2010" Name="R04 液相移离磁珠 → 排废全部5.00µL（不保留计划液相） · F4/F3/F2/F1 待手工吸液（保持全部液滴上电）" Type="0" Expandgroup="">
+  <Command Position="0,0" SequenceTypeId="0" ID="2011" Name="磁铁保持升起 · 分离 → 小矩形逐格切开移液 → 整排等齐汇液；三批连续收集至F3/F2/F1，全部到齐后统一吸液；待手工吸出后续行，反应区只留磁珠 · 【手工吸液・组结束】F4/F3/F2/F1 48.000µL · 吸出后运行下一组" Type="2" ScriptHead=""/>
  </Flow>
  <Flow Position="35,1893.31" ID="51000" Name="R04 液相移离磁珠 → 排废全部5.00µL（不保留计划液相） · F3/F2/F1 待手工吸液（保持全部液滴上电）" Type="0" Expandgroup="">
   <Command Position="0,0" SequenceTypeId="0" ID="60000" Name="磁铁保持升起 · 分离 → 小矩形逐格切开移液 → 整排等齐汇液；三批连续收集至F3/F2/F1，全部到齐后统一吸液；待手工吸出后续行，反应区只留磁珠 · 【手工吸液・组结束】F3/F2/F1 32.000µL · 吸出后运行下一组" Type="2" ScriptHead=""/>
  </Flow>
- <Flow Position="35,1997.71" ID="51001" Name="R04 液相移离磁珠 → 排废全部5.00µL（不保留计划液相） · F1 待手工吸液（保持全部液滴上电）" Type="0" Expandgroup="">
-  <Command Position="0,0" SequenceTypeId="0" ID="60001" Name="磁铁保持升起 · 分离 → 小矩形逐格切开移液 → 整排等齐汇液；三批连续收集至F3/F2/F1，全部到齐后统一吸液；待手工吸出后续行，反应区只留磁珠 · 【手工吸液・组结束】F1 12.800µL · 吸出后运行下一组" Type="2" ScriptHead=""/>
- </Flow>
- <Flow Position="35,2102.12" ID="2012" Name="R05 纯化1第1次洗脱：溶解液 5.00µL → 产物离片 · S孔承接 · 加液承接（上电后手工加液）" Type="0" Expandgroup="">
+ <Flow Position="35,1997.71" ID="2012" Name="R05 纯化1第1次洗脱：溶解液 5.00µL → 产物离片 · S孔承接 · 加液承接（上电后手工加液）" Type="0" Expandgroup="">
   <Command Position="0,0" SequenceTypeId="0" ID="2013" Name="【手工加液・流程组结束】S孔×16 G15 5.00µL · A1-A16（每道5.00µL） · 第1/1批 · 加好后运行下一流程组" Type="2" ScriptHead=""/>
  </Flow>
- <Flow Position="35,2206.53" ID="2014" Name="R05 纯化1第1次洗脱：溶解液 5.00µL → 产物离片 · S孔×16 待手工吸液（保持全部液滴上电）" Type="0" Expandgroup="">
+ <Flow Position="35,2102.12" ID="2014" Name="R05 纯化1第1次洗脱：溶解液 5.00µL → 产物离片 · S孔×16 待手工吸液（保持全部液滴上电）" Type="0" Expandgroup="">
   <Command Position="0,0" SequenceTypeId="0" ID="2015" Name="S孔加液完成 · 磁铁保持升起 · 洗脱液逐格覆盖磁珠后再降下" Type="2" ScriptHead=""/>
   <Command Position="0,30" SequenceTypeId="0" ID="2016" Name="第1次：磁铁落下 · 固定矩形扫过整个反应区 · 往返12轮" Type="2" ScriptHead=""/>
   <Command Position="0,60" SequenceTypeId="0" ID="2017" Name="第1次：室温洗脱孵育 300s · 第120/240s磁铁下降状态轻晃各2轮，动作时间包含在孵育内 · 全液滴保持上电" Type="2" ScriptHead=""/>
@@ -97,10 +94,10 @@
   <Command Position="0,150" SequenceTypeId="0" ID="2020" Name="第1次：产物 5.00µL 与磁珠团分离" Type="2" ScriptHead=""/>
   <Command Position="0,180" SequenceTypeId="0" ID="2021" Name="第1次产物移至 S 孔下，等待手工吸出 · 【手工吸液・组结束】S孔×16 80.000µL · 吸出后运行下一组" Type="2" ScriptHead=""/>
  </Flow>
- <Flow Position="35,2310.93" ID="2022" Name="R06 纯化1第2次洗脱：溶解液 5.00µL → 产物离片 · S孔承接 · 加液承接（上电后手工加液）" Type="0" Expandgroup="">
+ <Flow Position="35,2206.53" ID="2022" Name="R06 纯化1第2次洗脱：溶解液 5.00µL → 产物离片 · S孔承接 · 加液承接（上电后手工加液）" Type="0" Expandgroup="">
   <Command Position="0,0" SequenceTypeId="0" ID="2023" Name="【手工加液・流程组结束】S孔×16 G15 5.00µL · A1-A16（每道5.00µL） · 第1/1批 · 加好后运行下一流程组" Type="2" ScriptHead=""/>
  </Flow>
- <Flow Position="35,2415.34" ID="2024" Name="R06 纯化1第2次洗脱：溶解液 5.00µL → 产物离片 · S孔×16 待手工吸液（保持全部液滴上电）" Type="0" Expandgroup="">
+ <Flow Position="35,2310.93" ID="2024" Name="R06 纯化1第2次洗脱：溶解液 5.00µL → 产物离片 · S孔×16 待手工吸液（保持全部液滴上电）" Type="0" Expandgroup="">
   <Command Position="0,0" SequenceTypeId="0" ID="2025" Name="S孔加液完成 · 磁铁保持升起 · 洗脱液逐格覆盖磁珠后再降下" Type="2" ScriptHead=""/>
   <Command Position="0,30" SequenceTypeId="0" ID="2026" Name="第2次：磁铁落下 · 固定矩形扫过整个反应区 · 往返12轮" Type="2" ScriptHead=""/>
   <Command Position="0,60" SequenceTypeId="0" ID="2027" Name="第2次：室温洗脱孵育 300s · 第120/240s磁铁下降状态轻晃各2轮，动作时间包含在孵育内 · 全液滴保持上电" Type="2" ScriptHead=""/>
@@ -109,120 +106,108 @@
   <Command Position="0,150" SequenceTypeId="0" ID="2030" Name="第2次：产物 5.00µL 与磁珠团分离" Type="2" ScriptHead=""/>
   <Command Position="0,180" SequenceTypeId="0" ID="2031" Name="第2次产物移至 S 孔下，等待手工吸出 · 【手工吸液・组结束】S孔×16 80.000µL · 吸出后运行下一组" Type="2" ScriptHead=""/>
  </Flow>
- <Flow Position="35,2519.74" ID="2032" Name="R06 纯化1第2次洗脱：溶解液 5.00µL → 产物离片 · 排珠载液承接（额外加入，非洗脱回收） · 加液承接（上电后手工加液）" Type="0" Expandgroup="">
+ <Flow Position="35,2415.34" ID="2032" Name="R06 纯化1第2次洗脱：溶解液 5.00µL → 产物离片 · 排珠载液承接（额外加入，非洗脱回收） · 加液承接（上电后手工加液）" Type="0" Expandgroup="">
   <Command Position="0,0" SequenceTypeId="0" ID="2033" Name="【手工加液・流程组结束】S孔×16 G15 排珠载液（非回收产物） 3.00µL · A1-A16（每道3.00µL） · 第1/1批 · 加好后运行下一流程组" Type="2" ScriptHead=""/>
  </Flow>
- <Flow Position="35,2624.15" ID="2034" Name="R06 纯化1第2次洗脱：溶解液 5.00µL → 产物离片 · 磁珠清理（48µL额外载液排废，非文库） · F2/F1 待手工吸液（保持全部液滴上电）" Type="0" Expandgroup="">
+ <Flow Position="35,2519.74" ID="2034" Name="R06 纯化1第2次洗脱：溶解液 5.00µL → 产物离片 · 磁珠清理（48µL额外载液排废，非文库） · F4/F3/F2/F1 待手工吸液（保持全部液滴上电）" Type="0" Expandgroup="">
   <Command Position="0,0" SequenceTypeId="0" ID="2035" Name="排珠载液逐格覆盖磁珠 · 磁铁仍升起 · 每道真实液量3.00µL" Type="2" ScriptHead=""/>
   <Command Position="0,30" SequenceTypeId="0" ID="2036" Name="[外部磁控]磁铁下降 · 3.00µL载液带磁珠全反应区往返12轮" Type="2" ScriptHead=""/>
-  <Command Position="0,60" SequenceTypeId="0" ID="2037" Name="3.00µL载液与磁珠一起排至底边孔，等待手工吸出；不回收文库 · 【手工吸液・组结束】F2/F1 19.200µL · 吸出后运行下一组" Type="2" ScriptHead=""/>
+  <Command Position="0,60" SequenceTypeId="0" ID="2037" Name="3.00µL载液与磁珠一起排至底边孔，等待手工吸出；不回收文库 · 【手工吸液・组结束】F4/F3/F2/F1 38.400µL · 吸出后运行下一组" Type="2" ScriptHead=""/>
  </Flow>
- <Flow Position="35,2728.56" ID="51002" Name="R06 纯化1第2次洗脱：溶解液 5.00µL → 产物离片 · 磁珠清理（48µL额外载液排废，非文库） · F2/F1 待手工吸液（保持全部液滴上电）" Type="0" Expandgroup="">
-  <Command Position="0,0" SequenceTypeId="0" ID="60002" Name="3.00µL载液与磁珠一起排至底边孔，等待手工吸出；不回收文库 · 【手工吸液・组结束】F2/F1 19.200µL · 吸出后运行下一组" Type="2" ScriptHead=""/>
+ <Flow Position="35,2624.15" ID="51001" Name="R06 纯化1第2次洗脱：溶解液 5.00µL → 产物离片 · 磁珠清理（48µL额外载液排废，非文库） · F1 待手工吸液（保持全部液滴上电）" Type="0" Expandgroup="">
+  <Command Position="0,0" SequenceTypeId="0" ID="60001" Name="3.00µL载液与磁珠一起排至底边孔，等待手工吸出；不回收文库 · 【手工吸液・组结束】F1 9.600µL · 吸出后运行下一组" Type="2" ScriptHead=""/>
  </Flow>
- <Flow Position="35,2832.96" ID="51003" Name="R06 纯化1第2次洗脱：溶解液 5.00µL → 产物离片 · 磁珠清理（48µL额外载液排废，非文库） · F1 待手工吸液（保持全部液滴上电）" Type="0" Expandgroup="">
-  <Command Position="0,0" SequenceTypeId="0" ID="60003" Name="3.00µL载液与磁珠一起排至底边孔，等待手工吸出；不回收文库 · 【手工吸液・组结束】F1 9.600µL · 吸出后运行下一组" Type="2" ScriptHead=""/>
- </Flow>
- <Flow Position="35,2937.37" ID="3000" Name="B01 均一化后产物 1.30µL 回片 (S 孔切线块承接) · 加液承接（上电后手工加液）" Type="0" Expandgroup="">
+ <Flow Position="35,2728.56" ID="3000" Name="B01 均一化后产物 1.30µL 回片 (S 孔切线块承接) · 加液承接（上电后手工加液）" Type="0" Expandgroup="">
   <Command Position="0,0" SequenceTypeId="0" ID="3001" Name="【手工加液・流程组结束】S孔×16 均一化产物 1.30µL · A1-A16（每道1.30µL） · 第1/1批 · 加好后运行下一流程组" Type="2" ScriptHead=""/>
  </Flow>
- <Flow Position="35,3041.77" ID="3002" Name="B02 加 Rapid End Repair ReadyMix 0.70µL · 加液承接（上电后手工加液）" Type="0" Expandgroup="">
+ <Flow Position="35,2832.96" ID="3002" Name="B02 加 Rapid End Repair ReadyMix 0.70µL · 加液承接（上电后手工加液）" Type="0" Expandgroup="">
   <Command Position="0,0" SequenceTypeId="0" ID="3003" Name="常驻液滴让开进液端" Type="2" ScriptHead=""/>
   <Command Position="0,30" SequenceTypeId="0" ID="3004" Name="【手工加液・流程组结束】E1 G8 11.20µL · A1-A16 · 第1/1批 · 加好后运行下一流程组" Type="2" ScriptHead=""/>
  </Flow>
- <Flow Position="35,3146.18" ID="50003" Name="B02 加 Rapid End Repair ReadyMix 0.70µL · 加液后分液、移液及融合" Type="0" Expandgroup="">
+ <Flow Position="35,2937.37" ID="50003" Name="B02 加 Rapid End Repair ReadyMix 0.70µL · 加液后分液、移液及融合" Type="0" Expandgroup="">
   <Command Position="0,0" SequenceTypeId="0" ID="3005" Name="G8 加液已完成 → 顶部拆成液珠 → 经空隙逐道送入 A/C/E 列" Type="2" ScriptHead=""/>
  </Flow>
- <Flow Position="35,3250.59" ID="3006" Name="B03 液滴停 TEC 区" Type="0" Expandgroup="">
+ <Flow Position="35,3041.77" ID="3006" Name="B03 液滴停 TEC 区" Type="0" Expandgroup="">
   <Command Position="0,0" SequenceTypeId="0" ID="3007" Name="液滴停 TEC 区" Type="2" ScriptHead=""/>
  </Flow>
- <Flow Position="35,3354.99" ID="3008" Name="B03 往复混匀" Type="0" Expandgroup="">
+ <Flow Position="35,3146.18" ID="3008" Name="B03 往复混匀" Type="0" Expandgroup="">
   <Command Position="0,0" SequenceTypeId="0" ID="3009" Name="往复混匀 (全部液滴带电)" Type="2" ScriptHead=""/>
  </Flow>
- <Flow Position="35,3459.4" ID="3010" Name="B04 末端修复加A 37℃4min→4℃ [热盖105℃]" Type="0" Expandgroup="">
+ <Flow Position="35,3250.59" ID="3010" Name="B04 末端修复加A 37℃4min→4℃ [热盖105℃]" Type="0" Expandgroup="">
   <Command Position="0,0" ID="3011" Name="Heater1_37℃" Type="2"/>
   <Command Position="0,30" ID="3012" Name="保温 37℃ 240s" Type="2"/>
   <Command Position="0,60" ID="3013" Name="Heater1_4℃" Type="2"/>
   <Command Position="0,90" ID="3014" Name="保温 4℃ 30s" Type="2"/>
   <Command Position="0,120" SequenceTypeId="0" ID="3015" Name="液滴持续通电保持（循环至温控结束）" Type="2" ScriptHead=""/>
  </Flow>
- <Flow Position="35,3563.8" ID="3016" Name="B05 接头预混液加1.00µL，分弃0.40µL，投入0.60µL（同配比） · 加液承接（上电后手工加液）" Type="0" Expandgroup="">
+ <Flow Position="35,3354.99" ID="3016" Name="B05 接头预混液加1.00µL，分弃0.40µL，投入0.60µL（同配比） · 加液承接（上电后手工加液）" Type="0" Expandgroup="">
   <Command Position="0,0" SequenceTypeId="0" ID="3017" Name="【手工加液・流程组结束】B孔×16 同配比条形码接头预混液（保留G11 0.20 + G15 0.40） 1.00µL · A1-A16（各自barcode，加1.00µL，分弃0.40µL，保留0.60µL） · 第1/1批 · 加好后运行下一流程组" Type="2" ScriptHead=""/>
  </Flow>
- <Flow Position="35,3668.21" ID="50004" Name="B05 接头预混液加1.00µL，分弃0.40µL，投入0.60µL（同配比） · F1 待手工吸液（保持全部液滴上电）" Type="0" Expandgroup="">
+ <Flow Position="35,3459.4" ID="50004" Name="B05 接头预混液加1.00µL，分弃0.40µL，投入0.60µL（同配比） · F1 待手工吸液（保持全部液滴上电）" Type="0" Expandgroup="">
   <Command Position="0,0" SequenceTypeId="0" ID="3018" Name="各道1.00µL接头液原位分成0.60µL保留、0.40µL弃液，逐格拉开" Type="2" ScriptHead=""/>
   <Command Position="0,30" SequenceTypeId="0" ID="3019" Name="接头多加的0.40µL/道经废液通道排出（不走公共进液通道） · 【手工吸液・组结束】F1 6.400µL · 吸出后运行下一组" Type="2" ScriptHead=""/>
  </Flow>
- <Flow Position="35,3772.62" ID="51004" Name="B05 接头预混液加1.00µL，分弃0.40µL，投入0.60µL（同配比） · 吸液完成后的续行" Type="0" Expandgroup="">
+ <Flow Position="35,3563.8" ID="51002" Name="B05 接头预混液加1.00µL，分弃0.40µL，投入0.60µL（同配比） · 吸液完成后的续行" Type="0" Expandgroup="">
   <Command Position="0,0" SequenceTypeId="0" ID="3020" Name="全部保留的0.60µL接头液就绪后与各道产物同步合并" Type="2" ScriptHead=""/>
  </Flow>
- <Flow Position="35,3877.02" ID="3021" Name="B06 往复混匀" Type="0" Expandgroup="">
+ <Flow Position="35,3668.21" ID="3021" Name="B06 往复混匀" Type="0" Expandgroup="">
   <Command Position="0,0" SequenceTypeId="0" ID="3022" Name="往复混匀 (全部液滴带电)" Type="2" ScriptHead=""/>
  </Flow>
- <Flow Position="35,3981.43" ID="3023" Name="B07 加连接反应预混液 1.40µL (Buffer 1.00 + Ligase 0.40) · 加液承接（上电后手工加液）" Type="0" Expandgroup="">
+ <Flow Position="35,3772.62" ID="3023" Name="B07 加连接反应预混液 1.40µL (Buffer 1.00 + Ligase 0.40) · 加液承接（上电后手工加液）" Type="0" Expandgroup="">
   <Command Position="0,0" SequenceTypeId="0" ID="3024" Name="常驻液滴让开进液端" Type="2" ScriptHead=""/>
   <Command Position="0,30" SequenceTypeId="0" ID="3025" Name="【手工加液・流程组结束】E1/E2/E3/E4 LIG 22.40µL · A1-A16 · 第1/1批 · 加好后运行下一流程组" Type="2" ScriptHead=""/>
  </Flow>
- <Flow Position="35,4085.83" ID="50005" Name="B07 加连接反应预混液 1.40µL (Buffer 1.00 + Ligase 0.40) · 加液后分液、移液及融合" Type="0" Expandgroup="">
+ <Flow Position="35,3877.02" ID="50005" Name="B07 加连接反应预混液 1.40µL (Buffer 1.00 + Ligase 0.40) · 加液后分液、移液及融合" Type="0" Expandgroup="">
   <Command Position="0,0" SequenceTypeId="0" ID="3026" Name="LIG 加液已完成 → 顶部拆成液珠 → 经空隙逐道送入 A/C/E 列" Type="2" ScriptHead=""/>
  </Flow>
- <Flow Position="35,4190.24" ID="3027" Name="B08 液滴停 TEC 区" Type="0" Expandgroup="">
+ <Flow Position="35,3981.43" ID="3027" Name="B08 液滴停 TEC 区" Type="0" Expandgroup="">
   <Command Position="0,0" SequenceTypeId="0" ID="3028" Name="液滴停 TEC 区" Type="2" ScriptHead=""/>
  </Flow>
- <Flow Position="35,4294.65" ID="3029" Name="B08 往复混匀" Type="0" Expandgroup="">
+ <Flow Position="35,4085.83" ID="3029" Name="B08 往复混匀" Type="0" Expandgroup="">
   <Command Position="0,0" SequenceTypeId="0" ID="3030" Name="往复混匀 (全部液滴带电)" Type="2" ScriptHead=""/>
  </Flow>
- <Flow Position="35,4399.05" ID="3031" Name="B09 连接反应 25℃10min→4℃ [热盖75℃]" Type="0" Expandgroup="">
+ <Flow Position="35,4190.24" ID="3031" Name="B09 连接反应 25℃10min→4℃ [热盖75℃]" Type="0" Expandgroup="">
   <Command Position="0,0" ID="3032" Name="Heater1_25℃" Type="2"/>
   <Command Position="0,30" ID="3033" Name="保温 25℃ 600s" Type="2"/>
   <Command Position="0,60" ID="3034" Name="Heater1_4℃" Type="2"/>
   <Command Position="0,90" ID="3035" Name="保温 4℃ 30s" Type="2"/>
   <Command Position="0,120" SequenceTypeId="0" ID="3036" Name="液滴持续通电保持（循环至温控结束）" Type="2" ScriptHead=""/>
  </Flow>
- <Flow Position="35,4503.46" ID="3037" Name="B10 加 EDTA 终止液 0.20µL · 加液承接（上电后手工加液）" Type="0" Expandgroup="">
+ <Flow Position="35,4294.65" ID="3037" Name="B10 加 EDTA 终止液 0.20µL · 加液承接（上电后手工加液）" Type="0" Expandgroup="">
   <Command Position="0,0" SequenceTypeId="0" ID="3038" Name="常驻液滴让开进液端" Type="2" ScriptHead=""/>
   <Command Position="0,30" SequenceTypeId="0" ID="3039" Name="【手工加液・流程组结束】E1 EDTA 3.20µL · A1-A16 · 第1/1批 · 加好后运行下一流程组" Type="2" ScriptHead=""/>
  </Flow>
- <Flow Position="35,4607.86" ID="50006" Name="B10 加 EDTA 终止液 0.20µL · 加液后分液、移液及融合" Type="0" Expandgroup="">
+ <Flow Position="35,4399.05" ID="50006" Name="B10 加 EDTA 终止液 0.20µL · 加液后分液、移液及融合" Type="0" Expandgroup="">
   <Command Position="0,0" SequenceTypeId="0" ID="3040" Name="EDTA 加液已完成 → 顶部拆成液珠 → 经空隙逐道送入 A/C/E 列" Type="2" ScriptHead=""/>
   <Command Position="0,30" SequenceTypeId="0" ID="3041" Name="B10 EDTA终止后轻柔往复混匀20轮（片上移液不等同枪头吹打）" Type="2" ScriptHead=""/>
  </Flow>
- <Flow Position="35,4712.27" ID="4000" Name="C01 加磁珠(0.4××4.20µL) 1.70µL · 加液承接（上电后手工加液）" Type="0" Expandgroup="">
+ <Flow Position="35,4503.46" ID="4000" Name="C01 加磁珠(0.4××4.20µL) 1.70µL · 加液承接（上电后手工加液）" Type="0" Expandgroup="">
   <Command Position="0,0" SequenceTypeId="0" ID="4001" Name="常驻液滴让开进液端" Type="2" ScriptHead=""/>
   <Command Position="0,30" SequenceTypeId="0" ID="4002" Name="【手工加液・流程组结束】E1/E2/E3/E4 G16 27.20µL · A1-A16 · 第1/1批 · 加好后运行下一流程组" Type="2" ScriptHead=""/>
  </Flow>
- <Flow Position="35,4816.68" ID="50007" Name="C01 加磁珠(0.4××4.20µL) 1.70µL · 加液后分液、移液及融合" Type="0" Expandgroup="">
+ <Flow Position="35,4607.86" ID="50007" Name="C01 加磁珠(0.4××4.20µL) 1.70µL · 加液后分液、移液及融合" Type="0" Expandgroup="">
   <Command Position="0,0" SequenceTypeId="0" ID="4003" Name="G16 加液已完成 → 顶部拆成液珠 → 经空隙逐道送入 A/C/E 列" Type="2" ScriptHead=""/>
  </Flow>
- <Flow Position="35,4921.08" ID="4004" Name="C02-C03 混匀孵育3min → 移至磁铁 → 磁吸" Type="0" Expandgroup="">
+ <Flow Position="35,4712.27" ID="4004" Name="C02-C03 混匀孵育3min → 移至磁铁 → 磁吸" Type="0" Expandgroup="">
   <Command Position="0,0" SequenceTypeId="0" ID="4005" Name="[外部磁控]确认磁铁已下降 · 液滴停 TEC 区" Type="2" ScriptHead=""/>
   <Command Position="0,30" SequenceTypeId="0" ID="4006" Name="磁铁保持下降 · 全反应区往复混匀 (结合) 12轮" Type="2" ScriptHead=""/>
   <Command Position="0,60" SequenceTypeId="0" ID="4007" Name="[外部磁控]磁铁未升起 · 室温结合孵育 180s · 全液滴保持上电" Type="2" ScriptHead=""/>
   <Command Position="0,90" SequenceTypeId="0" ID="4008" Name="5.90µL已授权例外：右端停靠，向左跨中线2列；118格守恒" Type="2" ScriptHead=""/>
   <Command Position="0,120" SequenceTypeId="0" ID="4009" Name="[外部磁控]磁铁升起 捕获 120s 持续通电" Type="2" ScriptHead=""/>
  </Flow>
- <Flow Position="35,5025.49" ID="4010" Name="C04 液相移离磁珠 → 排废全部5.90µL（不保留计划液相） · F1 待手工吸液（保持全部液滴上电）" Type="0" Expandgroup="">
-  <Command Position="0,0" SequenceTypeId="0" ID="4011" Name="磁铁保持升起 · 分离 → 小矩形逐格切开移液 → 整排等齐汇液；待手工吸出后续行，反应区只留磁珠 · 【手工吸液・组结束】F1 8.000µL · 吸出后运行下一组" Type="2" ScriptHead=""/>
+ <Flow Position="35,4816.68" ID="4010" Name="C04 液相移离磁珠 → 排废全部5.90µL（不保留计划液相） · F3/F2/F1 待手工吸液（保持全部液滴上电）" Type="0" Expandgroup="">
+  <Command Position="0,0" SequenceTypeId="0" ID="4011" Name="磁铁保持升起 · 分离 → 小矩形逐格切开移液 → 整排等齐汇液；待手工吸出后续行，反应区只留磁珠 · 【手工吸液・组结束】F3/F2/F1 27.200µL · 吸出后运行下一组" Type="2" ScriptHead=""/>
  </Flow>
- <Flow Position="35,5129.89" ID="51005" Name="C04 液相移离磁珠 → 排废全部5.90µL（不保留计划液相） · F2/F1 待手工吸液（保持全部液滴上电）" Type="0" Expandgroup="">
-  <Command Position="0,0" SequenceTypeId="0" ID="60004" Name="磁铁保持升起 · 分离 → 小矩形逐格切开移液 → 整排等齐汇液；待手工吸出后续行，反应区只留磁珠 · 【手工吸液・组结束】F2/F1 19.200µL · 吸出后运行下一组" Type="2" ScriptHead=""/>
+ <Flow Position="35,4921.08" ID="51003" Name="C04 液相移离磁珠 → 排废全部5.90µL（不保留计划液相） · F4/F3/F2/F1 待手工吸液（保持全部液滴上电）" Type="0" Expandgroup="">
+  <Command Position="0,0" SequenceTypeId="0" ID="60002" Name="磁铁保持升起 · 分离 → 小矩形逐格切开移液 → 整排等齐汇液；待手工吸出后续行，反应区只留磁珠 · 【手工吸液・组结束】F4/F3/F2/F1 38.400µL · 吸出后运行下一组" Type="2" ScriptHead=""/>
  </Flow>
- <Flow Position="35,5234.3" ID="51006" Name="C04 液相移离磁珠 → 排废全部5.90µL（不保留计划液相） · F2/F1 待手工吸液（保持全部液滴上电）" Type="0" Expandgroup="">
-  <Command Position="0,0" SequenceTypeId="0" ID="60005" Name="磁铁保持升起 · 分离 → 小矩形逐格切开移液 → 整排等齐汇液；待手工吸出后续行，反应区只留磁珠 · 【手工吸液・组结束】F2/F1 19.200µL · 吸出后运行下一组" Type="2" ScriptHead=""/>
+ <Flow Position="35,5025.49" ID="51004" Name="C04 液相移离磁珠 → 排废全部5.90µL（不保留计划液相） · F4/F3/F1 待手工吸液（保持全部液滴上电）" Type="0" Expandgroup="">
+  <Command Position="0,0" SequenceTypeId="0" ID="60003" Name="磁铁保持升起 · 分离 → 小矩形逐格切开移液 → 整排等齐汇液；待手工吸出后续行，反应区只留磁珠 · 【手工吸液・组结束】F4/F3/F1 28.800µL · 吸出后运行下一组" Type="2" ScriptHead=""/>
  </Flow>
- <Flow Position="35,5338.71" ID="51007" Name="C04 液相移离磁珠 → 排废全部5.90µL（不保留计划液相） · F2/F1 待手工吸液（保持全部液滴上电）" Type="0" Expandgroup="">
-  <Command Position="0,0" SequenceTypeId="0" ID="60006" Name="磁铁保持升起 · 分离 → 小矩形逐格切开移液 → 整排等齐汇液；待手工吸出后续行，反应区只留磁珠 · 【手工吸液・组结束】F2/F1 19.200µL · 吸出后运行下一组" Type="2" ScriptHead=""/>
- </Flow>
- <Flow Position="35,5443.11" ID="51008" Name="C04 液相移离磁珠 → 排废全部5.90µL（不保留计划液相） · F2/F1 待手工吸液（保持全部液滴上电）" Type="0" Expandgroup="">
-  <Command Position="0,0" SequenceTypeId="0" ID="60007" Name="磁铁保持升起 · 分离 → 小矩形逐格切开移液 → 整排等齐汇液；待手工吸出后续行，反应区只留磁珠 · 【手工吸液・组结束】F2/F1 19.200µL · 吸出后运行下一组" Type="2" ScriptHead=""/>
- </Flow>
- <Flow Position="35,5547.52" ID="51009" Name="C04 液相移离磁珠 → 排废全部5.90µL（不保留计划液相） · F1 待手工吸液（保持全部液滴上电）" Type="0" Expandgroup="">
-  <Command Position="0,0" SequenceTypeId="0" ID="60008" Name="磁铁保持升起 · 分离 → 小矩形逐格切开移液 → 整排等齐汇液；待手工吸出后续行，反应区只留磁珠 · 【手工吸液・组结束】F1 9.600µL · 吸出后运行下一组" Type="2" ScriptHead=""/>
- </Flow>
- <Flow Position="35,5651.92" ID="4012" Name="C05 纯化2第1次洗脱：EB 3.00µL → 成品离片 · S孔承接 · 加液承接（上电后手工加液）" Type="0" Expandgroup="">
+ <Flow Position="35,5129.89" ID="4012" Name="C05 纯化2第1次洗脱：EB 3.00µL → 成品离片 · S孔承接 · 加液承接（上电后手工加液）" Type="0" Expandgroup="">
   <Command Position="0,0" SequenceTypeId="0" ID="4013" Name="【手工加液・流程组结束】S孔×16 G18 3.00µL · A1-A16（每道3.00µL） · 第1/1批 · 加好后运行下一流程组" Type="2" ScriptHead=""/>
  </Flow>
- <Flow Position="35,5756.33" ID="4014" Name="C05 纯化2第1次洗脱：EB 3.00µL → 成品离片 · S孔×16 待手工吸液（保持全部液滴上电）" Type="0" Expandgroup="">
+ <Flow Position="35,5234.3" ID="4014" Name="C05 纯化2第1次洗脱：EB 3.00µL → 成品离片 · S孔×16 待手工吸液（保持全部液滴上电）" Type="0" Expandgroup="">
   <Command Position="0,0" SequenceTypeId="0" ID="4015" Name="S孔加液完成 · 磁铁保持升起 · 洗脱液逐格覆盖磁珠后再降下" Type="2" ScriptHead=""/>
   <Command Position="0,30" SequenceTypeId="0" ID="4016" Name="第1次：磁铁落下 · 固定矩形扫过整个反应区 · 往返12轮" Type="2" ScriptHead=""/>
   <Command Position="0,60" SequenceTypeId="0" ID="4017" Name="第1次：室温洗脱孵育 180s · 全液滴保持上电" Type="2" ScriptHead=""/>
@@ -231,10 +216,10 @@
   <Command Position="0,150" SequenceTypeId="0" ID="4020" Name="第1次：产物 3.00µL 与磁珠团分离" Type="2" ScriptHead=""/>
   <Command Position="0,180" SequenceTypeId="0" ID="4021" Name="第1次产物移至 S 孔下，等待手工吸出 · 【手工吸液・组结束】S孔×16 48.000µL · 吸出后运行下一组" Type="2" ScriptHead=""/>
  </Flow>
- <Flow Position="35,5860.74" ID="4022" Name="C06 纯化2第2次洗脱：EB 3.00µL → 成品离片并汇聚 pooling · S孔承接 · 加液承接（上电后手工加液）" Type="0" Expandgroup="">
+ <Flow Position="35,5338.71" ID="4022" Name="C06 纯化2第2次洗脱：EB 3.00µL → 成品离片并汇聚 pooling · S孔承接 · 加液承接（上电后手工加液）" Type="0" Expandgroup="">
   <Command Position="0,0" SequenceTypeId="0" ID="4023" Name="【手工加液・流程组结束】S孔×16 G18 3.00µL · A1-A16（每道3.00µL） · 第1/1批 · 加好后运行下一流程组" Type="2" ScriptHead=""/>
  </Flow>
- <Flow Position="35,5965.14" ID="4024" Name="C06 纯化2第2次洗脱：EB 3.00µL → 成品离片并汇聚 pooling · S孔×16 待手工吸液（保持全部液滴上电）" Type="0" Expandgroup="">
+ <Flow Position="35,5443.11" ID="4024" Name="C06 纯化2第2次洗脱：EB 3.00µL → 成品离片并汇聚 pooling · S孔×16 待手工吸液（保持全部液滴上电）" Type="0" Expandgroup="">
   <Command Position="0,0" SequenceTypeId="0" ID="4025" Name="S孔加液完成 · 磁铁保持升起 · 洗脱液逐格覆盖磁珠后再降下" Type="2" ScriptHead=""/>
   <Command Position="0,30" SequenceTypeId="0" ID="4026" Name="第2次：磁铁落下 · 固定矩形扫过整个反应区 · 往返12轮" Type="2" ScriptHead=""/>
   <Command Position="0,60" SequenceTypeId="0" ID="4027" Name="第2次：室温洗脱孵育 180s · 全液滴保持上电" Type="2" ScriptHead=""/>
@@ -243,19 +228,16 @@
   <Command Position="0,150" SequenceTypeId="0" ID="4030" Name="第2次：产物 3.00µL 与磁珠团分离" Type="2" ScriptHead=""/>
   <Command Position="0,180" SequenceTypeId="0" ID="4031" Name="第2次产物移至 S 孔下，等待手工吸出 · 【手工吸液・组结束】S孔×16 48.000µL · 吸出后运行下一组" Type="2" ScriptHead=""/>
  </Flow>
- <Flow Position="35,6069.55" ID="4032" Name="C06 纯化2第2次洗脱：EB 3.00µL → 成品离片并汇聚 pooling · 排珠载液承接（额外加入，非洗脱回收） · 加液承接（上电后手工加液）" Type="0" Expandgroup="">
+ <Flow Position="35,5547.52" ID="4032" Name="C06 纯化2第2次洗脱：EB 3.00µL → 成品离片并汇聚 pooling · 排珠载液承接（额外加入，非洗脱回收） · 加液承接（上电后手工加液）" Type="0" Expandgroup="">
   <Command Position="0,0" SequenceTypeId="0" ID="4033" Name="【手工加液・流程组结束】S孔×16 G18 排珠载液（非回收产物） 3.00µL · A1-A16（每道3.00µL） · 第1/1批 · 加好后运行下一流程组" Type="2" ScriptHead=""/>
  </Flow>
- <Flow Position="35,6173.95" ID="4034" Name="C06 纯化2第2次洗脱：EB 3.00µL → 成品离片并汇聚 pooling · 磁珠清理（48µL额外载液排废，非文库） · F2/F1 待手工吸液（保持全部液滴上电）" Type="0" Expandgroup="">
+ <Flow Position="35,5651.92" ID="4034" Name="C06 纯化2第2次洗脱：EB 3.00µL → 成品离片并汇聚 pooling · 磁珠清理（48µL额外载液排废，非文库） · F4/F3/F2/F1 待手工吸液（保持全部液滴上电）" Type="0" Expandgroup="">
   <Command Position="0,0" SequenceTypeId="0" ID="4035" Name="排珠载液逐格覆盖磁珠 · 磁铁仍升起 · 每道真实液量3.00µL" Type="2" ScriptHead=""/>
   <Command Position="0,30" SequenceTypeId="0" ID="4036" Name="[外部磁控]磁铁下降 · 3.00µL载液带磁珠全反应区往返12轮" Type="2" ScriptHead=""/>
-  <Command Position="0,60" SequenceTypeId="0" ID="4037" Name="3.00µL载液与磁珠一起排至底边孔，等待手工吸出；不回收文库 · 【手工吸液・组结束】F2/F1 19.200µL · 吸出后运行下一组" Type="2" ScriptHead=""/>
+  <Command Position="0,60" SequenceTypeId="0" ID="4037" Name="3.00µL载液与磁珠一起排至底边孔，等待手工吸出；不回收文库 · 【手工吸液・组结束】F4/F3/F2/F1 38.400µL · 吸出后运行下一组" Type="2" ScriptHead=""/>
  </Flow>
- <Flow Position="35,6278.36" ID="51010" Name="C06 纯化2第2次洗脱：EB 3.00µL → 成品离片并汇聚 pooling · 磁珠清理（48µL额外载液排废，非文库） · F2/F1 待手工吸液（保持全部液滴上电）" Type="0" Expandgroup="">
-  <Command Position="0,0" SequenceTypeId="0" ID="60009" Name="3.00µL载液与磁珠一起排至底边孔，等待手工吸出；不回收文库 · 【手工吸液・组结束】F2/F1 19.200µL · 吸出后运行下一组" Type="2" ScriptHead=""/>
- </Flow>
- <Flow Position="35,6382.77" ID="51011" Name="C06 纯化2第2次洗脱：EB 3.00µL → 成品离片并汇聚 pooling · 磁珠清理（48µL额外载液排废，非文库） · F1 待手工吸液（保持全部液滴上电）" Type="0" Expandgroup="">
-  <Command Position="0,0" SequenceTypeId="0" ID="60010" Name="3.00µL载液与磁珠一起排至底边孔，等待手工吸出；不回收文库 · 【手工吸液・组结束】F1 9.600µL · 吸出后运行下一组" Type="2" ScriptHead=""/>
+ <Flow Position="35,5756.33" ID="51005" Name="C06 纯化2第2次洗脱：EB 3.00µL → 成品离片并汇聚 pooling · 磁珠清理（48µL额外载液排废，非文库） · F1 待手工吸液（保持全部液滴上电）" Type="0" Expandgroup="">
+  <Command Position="0,0" SequenceTypeId="0" ID="60004" Name="3.00µL载液与磁珠一起排至底边孔，等待手工吸出；不回收文库 · 【手工吸液・组结束】F1 9.600µL · 吸出后运行下一组" Type="2" ScriptHead=""/>
  </Flow>
  <Arrow EndID="1002" StartID="1000"/>
  <Arrow EndID="50000" StartID="1002"/>
@@ -275,16 +257,14 @@
  <Arrow EndID="2004" StartID="50002"/>
  <Arrow EndID="2010" StartID="2004"/>
  <Arrow EndID="51000" StartID="2010"/>
- <Arrow EndID="51001" StartID="51000"/>
- <Arrow EndID="2012" StartID="51001"/>
+ <Arrow EndID="2012" StartID="51000"/>
  <Arrow EndID="2014" StartID="2012"/>
  <Arrow EndID="2022" StartID="2014"/>
  <Arrow EndID="2024" StartID="2022"/>
  <Arrow EndID="2032" StartID="2024"/>
  <Arrow EndID="2034" StartID="2032"/>
- <Arrow EndID="51002" StartID="2034"/>
- <Arrow EndID="51003" StartID="51002"/>
- <Arrow EndID="3000" StartID="51003"/>
+ <Arrow EndID="51001" StartID="2034"/>
+ <Arrow EndID="3000" StartID="51001"/>
  <Arrow EndID="3002" StartID="3000"/>
  <Arrow EndID="50003" StartID="3002"/>
  <Arrow EndID="3006" StartID="50003"/>
@@ -292,8 +272,8 @@
  <Arrow EndID="3010" StartID="3008"/>
  <Arrow EndID="3016" StartID="3010"/>
  <Arrow EndID="50004" StartID="3016"/>
- <Arrow EndID="51004" StartID="50004"/>
- <Arrow EndID="3021" StartID="51004"/>
+ <Arrow EndID="51002" StartID="50004"/>
+ <Arrow EndID="3021" StartID="51002"/>
  <Arrow EndID="3023" StartID="3021"/>
  <Arrow EndID="50005" StartID="3023"/>
  <Arrow EndID="3027" StartID="50005"/>
@@ -305,17 +285,13 @@
  <Arrow EndID="50007" StartID="4000"/>
  <Arrow EndID="4004" StartID="50007"/>
  <Arrow EndID="4010" StartID="4004"/>
- <Arrow EndID="51005" StartID="4010"/>
- <Arrow EndID="51006" StartID="51005"/>
- <Arrow EndID="51007" StartID="51006"/>
- <Arrow EndID="51008" StartID="51007"/>
- <Arrow EndID="51009" StartID="51008"/>
- <Arrow EndID="4012" StartID="51009"/>
+ <Arrow EndID="51003" StartID="4010"/>
+ <Arrow EndID="51004" StartID="51003"/>
+ <Arrow EndID="4012" StartID="51004"/>
  <Arrow EndID="4014" StartID="4012"/>
  <Arrow EndID="4022" StartID="4014"/>
  <Arrow EndID="4024" StartID="4022"/>
  <Arrow EndID="4032" StartID="4024"/>
  <Arrow EndID="4034" StartID="4032"/>
- <Arrow EndID="51010" StartID="4034"/>
- <Arrow EndID="51011" StartID="51010"/>
+ <Arrow EndID="51005" StartID="4034"/>
 </Script>
