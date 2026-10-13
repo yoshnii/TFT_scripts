@@ -124,6 +124,15 @@ class Scene:
     def get(self, name): return self.drops[name]
     def step(self, dur=geom.STEP_MS, amp=geom.VOLT, touching=(), changed=None):
         import contour
+        # 后台流水线（底部排废运输）在每一帧先走一步，与前台动作记录在同一帧。
+        background=getattr(self,'background',None)
+        if background and not getattr(self,'_in_background',False):
+            self._in_background=True
+            try:moved,touch,bdur=background(self)
+            finally:self._in_background=False
+            touching=tuple(touching)+tuple(touch)
+            if changed is not None:changed=list(changed)+list(moved)
+            dur=max(dur,bdur)
         current={id(d):d for d in self.drops.values() if not isinstance(d,Worm) and d.rects()}
         plans=[]
         removed=[info for key,info in self.contour_previous.items() if key not in current]

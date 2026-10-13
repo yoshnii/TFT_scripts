@@ -128,6 +128,11 @@ class WasteGridTests(unittest.TestCase):
         self.assertTrue(all(e['entries'][4]['frame']<e['row_merges'][0] for e in S.waste_parallel_events))
         self.assertEqual(len(S.waste_grid_events),112)
         self.assertEqual([e['ports'] for e in S.waste_batch_events],[[4],[3],[2],[1],[3],[2],[1]])
+        # 流水线：同一次停靠内，下一批在上一批停靠完成前已开始；同孔相邻两排停靠间隔远小于单排全程。
+        ev=S.waste_parallel_events
+        for i in (0,1,2,4,5):
+            self.assertLess(ev[i+1]['start_frame'],ev[i]['end_frame'])
+        self.assertLess(max(b-a for a,b in zip(ev[0]['row_merges'],ev[0]['row_merges'][1:])),120)
         self.assertAlmostEqual(sum(i['volume_ul'] for i in infos),80)
         self.assertTrue(all(d.vol==0 and d.magnet_only for d in S.drops.values()))
 

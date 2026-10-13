@@ -54,76 +54,168 @@ def flush(S,blobs):
     for k,d in items:S.remove(d.name);blobs[k]=None
     S.step(geom.HOLD_MS,changed=[])
 
-def _collect_port_pipeline(S,port_items,gx,blobs,plan,w,h):
-    """整个孔的所有反应区同时纳入流水线；只在共享通道冲突处等待，不按4滴启动一批。"""
+# ── 流水线排废（R04/A05）：底部运输作为后台进程，与反应区内切块在同一帧并行 ───────────
+class _Pool:
+    def __init__(self):self.items=[];self.moved_last=False
+
+def _pool(S):
+    pool=getattr(S,'waste_pool',None)
+    if pool is None:
+        pool=S.waste_pool=_Pool();S.background=_advance
+    return pool
+
+def _advance(S):
+    """后台每帧推进一步：每个小滴/整排至多做一个动作；位置不满足间距就原地等。不记录帧（由当前 S.step 记录）。"""
     import rigid as R
-    fk=plan['port'];columns=plan['columns'];rows=plan['rows'];W=columns*w
-    final_x=geom.HOLE_X[fk]-W//2
-    stage_width=W+(columns-1)*geom.CUT_GAP
-    stage_left=max(gx+geom.CH_W+geom.MIN_GAP,geom.HOLE_X[fk]-stage_width//2)
-    assert stage_left+stage_width<=geom.GRID_W
-    entry_front=[0];completed_rows=[0];arrivals={r:[] for r in range(rows)}
-    event=dict(port=fk,scheduled_drops=len(port_items),start_frame=S.nsteps,entries=[],row_merges=[])
-    S.waste_parallel_events=getattr(S,'waste_parallel_events',[]);S.waste_parallel_events.append(event)
-    batch=[]
-    for ticket,(ln,d) in enumerate(port_items):
-        row_index=ticket//columns;col=columns-1-ticket%columns
-        d.S=S;d.waste_fk=fk;d.slot=row_index*columns+col;d.tile_area=area(d)
-        d.waste_pipeline_clearance=True
-        assert d.tile_area in PACKET_AREAS
-        d.tile_columns=columns;d.entry_ticket=ticket;d.allow=(f'BLOB{fk}',)
-        stage_x=stage_left+col*(w+geom.CUT_GAP)
-        def path(d=d,stage_x=stage_x,row_index=row_index):
-            origin_y=d.rect[1]
-            while entry_front[0]!=d.entry_ticket:yield 'wait'
-            event['entries'].append(dict(ticket=d.entry_ticket,frame=S.nsteps))
-            def release_entry():
-                if entry_front[0]==d.entry_ticket:entry_front[0]+=1
-            yield from R.go(d,[('x',gx)])
-            for action in R.go(d,[('y',TRANSPORT_Y)]):
-                yield action
-                if d.rect[1]>=origin_y+h+geom.MIN_GAP:release_entry()
-            while completed_rows[0]!=row_index:yield 'wait'
-            for action in R.go(d,[('x',stage_x)]):
-                yield action
-                if d.rect[0]>=gx+geom.CH_W+geom.MIN_GAP:release_entry()
-            release_entry()
-        batch.append((d,path()))
-    def arrived(d):
-        ri=d.slot//columns;ds=arrivals[ri];ds.append(d)
-        if len(ds)!=columns:return
-        assert completed_rows[0]==ri
-        ds.sort(key=lambda q:q.slot)
-        for q in ds:
-            q.allow=(f'BLOB{fk}',*(p.name for p in ds if p is not q));q.pending=None
-        R.run(S,[(q,R.go(q,[('x',stage_left+i*w)])) for i,q in enumerate(ds)])
-        union=frozenset().union(*(q.target_cells() for q in ds));rc=contour.bounds(union)
-        assert len(union)==rc[2]*rc[3] and contour.connected(union)
-        vol=round(sum(q.vol for q in ds),2)
-        for q in ds:S.remove(q.name)
-        row=S.add(Drop(f'WROW{fk}',rc,vol));row.set_cells(union);row.allow=(f'BLOB{fk}',)
-        S.step(geom.HOLD_MS,changed=[row.name],touching=[(row.name,f'BLOB{fk}')])
-        R.run(S,[(row,R.go(row,[('x',final_x),('y',189-(ri+1)*h)]))])
-        host=blobs.get(fk);cells=row.target_cells()
-        if host:
-            union=host.target_cells()|cells
-            assert len(union)==area(host)+area(row) and contour.connected(union)
-            S.remove(row.name);host.vol=round(host.vol+row.vol,2)
-            host.rect=contour.bounds(union);host.set_cells(union);host.tile_count+=len(ds)
-        else:
-            S.remove(row.name);host=blobs[fk]=S.add(Drop(f'BLOB{fk}',contour.bounds(cells),row.vol))
-            host.set_cells(cells);host.tile_area=ds[0].tile_area;host.tile_shape=(w,h);host.tile_count=len(ds)
-        assert area(host)==host.rect[2]*host.rect[3]
-        for q in ds:
-            S.waste_grid_events.append(dict(port=fk,tile_area=q.tile_area,slot=q.slot,row=ri,column=q.slot%columns,
-                step=S.nsteps,merged_without_reshape=True,tile_shape=[w,h],transport_y=TRANSPORT_Y,
-                row_ready=True,row_piece_count=len(ds),actual_area=area(host),rect=list(host.rect),
-                whole_port_pipeline=True))
-        event['row_merges'].append(S.nsteps)
-        S.step(geom.HOLD_MS,changed=[host.name]);completed_rows[0]+=1
-    R.run(S,batch,rule=R._door_rule(gx),on_done=arrived)
-    assert completed_rows[0]==rows
-    event['end_frame']=S.nsteps
+    pool=S.waste_pool;moved=[];dur=0
+    for item in list(pool.items):
+        d,g,rule=item
+        if S.drops.get(d.name) is not d:
+            pool.items.remove(item);continue
+        if getattr(d,'pending',None) is None:
+            try:d.pending=next(g)
+            except StopIteration:d.pending='done'
+        act=d.pending
+        if act=='done':
+            pool.items.remove(item);d.pending=None;continue
+        if act=='wait':
+            d.pending=None;continue
+        if isinstance(act,tuple) and act[0]=='call':
+            act[1]();d.pending=None;dur=max(dur,act[2]);moved.extend(n for n in act[3] if n in S.drops);continue
+        dx,dy=R.DIRS[act];cand=(d.rect[0]+dx,d.rect[1]+dy,d.rect[2],d.rect[3])
+        if R.rect_ok(S,d.name,cand,frozenset(getattr(d,'allow',()))) and (rule is None or rule(d,cand)):
+            d.rect=cand;d.pending=None;moved.append(d.name)
+    pool.moved_last=bool(moved)
+    touch=[(d.name,a) for d,g,rule in pool.items if d.name in S.drops for a in getattr(d,'allow',())]
+    return moved,touch,dur
+
+def _drain(S,until,limit=400):
+    """只推进后台，直到条件满足；长时间无移动视为排队死锁。"""
+    stall=0
+    while not until():
+        S.step(geom.STEP_MS,changed=[])
+        stall=0 if S.waste_pool.moved_last else stall+1
+        if stall>limit:
+            info=[(d.name,d.rect,d.pending) for d,g,r in S.waste_pool.items[:6]]
+            raise RuntimeError(f'流水线排废死锁 @step{S.nsteps}: {info}')
+
+def _make_row(S,job,r):
+    ds=sorted(job['arrived'][r],key=lambda q:q.slot)
+    union=frozenset().union(*(q.target_cells() for q in ds));rc=contour.bounds(union)
+    assert len(union)==rc[2]*rc[3] and contour.connected(union),'整排未自然组成完整矩形'
+    vol=round(sum(q.vol for q in ds),2)
+    for q in ds:S.remove(q.name)
+    row=S.add(Drop(f"WROW{job['port']}_{r}",rc,vol));row.set_cells(union);row.allow=(f"BLOB{job['port']}",)
+    row.tiles=len(ds);row.tile_area=ds[0].tile_area
+    S.waste_pool.items.append((row,_row_path(S,row,job,r),None))
+
+def _row_path(S,row,job,r):
+    import rigid as R
+    yield from R.go(row,[('x',job['final_x'])])
+    while job['docked'][0]!=r:yield 'wait'            # 自下而上逐排停靠
+    yield from R.go(row,[('y',189-(r+1)*job['h'])])
+    yield ('call',lambda:_dock(S,row,job,r),geom.HOLD_MS,[f"BLOB{job['port']}"])
+
+def _dock(S,row,job,r):
+    fk=job['port'];blobs=job['blobs'];host=blobs.get(fk);cells=row.target_cells()
+    if host:
+        union=host.target_cells()|cells
+        assert len(union)==area(host)+area(row) and contour.connected(union),'汇液未接触或重叠'
+        S.remove(row.name);host.vol=round(host.vol+row.vol,2)
+        host.rect=contour.bounds(union);host.set_cells(union);host.tile_count+=row.tiles
+    else:
+        S.remove(row.name);host=blobs[fk]=S.add(Drop(f'BLOB{fk}',contour.bounds(cells),row.vol))
+        host.set_cells(cells);host.tile_area=row.tile_area;host.tile_shape=(job['w'],job['h']);host.tile_count=row.tiles
+    assert area(host)==host.rect[2]*host.rect[3],'整排汇液终态缺角'
+    for c in range(row.tiles):
+        S.waste_grid_events.append(dict(port=fk,tile_area=row.tile_area,slot=r*job['columns']+c,row=r,column=c,
+            step=S.nsteps,merged_without_reshape=True,tile_shape=[job['w'],job['h']],transport_y=TRANSPORT_Y,
+            row_ready=True,row_piece_count=row.tiles,actual_area=area(host),rect=list(host.rect),
+            whole_port_pipeline=True))
+    job['event']['row_merges'].append(S.nsteps);job['docked'][0]+=1
+    if job['docked'][0]==job['rows']:job['event']['end_frame']=S.nsteps
+
+def _tile_path(S,d,job,t,r,col,entry,gx):
+    """小滴：按票号单列进通道 → 下到Y172 → 去本排就绪位（前方有小滴就按间距排队）→ 本排到齐后下一帧同步靠拢 → 合成整排。"""
+    import rigid as R
+    h,w=job['h'],job['w']
+    def release():
+        if entry[0]==t:entry[0]+=1
+    origin_y=d.rect[1]
+    while entry[0]!=t:yield 'wait'
+    job['event']['entries'].append(dict(ticket=t,frame=S.nsteps))
+    yield from R.go(d,[('x',gx)])
+    if job['under_exit']:
+        # 汇液框位于通道出口下方（F1）：整排要横移到出口下方再停靠，后一排在通道内带上方等前一排停靠完。
+        hold_y=TRANSPORT_Y-h-geom.PREFERRED_GAP
+        for a in R.go(d,[('y',max(origin_y,hold_y))]):
+            yield a
+            if d.rect[1]>=origin_y+h+geom.MIN_GAP:release()
+        while job['docked'][0]<r:yield 'wait'
+    for a in R.go(d,[('y',TRANSPORT_Y)]):
+        yield a
+        if d.rect[1]>=origin_y+h+geom.MIN_GAP:release()
+    for a in R.go(d,[('x',job['stage_left']+col*(w+geom.CUT_GAP))]):
+        yield a
+        if d.rect[0]>=gx+geom.CH_W+geom.MIN_GAP:release()
+    release()
+    job['arrived'][r].append(d)
+    if len(job['arrived'][r])==job['columns']:job['ready'][r]=S.nsteps
+    while r not in job['ready'] or S.nsteps<=job['ready'][r]:yield 'wait'
+    ds=sorted(job['arrived'][r],key=lambda q:q.slot);i=ds.index(d)
+    d.allow=(f"BLOB{job['port']}",*(q.name for q in ds if q is not d))
+    yield from R.go(d,[('x',job['stage_left']+i*w)])
+    job['contracted'][r]+=1
+    if job['contracted'][r]==job['columns']:job['merge_ready'][r]=S.nsteps
+    while r not in job['merge_ready'] or S.nsteps<=job['merge_ready'][r]:yield 'wait'
+    if i==0:
+        yield ('call',lambda:_make_row(S,job,r),geom.HOLD_MS,[f"WROW{job['port']}_{r}"])
+
+def _send_pipeline(S,pieces,gx,blobs,ports,collection_group):
+    """登记一批小滴到后台流水线后立即返回。
+    规则不变：小滴不变形、通道内单列；每排在就绪区到齐后同步靠拢成完整矩形，自下而上逐排停靠。
+    改变：后一排不等前一排停靠完即可出发，在就绪区左侧按间距排队，前一排离开后进入就绪区。"""
+    import rigid as R
+    pool=_pool(S)
+    pending=sorted(pieces,key=lambda t:-t[0].r)
+    for ln,d in pending:
+        cells=d.target_cells();rect=contour.bounds(cells)
+        assert len(cells)==rect[2]*rect[3],('排废小滴必须是完整矩形',d.name,rect,len(cells))
+        d.rect=rect;d.set_cells(cells);d.waste_grid_packet=True
+    S.step(geom.HOLD_MS,changed=[])
+    S.waste_grid_events=getattr(S,'waste_grid_events',[])
+    S.waste_batch_events=getattr(S,'waste_batch_events',[])
+    S.waste_parallel_events=getattr(S,'waste_parallel_events',[])
+    assert len({d.rect[2:] for ln,d in pending})==1,'整步调度的一批必须同形'
+    assert all(k in PORTS and not blobs.get(k) for k in ports),'调度给出的收集孔已占用'
+    w,h=pending[0][1].rect[2:]
+    plans=plan_batch(w,h,len(pending))
+    assert len(plans)==len(ports),'整步调度的孔数与本批紧凑块数不一致'
+    plans=[dict(p,port=k) for p,k in zip(plans,reversed(ports))]
+    S.waste_batch_events.append(dict(tile_shape=[w,h],count=len(pending),minimum_ports=len(plans),plans=plans,
+                                    collection_group=collection_group,ports=[p['port'] for p in plans],
+                                    flush_after=False,whole_port_pipeline=True))
+    entry=[0];ticket=0;tiles=[]
+    for plan in reversed(plans):                     # 先远孔：远孔小滴先进通道，后续小滴始终在其后方
+        fk=plan['port'];columns=plan['columns']
+        port_items=pending[:plan['count']];del pending[:plan['count']]
+        W=columns*w;stage_width=W+(columns-1)*geom.CUT_GAP
+        job=dict(port=fk,columns=columns,rows=plan['rows'],w=w,h=h,blobs=blobs,
+                 final_x=geom.HOLE_X[fk]-W//2,stage_left=max(gx+geom.CH_W+geom.MIN_GAP,geom.HOLE_X[fk]-stage_width//2),
+                 arrived={r:[] for r in range(plan['rows'])},ready={},contracted={r:0 for r in range(plan['rows'])},
+                 merge_ready={},docked=[0],
+                 event=dict(port=fk,scheduled_drops=len(port_items),start_frame=S.nsteps,entries=[],row_merges=[]))
+        job['under_exit']=job['final_x']<gx+geom.CH_W+geom.PREFERRED_GAP
+        assert job['stage_left']+stage_width<=geom.GRID_W
+        S.waste_parallel_events.append(job['event'])
+        for i,(ln,d) in enumerate(port_items):
+            r=i//columns;col=columns-1-i%columns
+            d.S=S;d.waste_fk=fk;d.slot=r*columns+col;d.tile_area=area(d)
+            d.waste_pipeline_clearance=True;assert d.tile_area in PACKET_AREAS
+            d.tile_columns=columns;d.entry_ticket=ticket;d.allow=(f'BLOB{fk}',)
+            pool.items.append((d,_tile_path(S,d,job,ticket,r,col,entry,gx),R._door_rule(gx)))
+            tiles.append(d);ticket+=1
+    return tiles
 
 def send(S,pieces,gx,blobs,final=False,ports=None,flush_after=True,parallel=False,collection_group=None):
     """ports=None：本批独立收集（先吸走旧废液，用最近的孔，送完即吸）。
@@ -160,9 +252,6 @@ def send(S,pieces,gx,blobs,final=False,ports=None,flush_after=True,parallel=Fals
         for plan in reversed(plans):
             fk=plan['port'];columns=plan['columns'];rows=plan['rows'];W=columns*w
             port_items=group[:plan['count']];del group[:plan['count']]
-            if parallel:
-                _collect_port_pipeline(S,port_items,gx,blobs,plan,w,h)
-                continue
             final_x=geom.HOLE_X[fk]-W//2
             stage_width=W+(columns-1)*geom.CUT_GAP
             stage_left=max(gx+geom.CH_W+geom.PREFERRED_GAP,geom.HOLE_X[fk]-stage_width//2)
@@ -343,8 +432,16 @@ def bites(S,items,blobs,final=True,pellets=None,collect_three=False,collect_a05=
         shapes=collections.Counter(contour.bounds(d.target_cells())[2:] for ln,d in pieces)
         assert shapes==rounds[index],('排废切块与整步调度预测不一致',index,dict(shapes),dict(rounds[index]))
         plan=schedule[index]
-        send(S,pieces,gx,blobs,ports=plan['ports'],flush_after=plan['flush'],
-             parallel=collect_three or collect_a05,collection_group=plan['stop'])
+        if collect_three or collect_a05:
+            # 流水线：本批登记到后台；本批全部离开反应区和进液通道（到达底部运输带或已汇入）后，
+            # 立即切下一批，与本批在底部的行进、靠拢、停靠并行。本次停靠的最后一批送完后才吸液。
+            tiles=_send_pipeline(S,pieces,gx,blobs,plan['ports'],plan['stop'])
+            if plan['flush']:
+                _drain(S,lambda:not S.waste_pool.items);flush(S,blobs)
+            else:
+                _drain(S,lambda:all(S.drops.get(d.name) is not d or d.rect[1]>=TRANSPORT_Y for d in tiles))
+        else:
+            send(S,pieces,gx,blobs,ports=plan['ports'],flush_after=plan['flush'],collection_group=plan['stop'])
         index+=1
     if pellets:
         for k,p in pellets.items():
