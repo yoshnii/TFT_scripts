@@ -142,7 +142,8 @@ def _tile_path(S,d,job,t,r,col,entry,gx):
     def release():
         if entry[0]==t:entry[0]+=1
     origin_y=d.rect[1]
-    while entry[0]!=t:yield 'wait'
+    # 各道小块同时横移进废液通道：相邻两道相距9行，小块高4–6行，通道内间距≥3；
+    # 整列一起下行，逐个到达底部运输带。出口仍受 _door_rule 保护。
     job['event']['entries'].append(dict(ticket=t,frame=S.nsteps))
     yield from R.go(d,[('x',gx)])
     if job['under_exit']:
@@ -177,7 +178,7 @@ def _send_pipeline(S,pieces,gx,blobs,ports,collection_group):
     改变：后一排不等前一排停靠完即可出发，在就绪区左侧按间距排队，前一排离开后进入就绪区。"""
     import rigid as R
     pool=_pool(S)
-    pending=sorted(pieces,key=lambda t:-t[0].r)
+    pending=sorted(pieces,key=lambda t:-t[0].r)      # 票号按到达底部的先后：最深的道最先到达
     for ln,d in pending:
         cells=d.target_cells();rect=contour.bounds(cells)
         assert len(cells)==rect[2]*rect[3],('排废小滴必须是完整矩形',d.name,rect,len(cells))
@@ -394,15 +395,15 @@ def bites(S,items,blobs,final=True,pellets=None,collect_three=False,collect_a05=
         assert not any(blobs.values())
     # 100格按25×4切，每次4×4；30格按6×5切成4×5+2×5。
     # 形变与移液分别记录，先为变宽的母框让出反应区内空间。
-    for ln,d in items:
-        n=area(d)
-        if n==100:
-            R.run(S,[(d,R.go(d,[('x',ln.X0+9)]))])
-            R.reshape(S,d,(ln.X0+9,ln.Y0,25,4))
+    big=[(ln,d) for ln,d in items if area(d)==100]
+    if big:
+        # 16道同步：先同时逐格平移到 X0+9，再同时等面积整形为 25×4（移动与形变不在同一帧）。
+        R.run(S,[(d,R.go(d,[('x',ln.X0+9)])) for ln,d in big])
+        R.reshape_many(S,[(d,(ln.X0+9,ln.Y0,25,4)) for ln,d in big])
     # 整步统一调度：先按切法预测每批小滴，再把各批依次分到 F 孔，四孔用尽才停靠吸液。
     assert not any(blobs.get(k) for k in PORTS),'排废调度开始前必须无未吸出的旧废液'
     rounds=cut_rounds(items,collect_three)
-    schedule=port_schedule(rounds,final,gx,collect_three or collect_a05)
+    schedule=port_schedule(rounds,final,gx,True)
     S.waste_schedule_events=getattr(S,'waste_schedule_events',[])
     S.waste_schedule_events.append(dict(rounds=[dict(r) for r in rounds],schedule=schedule,step=S.nsteps))
     while rem:
@@ -432,16 +433,13 @@ def bites(S,items,blobs,final=True,pellets=None,collect_three=False,collect_a05=
         shapes=collections.Counter(contour.bounds(d.target_cells())[2:] for ln,d in pieces)
         assert shapes==rounds[index],('排废切块与整步调度预测不一致',index,dict(shapes),dict(rounds[index]))
         plan=schedule[index]
-        if collect_three or collect_a05:
-            # 流水线：本批登记到后台；本批全部离开反应区和进液通道（到达底部运输带或已汇入）后，
-            # 立即切下一批，与本批在底部的行进、靠拢、停靠并行。本次停靠的最后一批送完后才吸液。
-            tiles=_send_pipeline(S,pieces,gx,blobs,plan['ports'],plan['stop'])
-            if plan['flush']:
-                _drain(S,lambda:not S.waste_pool.items);flush(S,blobs)
-            else:
-                _drain(S,lambda:all(S.drops.get(d.name) is not d or d.rect[1]>=TRANSPORT_Y for d in tiles))
+        # 流水线（全部排废步骤）：本批登记到后台；本批全部离开反应区和进液通道（到达底部运输带或已汇入）后，
+        # 立即切下一批，与本批在底部的行进、靠拢、停靠并行。本次停靠的最后一批送完后才吸液。
+        tiles=_send_pipeline(S,pieces,gx,blobs,plan['ports'],plan['stop'])
+        if plan['flush']:
+            _drain(S,lambda:not S.waste_pool.items);flush(S,blobs)
         else:
-            send(S,pieces,gx,blobs,ports=plan['ports'],flush_after=plan['flush'],collection_group=plan['stop'])
+            _drain(S,lambda:all(S.drops.get(d.name) is not d or d.rect[1]>=TRANSPORT_Y for d in tiles))
         index+=1
     if pellets:
         for k,p in pellets.items():

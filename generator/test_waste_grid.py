@@ -63,8 +63,8 @@ class WasteGridTests(unittest.TestCase):
         self.assertEqual(shapes.count((2,5)),16)
         self.assertEqual(len(shapes),32)
         self.assertAlmostEqual(sum(info['volume_ul'] for relay,info in S.manual_aspirations),24.0)
-        # 两批跨批累积在一次停靠内；F2就绪区会靠近F3汇液框，因此改用F4/F3/F1。
-        self.assertEqual([info['hole'] for relay,info in S.manual_aspirations],['F4/F3/F1'])
+        # 两批跨批累积在一次停靠内（流水线就绪区按MIN_GAP校核），取最近的F3/F2/F1。
+        self.assertEqual([info['hole'] for relay,info in S.manual_aspirations],['F3/F2/F1'])
         self.assertEqual([b['minimum_ports'] for b in S.waste_batch_events],[2,1])
 
     def test_full_batches_use_minimum_ports_without_overlap_or_rotation(self):
