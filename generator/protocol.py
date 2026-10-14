@@ -15,7 +15,7 @@ BEAD_BIND_MIX = {'R1':20, 'C':12}    # 原10/6轮加倍；工程增强，不是S
 BEAD_ELUTE_MIX = 12                  # 原6轮加倍，固定矩形全区往返
 BEAD_CLEANUP_UL = 3.00               # ASI96 260902_96sampleV2_1：TE分液2267，每滴10×6=60格；额外排珠载液。
 BEAD_CAPTURE_SECONDS = {'R1':180, 'C':120}  # POCS 2.2.2.1 / 2.3.6.2
-BEAD_ELUTE_CAPTURE_SECONDS = {'R1':120, 'C':30}  # POCS 2.2.2.5 / 2.3.6.7
+BEAD_ELUTE_CAPTURE_SECONDS = {'R1':120, 'C':120}  # POCS 2.2.2.5；C段按用户要求由30s改为120s（磁铁升起捕获不少于2min）
 
 class Protocol:
     def __init__(self, cols=(1, 2, 3, 4, 5, 6)):

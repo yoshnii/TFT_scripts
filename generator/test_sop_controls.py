@@ -7,7 +7,7 @@ from scene import Drop
 class SopControlsTests(unittest.TestCase):
     def test_source_capture_intervals_and_increased_cycles(self):
         self.assertEqual(protocol.BEAD_CAPTURE_SECONDS,{'R1':180,'C':120})
-        self.assertEqual(protocol.BEAD_ELUTE_CAPTURE_SECONDS,{'R1':120,'C':30})
+        self.assertEqual(protocol.BEAD_ELUTE_CAPTURE_SECONDS,{'R1':120,'C':120})
         self.assertEqual(protocol.BEAD_BIND_MIX,{'R1':20,'C':12})
         self.assertEqual(protocol.BEAD_ELUTE_MIX,12)
 

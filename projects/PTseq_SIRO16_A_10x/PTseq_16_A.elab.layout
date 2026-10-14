@@ -212,7 +212,7 @@
   <Command Position="0,30" SequenceTypeId="0" ID="4016" Name="第1次：磁铁落下 · 固定矩形扫过整个反应区 · 往返12轮" Type="2" ScriptHead=""/>
   <Command Position="0,60" SequenceTypeId="0" ID="4017" Name="第1次：室温洗脱孵育 180s · 全液滴保持上电" Type="2" ScriptHead=""/>
   <Command Position="0,90" SequenceTypeId="0" ID="4018" Name="第1次：固定形状逐格移回磁铁侧，再升磁铁" Type="2" ScriptHead=""/>
-  <Command Position="0,120" SequenceTypeId="0" ID="4019" Name="第1次：磁铁升起 30s · 全液滴持续通电" Type="2" ScriptHead=""/>
+  <Command Position="0,120" SequenceTypeId="0" ID="4019" Name="第1次：磁铁升起 120s · 全液滴持续通电" Type="2" ScriptHead=""/>
   <Command Position="0,150" SequenceTypeId="0" ID="4020" Name="第1次：产物 3.00µL 与磁珠团分离" Type="2" ScriptHead=""/>
   <Command Position="0,180" SequenceTypeId="0" ID="4021" Name="第1次产物移至 S 孔下，等待手工吸出 · 【手工吸液・组结束】S孔×16 48.000µL · 吸出后运行下一组" Type="2" ScriptHead=""/>
  </Flow>
@@ -224,7 +224,7 @@
   <Command Position="0,30" SequenceTypeId="0" ID="4026" Name="第2次：磁铁落下 · 固定矩形扫过整个反应区 · 往返12轮" Type="2" ScriptHead=""/>
   <Command Position="0,60" SequenceTypeId="0" ID="4027" Name="第2次：室温洗脱孵育 180s · 全液滴保持上电" Type="2" ScriptHead=""/>
   <Command Position="0,90" SequenceTypeId="0" ID="4028" Name="第2次：固定形状逐格移回磁铁侧，再升磁铁" Type="2" ScriptHead=""/>
-  <Command Position="0,120" SequenceTypeId="0" ID="4029" Name="第2次：磁铁升起 30s · 全液滴持续通电" Type="2" ScriptHead=""/>
+  <Command Position="0,120" SequenceTypeId="0" ID="4029" Name="第2次：磁铁升起 120s · 全液滴持续通电" Type="2" ScriptHead=""/>
   <Command Position="0,150" SequenceTypeId="0" ID="4030" Name="第2次：产物 3.00µL 与磁珠团分离" Type="2" ScriptHead=""/>
   <Command Position="0,180" SequenceTypeId="0" ID="4031" Name="第2次产物移至 S 孔下，等待手工吸出 · 【手工吸液・组结束】S孔×16 48.000µL · 吸出后运行下一组" Type="2" ScriptHead=""/>
  </Flow>
