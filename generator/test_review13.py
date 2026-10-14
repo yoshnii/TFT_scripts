@@ -63,6 +63,26 @@ class Review13Tests(unittest.TestCase):
         S=Scene();ln=ops.Lane(1,8);S.add(Drop('Y',(14,ln.Y0-1,2,7),.7))
         with self.assertRaisesRegex(AssertionError,'两行之间'):S.step()
 
+    def test_c01_compact_guest_merges_directly_without_strip(self):
+        """C01：34格磁珠液保持整高紧凑块，与14×6产物整高贴合后直接成为20×6缺2格；不拉成17×2细条。"""
+        S=Scene();lanes=ops.lanes_all((1,));original=Scene._record;seen=[]
+        for ln in lanes:
+            S.add(Drop(ln.name,(ln.X0+20,ln.Y0,14,6),4.2))
+            g=S.add(Drop(f'TG16{ln.id}',(ln.X0+10,ln.Y0,6,6),1.7))
+        S.step()
+        def trace(scene,*args,**kw):
+            original(scene,*args,**kw)
+            for d in scene.drops.values():
+                cells=d.target_cells();b=contour.bounds(cells)
+                self.assertGreaterEqual(b[3],5,'不得出现细长条')
+                self.assertTrue(contour.orthoconvex(cells),'不得出现L形或凹口')
+                seen.append(len(cells))
+        with patch.object(Scene,'_record',trace):
+            ops.merge_all(S,lanes,'TG16')
+        for ln in lanes:
+            d=S.get(ln.name)
+            self.assertEqual(d.rect[2:],(20,6));self.assertEqual(d.target_cells(),contour.fill(d.rect,118))
+
     def test_b10_single_port_without_changing_dose(self):
         S=Scene();S.manual_aspirations=[];loads=[]
         for ln in ops.lanes_all((1,)):S.add(Drop(ln.name,(30,ln.Y0,16,5),4.0))

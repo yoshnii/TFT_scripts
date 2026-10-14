@@ -301,7 +301,8 @@ class Protocol:
                    waste_begin_frame=S.nsteps,magnet_state=self.magnet_state)
         self.bead_cleanup_events.append(event)
         assert all(S.get(ln.name).vol==BEAD_CLEANUP_UL for ln in self.ALL)
-        rigid.egress_pieces(S,[(ln,S.get(ln.name)) for ln in self.ALL],self.blob,final=True)
+        # C06为程序最后一步：整步48µL一次装入F1–F4，吸液停靠时反应区内不留液体。
+        rigid.egress_pieces(S,[(ln,S.get(ln.name)) for ln in self.ALL],self.blob,final=True,single_stop=seg=='C')
         event['waste_end_frame']=S.nsteps
         cmds.append(self.cmd('3.00µL载液与磁珠一起排至底边孔，等待手工吸出；不回收文库'))
         self.flow(seg,f'{title} · 磁珠清理（48µL额外载液排废，非文库）',cmds)

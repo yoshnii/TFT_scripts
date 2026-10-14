@@ -1,5 +1,5 @@
 """v3 动作层 —— 一切在 Scene 上进行; 每步全部液滴通电; 会撞的先后走。"""
-import math, geom
+import math, geom, contour
 from scene import Scene, Drop, Worm, _gap, _overlap
 
 T_LOAD, T_DISP, T_ASP, T_MAG, T_RESUS_MAG = 60, 12, 8, 60, 30  # 秒 (待实测); T_DISP 按一次分注 40 µL 给
@@ -132,12 +132,24 @@ def merge_all(S, lanes, guest_tag, host_tag="L"):
         return
     # 整列试剂已就绪、转运队列已清空，才允许将临时紧凑轮廓整理为完整矩形。
     # 先让宿主退到反应区右端，再用原轮廓移开客滴，避免扩宽时穿过宿主。
-    prepare=[]
+    prepare=[];whole=[]
     for ln in lanes:
         g=S.get(f'{guest_tag}{ln.id}')
         if g.vol>0 and len(g.target_cells())!=g.rect[2]*g.rect[3]:
             W,H=geom.lane_shape(g.vol)
-            if W*H==geom.cells(g.vol):prepare.append((ln,g,W,H))
+            if H<=2:whole.append((ln,g))          # 完整矩形只能是细长条（如34格=17×2）：保持整高紧凑块直接贴合
+            elif W*H==geom.cells(g.vol):prepare.append((ln,g,W,H))
+    if whole:
+        # 整高紧凑块：缺角移到远离宿主的外侧下角（底行整段逐格平移），贴合后与宿主直接组成"矩形缺一角"。
+        for ln,g in whole:
+            h=S.get(f'{host_tag}{ln.id}')
+            assert g.rect[0]<h.rect[0] and len(h.target_cells())==h.rect[2]*h.rect[3]==h.rect[2]*geom.LANE_H,'宿主须为整高完整矩形且在客滴右侧'
+            n=len(g.target_cells());H=geom.LANE_H;W=-(-n//H);miss=W*H-n
+            x0=g.rect[0]+g.rect[2]-W;assert x0>=ln.X0
+            want=frozenset((x0+i,ln.Y0+j) for i in range(W) for j in range(H))-frozenset((x0+i,ln.Y0+H-1) for i in range(miss))
+            path=slide_bottom(g.target_cells(),want) if g.rect==(x0,ln.Y0,W,H) else None
+            g.rect=(x0,ln.Y0,W,H);g.set_cells(want);g.morph_path=path or None
+        S.step(MORPH_MS,changed=[g.name for ln,g in whole])
     if prepare:
         move_rects(S,{f'{host_tag}{ln.id}':ln.X0+geom.LANE_L-S.get(f'{host_tag}{ln.id}').rect[2]
                       for ln,g,W,H in prepare})
@@ -172,7 +184,12 @@ def merge_all(S, lanes, guest_tag, host_tag="L"):
         X = h.rect[0] + h.rect[2] - L if g.rect[0] < h.rect[0] else h.rect[0]
         union = (min(g.rect[0],h.rect[0]), ln.Y0,
                  max(g.rect[0]+g.rect[2],h.rect[0]+h.rect[2])-min(g.rect[0],h.rect[0]),geom.LANE_H)
+        merged=g.target_cells()|h.target_cells()
         h.rect = union; h.vol = round(h.vol + g.vol, 2); S.remove(g.name)
+        if any(g is q for _,q in whole):
+            # 两块直接合并为"矩形缺外侧下角"；底行整段逐格滑到规范位置（缺角在右下），每帧只动2格。
+            canon=contour.fill(union,len(merged));assert union==(X,ln.Y0,L,H)
+            h.set_cells(canon);h.morph_path=slide_bottom(merged,canon) or None
         targets.append((h,(X,ln.Y0,L,H)))
     S.step(geom.HOLD_MS,changed=[h.name for h,_ in targets])
     sync['merge_step']=S.nsteps-1
@@ -222,6 +239,20 @@ def merge_chain(S, lanes, guest_tags, host_tag="L"):
     import rigid
     rigid.reshape_many(S,targets)
     S.step(2000, changed=[f"{host_tag}{ln.id}" for ln in lanes])
+
+def slide_bottom(cells,target):
+    """两轮廓除最底行外完全相同、底行各为连续一段且等长：每帧将底行整段平移1格，返回逐帧轮廓（不含起点）。"""
+    cells=frozenset(cells);target=frozenset(target)
+    yb=max(y for x,y in cells)
+    if yb!=max(y for x,y in target):return None
+    rest=frozenset(p for p in cells if p[1]!=yb)
+    if rest!=frozenset(p for p in target if p[1]!=yb):return None
+    a=sorted(x for x,y in cells if y==yb);b=sorted(x for x,y in target if y==yb)
+    if len(a)!=len(b) or a!=list(range(a[0],a[0]+len(a))) or b!=list(range(b[0],b[0]+len(b))):return None
+    frames=[];x=a[0];step=1 if b[0]>x else -1
+    while x!=b[0]:
+        x+=step;frames.append(rest|frozenset((i,yb) for i in range(x,x+len(a))))
+    return frames
 
 def mix_all(S, lanes, cycles, span=None, tag="L",full_region=False):
     """在当前位置附近往复: 每道在 [X, X+span] 之间来回 (span 默认到 TEC 段末端)。"""

@@ -234,10 +234,7 @@
  <Flow Position="35,5651.92" ID="4034" Name="C06 纯化2第2次洗脱：EB 3.00µL → 成品离片并汇聚 pooling · 磁珠清理（48µL额外载液排废，非文库） · F4/F3/F2/F1 待手工吸液（保持全部液滴上电）" Type="0" Expandgroup="">
   <Command Position="0,0" SequenceTypeId="0" ID="4035" Name="排珠载液逐格覆盖磁珠 · 磁铁仍升起 · 每道真实液量3.00µL" Type="2" ScriptHead=""/>
   <Command Position="0,30" SequenceTypeId="0" ID="4036" Name="[外部磁控]磁铁下降 · 3.00µL载液带磁珠全反应区往返12轮" Type="2" ScriptHead=""/>
-  <Command Position="0,60" SequenceTypeId="0" ID="4037" Name="3.00µL载液与磁珠一起排至底边孔，等待手工吸出；不回收文库 · 【手工吸液・组结束】F4/F3/F2/F1 38.400µL · 吸出后运行下一组" Type="2" ScriptHead=""/>
- </Flow>
- <Flow Position="35,5756.33" ID="51005" Name="C06 纯化2第2次洗脱：EB 3.00µL → 成品离片并汇聚 pooling · 磁珠清理（48µL额外载液排废，非文库） · F1 待手工吸液（保持全部液滴上电）" Type="0" Expandgroup="">
-  <Command Position="0,0" SequenceTypeId="0" ID="60004" Name="3.00µL载液与磁珠一起排至底边孔，等待手工吸出；不回收文库 · 【手工吸液・组结束】F1 9.600µL · 吸出后运行下一组" Type="2" ScriptHead=""/>
+  <Command Position="0,60" SequenceTypeId="0" ID="4037" Name="3.00µL载液与磁珠一起排至底边孔，等待手工吸出；不回收文库 · 【手工吸液・组结束】F4/F3/F2/F1 48.000µL · 吸出后运行下一组" Type="2" ScriptHead=""/>
  </Flow>
  <Arrow EndID="1002" StartID="1000"/>
  <Arrow EndID="50000" StartID="1002"/>
@@ -293,5 +290,4 @@
  <Arrow EndID="4024" StartID="4022"/>
  <Arrow EndID="4032" StartID="4024"/>
  <Arrow EndID="4034" StartID="4032"/>
- <Arrow EndID="51005" StartID="4034"/>
 </Script>

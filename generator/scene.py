@@ -150,7 +150,11 @@ class Scene:
                 if len(source)!=len(target) or not contour.connected(source):continue
             else:continue
             if source!=target:
-                plans.append((d,iter(contour.morph(source,target)),target))
+                # 调用方可给出逐帧路径（每帧只改相邻少量格），否则用通用等面积形变。
+                path=getattr(d,'morph_path',None);d.morph_path=None
+                if path:
+                    assert path[-1]==target and all(len(p)==len(target) for p in path),'指定形变路径须等面积并止于目标'
+                plans.append((d,iter(path) if path else iter(contour.morph(source,target)),target))
                 d.set_cells(source)
                 self.contour_events.append(dict(name=d.name,area=len(source),volume_ul=d.vol,step=self.nsteps))
         active=plans

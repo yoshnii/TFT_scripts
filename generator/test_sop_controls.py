@@ -46,6 +46,20 @@ class SopControlsTests(unittest.TestCase):
         self.assertEqual(P.bead_cleanup_events[0]['per_lane_ul'],3)
         self.assertFalse(P.S.drops)
 
+    def test_final_c06_cleanup_single_aspiration_with_empty_lanes(self):
+        """C06为程序最后一步：48µL一次装入F1–F4，吸液停靠时反应区内不留液体。"""
+        P=protocol.Protocol((1,));P.magnet_state='up'
+        for ln in P.ALL:
+            d=P.S.add(Drop(ln.name,ln.rect(ln.mag-1,3),0));d.magnet_only=True
+        P.cleanup_beads('C','C06清理','G18')
+        self.assertEqual(len(P.S.manual_aspirations),1)
+        relay,info=P.S.manual_aspirations[0]
+        self.assertEqual(info['volume_ul'],48);self.assertEqual(info['hole'],'F4/F3/F2/F1')
+        import re
+        lane_cells=[(int(y),int(x),int(h),int(w)) for y,x,h,w in re.findall(r'\((\d+),(\d+)\)\((\d+),(\d+)\)',';'.join(relay.codes))]
+        self.assertFalse([r for r in lane_cells if r[0]<171],'吸液停靠时反应区内仍有液体')
+        self.assertFalse(P.S.drops)
+
     def test_capture_mix_occurs_down_and_capture_occurs_after_arrival(self):
         P=protocol.Protocol((1,));calls=[]
         for ln in P.ALL:P.S.add(Drop(ln.name,(ln.X0,ln.Y0,20,5),5))
