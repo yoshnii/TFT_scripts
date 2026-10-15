@@ -34,13 +34,11 @@ def hold_all(S, secs, amp=geom.HOLD_VOLT):
     if secs>0:S.step(round(secs*1000),amp,changed=[])
 
 def settle_loaded(S):
-    """承接框距孔1格；手工加好后先整滴向下1格，再开始常规动作。"""
+    """承接与运行统一一格孔距，保持原承接位置接续，不再额外下移一格。"""
     ds=[d for d in S.drops.values() if getattr(d,'receiving',False)]
     if not ds:return
     for d in ds:
         d.receiving=False
-        x,y,w,h=d.rect
-        if geom.running_gap(d.vol)==2:d.rect=(x,y+1,w,h)
     S.step(geom.HOLD_MS,changed=[d.name for d in ds])
 
 def move_rects(S, moves, touching=()):
@@ -211,7 +209,7 @@ def merge_all(S,lanes,guest_tag,host_tag='L'):
         S.step(geom.HOLD_MS,changed=[ln.name for ln in lanes])
         return
     if all(abs(S.get(f'{host_tag}{ln.id}').vol+S.get(f'{guest_tag}{ln.id}').vol-4.2)<1e-7 for ln in lanes):
-        # 4.00µL保留一格例外；EDTA自身两格，融合后立即恢复4.20µL两格安全框。
+        # EDTA贴合后独立整形成完整紧凑矩形；全部体系统一一格孔距。
         move_rects(S,{f'{guest_tag}{ln.id}':geom.gap_x(geom.reagent_gap(ln.c)) for ln in lanes})
         move_rects(S,{f'{host_tag}{ln.id}':geom.lane_target(ln.c,ln.r,4.,'left')[0] for ln in lanes})
         pairs=[(f'{guest_tag}{ln.id}',f'{host_tag}{ln.id}') for ln in lanes]
@@ -222,7 +220,8 @@ def merge_all(S,lanes,guest_tag,host_tag='L'):
         for ln in lanes:
             h,g=S.get(f'{host_tag}{ln.id}'),S.get(f'{guest_tag}{ln.id}')
             h.vol=round(h.vol+g.vol,2);h.electrode_area=None;h.port_gap=None;h.margin_budget=0
-            h.rect=(ln.X0,ln.Y0,28,3);S.remove(g.name)
+            w,H=geom.lane_shape(h.vol)
+            h.rect=(ln.X0,ln.Y0,w,H);S.remove(g.name)
         S.step(4000,changed=[f'{host_tag}{ln.id}' for ln in lanes]);event['merge_step']=S.nsteps-1
         S.reaction_merge_events=getattr(S,'reaction_merge_events',[]);S.reaction_merge_events.append(event)
         return

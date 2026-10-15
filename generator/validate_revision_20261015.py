@@ -91,8 +91,10 @@ def validate(out):
     native_sha=hashlib.sha256((out/'PTseq_16_A.elab').read_bytes()).hexdigest()
     report=dict(status='passed',validation='offline_only',visual_check=False,hardware_verified=False,
         workbook_sha256=hashlib.sha256(sheet_path.read_bytes()).hexdigest(),script_sha256=native_sha,
-        geometry=dict(all_frames_full_rectangles=True,ordinary_hole_gap=2,
-            approved_one_grid_systems=[4.,5.,5.9],actual_590_ul=5.9,electrode_590_cells=120,
+        geometry=dict(all_frames_full_rectangles=True,ordinary_hole_gap=1,
+            all_systems_one_grid_hole_clearance=True,actual_590_ul=5.9,electrode_590_cells=120,
+            reaction_safe_band_height=geom.LANE_H,
+            preferred_resident_shapes={str(v):list(geom.lane_shape(v)) for v in (1.3,1.6,2.,2.5,2.6,3.,4.,4.2,5.,5.9)},
             no_foreign_TEC=True,no_overlap=True,translation_max_cells=1,reshape_settle_ms=4000),
         timing=dict(step_ms=1000,pcr_cycles=30,pcr_pulse_ms=[1000,1000],mixing_closed_loops=len(mix),
             scriptcycle='TRUE',runtime_cycle_end_behavior_verified=False),

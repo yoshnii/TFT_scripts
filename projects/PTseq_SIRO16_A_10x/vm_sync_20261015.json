@@ -1,26 +1,23 @@
 {
-  "release_id": "TFT16_20261015_rules13",
+  "release_id": "TFT16_20261015_onegrid_compact_rectangles",
   "date": "2026-10-15",
-  "base_commit": "969ac87a5e777dd5b1f38c59690c8083ab0d4361",
+  "base_commit": "2a959d7751defd61a626ea48d28f4585b7573f6f",
   "source": "Mac generator with preserved VM A03/A04 settings",
   "vm_path": "C:\\Users\\shan\\Desktop\\tfttest\\siro_scripts\\Engineering\\PTseq_SIRO16_A",
-  "vm_backup": "C:\\Users\\shan\\Desktop\\tfttest\\_backups\\PTseq_SIRO16_A_13rules_before_20261015_rOzOdz",
-  "mac_backup": "/Users/shan/Documents/BGI/SIRO解决方案中心/SIRO-Plus/实验/TFT片上测试/片上测试1/工程备份/13条修订前_20261015.rOzOdz",
-  "native_script_sha256": "512b2a32c7f679c10ccbc5181229d9906b4e80c75972c37fb9f1e76f076f5eb3",
+  "vm_backup": "C:\\Users\\shan\\Desktop\\tfttest\\_backups\\PTseq_SIRO16_A_before_onegrid_20261015_f4t5gP",
+  "mac_backup": "/Users/shan/Documents/BGI/SIRO解决方案中心/SIRO-Plus/实验/TFT片上测试/片上测试1/工程备份/一格孔距修订前_20261015.f4t5gP",
+  "native_script_sha256": "d88cf859c66b3b31b6f53d530ec67a618125883e67cb38a3d8b98581694226d5",
   "mac_vm_file_hashes_equal": true,
   "requested_rule_revision_20261015_applied": true,
-  "offline_regression_tests_passed": 31,
+  "offline_regression_tests_passed": 34,
   "visual_check_performed": false,
   "gui_compile_performed": false,
   "hardware_execution_verified": false,
   "authorizations": {
-    "ordinary_running_port_gap": 2,
+    "ordinary_running_port_gap": 1,
     "manual_port_gap": 1,
-    "one_grid_reaction_systems_ul": [
-      4,
-      5,
-      5.9
-    ],
+    "one_grid_clearance_applies_to_all_systems": true,
+    "ordinary_safe_band_height_cells": 5,
     "cross_midline_systems_ul": [
       5,
       5.9
@@ -29,10 +26,13 @@
     "electrode_590_cells": 120
   },
   "behavior_notes": [
+    "所有孔的最小间距统一为一格，液滴间距及温磁控半区限制不变。",
+    "完整矩形优先紧凑长宽比：1.60µL使用8×4，2.00µL使用8×5，4.20µL使用21×4；液量均不变。",
+    "紧凑母框再次等分前先独立整形成可原生对半的完整矩形，终态驻留4秒，避免缺角。",
     "总量和试剂比例不变，接头手工加1.20µL并对半保留0.60µL。",
     "优先对半；25格完整母框原生切为10/15格近半，不产生缺角或微小尾滴。",
     "5.90µL体系的2格承接余量在G16接液及排废分支中守恒分配，不是每滴额外增加2格。",
-    "31项回归及逐帧离线检查通过；磁铁升降仍为外部操作时序。"
+    "逐帧离线检查覆盖12079个场景帧；磁铁升降仍为外部操作时序。"
   ],
   "generic_check": {
     "errors": 0,

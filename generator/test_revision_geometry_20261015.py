@@ -22,15 +22,42 @@ class ApprovedGeometryTests(unittest.TestCase):
         self.assertEqual(geom.electrode_cells(5.9),120)
         for volume in (.2,.4,.5,.6,.7,1.3,1.4,1.6,1.7,2.,2.5,2.6,3.,4.,4.2,5.):
             self.assertEqual(geom.electrode_cells(volume),geom.cells(volume))
-        self.assertEqual(geom.running_gap(4.2),2)
-        self.assertEqual(geom.running_gap(2.5),2)
+        self.assertEqual(geom.running_gap(4.2),1)
+        self.assertEqual(geom.running_gap(2.5),1)
         self.assertEqual(geom.running_gap(4.),1)
 
-    def test_other_targets_retain_two_grid_clearance(self):
+    def test_all_targets_retain_one_grid_clearance(self):
         for volume in (.2,.4,.5,.6,.7,1.3,1.4,1.6,1.7,2.,2.5,2.6,3.,4.2):
             rc=geom.lane_target(1,1,volume)
-            self.assertTrue(geom.reaction_holes_ok(rc,2))
+            self.assertTrue(geom.reaction_holes_ok(rc,1))
             self.assertEqual(rc[2]*rc[3],geom.cells(volume))
+
+    def test_sample_loading_uses_compact_complete_rectangle(self):
+        for col in range(1,7):
+            for row in range(1,17):
+                rc=geom.s_block(col,row,1.6)
+                self.assertEqual(rc[2:],(8,4))
+                self.assertTrue(geom.reaction_holes_ok(rc,1))
+                self.assertEqual(rc[2]*rc[3],32)
+
+    def test_barcode_loading_is_one_grid_below_port(self):
+        for col in range(1,7):
+            for row in range(1,17):
+                rc=geom.b_block(col,row,1.2)
+                self.assertEqual(rc[2:],(6,4))
+                self.assertTrue(geom.reaction_holes_ok(rc,1))
+
+    def test_compact_cdna_two_halvings_keep_exact_quarter(self):
+        import ops
+        s=Scene();lanes=ops.lanes_all((1,))
+        for ln in lanes:s.add(Drop(ln.name,geom.lane_target(ln.c,ln.r,2.),2.))
+        s.step()
+        ops.split_all(s,lanes,.5,'A')
+        for ln in lanes:
+            self.assertEqual(s.get(ln.name).vol,.5)
+            self.assertEqual(s.get('A'+ln.id).vol,1.5)
+        self.assertTrue(all(len(e['volumes'])==2 and e['volumes'][0]==e['volumes'][1]
+                            for e in s.split_events))
 
     def test_extra_area_rejected_without_authorized_lineage(self):
         s=Scene();d=s.add(Drop('test',(10,29,5,2),.4));d.electrode_area=10

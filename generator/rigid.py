@@ -233,16 +233,22 @@ def split_many(S, specs, axis='x', offset=None, dur=CUT_MS, touching=()):
     return groups
 
 def bisect_many(S,drops,names=None,touching=()):
-    """沿母滴长尺寸截为两块；奇数电极只允许1格差，不剥小尾巴。"""
+    """沿母滴长尺寸原生截为完整矩形；优先等分，不剥小尾巴。"""
     import contour
     ops.settle_loaded(S)
     drops=list(drops);specs=[];axes=[]
+    # 紧凑母滴的长尺寸可能为奇数（20格的5×4）；不能按格数排序截半，
+    # 否则会把完整矩形切成缺角。先选可沿长尺寸等分的完整母框，独立驻留4秒。
+    prepare=[]
     for d in drops:
-        x,y,w,h=d.rect
-        if h>3 and geom.running_gap(d.vol)==2 and 27<=y<171:
-            W,H=geom.lane_shape(d.vol);row=(y-27)//9+1;col=max(1,min(6,(x-10)//40+1))
-            x0,y0=geom.physical_zone(col,row)
-            reshape(S,d,(max(x0,min(x,x0+36-W)),y0+2,W,H))
+        x,y,w,h=d.rect;n=len(d.target_cells())
+        if in_reaction(d.rect) and (h>w or (n%2==0 and w%2)):
+            choices=[(W,n//W) for W in range(2,geom.LANE_L-geom.CUT_GAP+1,2)
+                     if n%W==0 and n//W<=geom.LANE_H and W>=n//W]
+            assert choices,('完整母框无法沿长尺寸对半',d.name,n)
+            W,H=min(choices,key=lambda q:max(q)/min(q))
+            prepare.append((d,(x,y,W,H)))
+    reshape_many(S,prepare,touching=touching)
     for i,d in enumerate(drops):
         x,y,w,h=d.rect
         # 反应区内避免上下拉开碰到孔/相邻行：先适度整成横向近矩形。
@@ -250,8 +256,10 @@ def bisect_many(S,drops,names=None,touching=()):
             W,H=max(w,h),min(w,h)
             reshape(S,d,(x,y+h-H,W,H))
         x,y,w,h=d.rect;axis='x' if w>=h else 'y';axes.append(axis)
-        cells=sorted(d.target_cells(),key=(lambda p:(p[0],p[1])) if axis=='x' else (lambda p:(p[1],p[0])))
-        half=len(cells)//2;parts=(frozenset(cells[:half]),frozenset(cells[half:]))
+        cut=(w if axis=='x' else h)//2
+        parts=(frozenset((a,b) for a,b in d.target_cells() if (a-x if axis=='x' else b-y)<cut),
+               frozenset((a,b) for a,b in d.target_cells() if (a-x if axis=='x' else b-y)>=cut))
+        half=len(parts[0])
         assert half>0 and all(contour.connected(p) for p in parts),'无法连通近等分'
         finals=[];delta=geom.CUT_GAP//2
         for j,part in enumerate(parts):
@@ -903,7 +911,7 @@ def product_off_pellet(S, lanes, product_vol, pellet_vol):
         ordinary=[]
         for ln in lanes:
             d=S.get(f'P{ln.id}')
-            if geom.running_gap(d.vol)==2 and d.rect[3]>3:
+            if d.rect[3]>geom.LANE_H:
                 w,h=geom.lane_shape(d.vol)
                 ordinary.append((d,(ln.X0+36-w,ln.Y0,w,h)))
         reshape_many(S,ordinary,touching=pairs)

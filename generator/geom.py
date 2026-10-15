@@ -3,9 +3,9 @@ RelayCode 输出时转置: (x,y)(w,h) = (Y,X)(H,W)。2026-09-08 IDE 实测确认
 import math
 GRID_W, GRID_H = 256, 192
 COLS, ROWS = 6, 16
-LANE_L, LANE_H, TEC_L = 36, 3, 18          # 常规转运安全带；实体反应区仍36×6
+LANE_L, LANE_H, TEC_L = 36, 5, 18          # 一格孔距后的常规安全带；实体反应区仍36×6
 PHYSICAL_LANE_H = 6
-LOAD_GAP, RUN_GAP = 1, 2
+LOAD_GAP, RUN_GAP = 1, 1                   # 20261015：用户统一所有液滴的最小孔距为一格
 MAG_DX, S_DX, B_DX = 27, 13, 23             # 磁铁中心 / 样本孔 / barcode 孔 距泳道左端
 CH_W = 4                                    # 列间空隙可用宽度
 CELL_UL = 0.05
@@ -29,11 +29,11 @@ def electrode_cells(ul):
     return 120 if abs(ul-5.90)<1e-7 else cells(ul)
 
 def running_gap(ul):
-    return 1 if any(abs(ul-v)<1e-7 for v in (4.00,5.00,5.90)) else RUN_GAP
+    return RUN_GAP
 def rect_len(ul, h): return max(1, math.ceil(cells(ul) / h))
 
 def lane_shape(ul):
-    """下方4行内优先完整且不细长的矩形，必要时采用精确面积紧凑轮廓。"""
+    """一格孔距的5行安全带内，优先精确面积、长宽比小的完整矩形。"""
     n = electrode_cells(ul)
     special={80:(16,5),100:(20,5),120:(24,5)}
     if any(abs(ul-v)<1e-7 for v in (4.,5.,5.9)):return special[n]
@@ -77,7 +77,7 @@ def physical_zone(c,r):
     return 10+40*(c-1),27+9*(r-1)
 
 def zone(c, r):
-    """运行安全带左上角；CSV实体反应区仍为physical_zone的36×6。"""
+    """运行安全带左上角；一格孔距，CSV实体反应区仍为36×6。"""
     x,y=physical_zone(c,r)
     return x,y+RUN_GAP
 
@@ -118,7 +118,7 @@ def nearest_hole(x):
     return min(HOLE_X, key=lambda k: abs(HOLE_X[k] - x))
 
 def e_block(k, ul):
-    """顶边 E_k 孔下方的承接方框: 面积 ≥ 体积, 以孔为中心, 顶边切着孔。高度 8..22 随体积加高, 宽 ≤ 50 (10 µL → 25×8, 40 µL → 50×16)。"""
+    """顶边 E_k 孔下方承接框：以孔为中心，顶边距孔约一格。"""
     n = cells(ul); H = min(22, max(E_BLOCK_H, math.ceil(n / E_BLOCK_W_MAX))); W = max(CH_W, math.ceil(n / H))
     assert W <= E_BLOCK_W_MAX, f"单次分注 {ul} µL 放不进顶边孔下方框"
     return (HOLE_X[k] - W // 2, E_TANG_Y, W, H)
@@ -135,16 +135,16 @@ def b_block(c, r, ul):
     import contour
     X0,Y0=zone(c,r);shape=lane_shape(ul)
     assert shape,'接头液量不能形成反应区内的紧凑孔口矩形'
-    W,H=shape;return X0+B_DX-W//2,Y0-1,W,H
+    W,H=shape;return X0+B_DX-W//2,physical_zone(c,r)[1]+LOAD_GAP,W,H
 
 WASTE_HOLE = {1: 1, 3: 2, 5: 4}             # 废液空隙 → 底边 F 孔 (g1→F1, g3→F2, g5→F4)
 
 # 不参与本流程的孔（取自 ChipArea_192_256_96_SIRO.csv）：液体与孔边保持间距。
-# 四角 4×4 大孔留 PREFERRED_GAP；两侧 2×2 小孔距固定进液空隙 X6 仅 3.4 格，留 MIN_GAP。
+# 所有孔统一至少一格；既有转运坐标仍可保留更大的路径余量。
 OIL_WELLS = ((2, 2, 4, 4), (250, 2, 4, 4), (2, 186, 4, 4), (250, 186, 4, 4))
 SIDE_WELLS = tuple((0.6, y, 2, 2) for y in (20.3334, 41.666, 62.9986, 84.3312, 105.6638, 126.9964, 148.329, 169.6616)) \
     + tuple((253.5, y, 2, 2) for y in (39, 75, 111, 147))
-KEEP_OUT = tuple((w, PREFERRED_GAP) for w in OIL_WELLS) + tuple((w, MIN_GAP) for w in SIDE_WELLS)
+KEEP_OUT = tuple((w, RUN_GAP) for w in OIL_WELLS + SIDE_WELLS)
 SAFE_X = OIL_WELLS[0][0] + OIL_WELLS[0][2] + PREFERRED_GAP   # 10：左上角大孔右侧的禁入边界
 SAFE_Y = OIL_WELLS[0][1] + OIL_WELLS[0][3] + PREFERRED_GAP   # 10：左上角大孔下方的禁入边界
 

@@ -288,7 +288,7 @@
   <Command Position="0,0" SequenceTypeId="0" ID="4044" Name="排珠载液逐格覆盖磁珠 · 磁铁仍升起 · 每道真实液量3.00µL" Type="2" ScriptHead=""/>
   <Command Position="0,30" SequenceTypeId="0" ID="4045" Name="液滴左端定位 · 随后启动混匀（全部液滴带电）" Type="2" ScriptHead=""/>
   <Command Position="0,60" SequenceTypeId="0" ID="4046" Name="往复混匀 · 单轮闭合循环（全部液滴带电）" Type="2" ScriptHead=""/>
-  <Command Position="0,90" ID="4047" Name="混匀计时 66s（同步结束）" Type="2"/>
+  <Command Position="0,90" ID="4047" Name="混匀计时 98s（同步结束）" Type="2"/>
  </Flow>
  <Flow Position="35,6382.77" ID="4048" Name="C06 纯化2第2次洗脱：EB 3.00µL → 成品离片并汇聚 pooling · 磁珠清理（48µL额外载液排废，非文库） · F4/F3/F2/F1 待手工吸液（保持全部液滴上电）" Type="0" Expandgroup="">
   <Command Position="0,0" SequenceTypeId="0" ID="4049" Name="3.00µL载液与磁珠一起排至底边孔，等待手工吸出；不回收文库 · 【手工吸液・组结束】F4/F3/F2/F1 48.000µL · 吸出后运行下一组" Type="2" ScriptHead=""/>
