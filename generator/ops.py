@@ -193,7 +193,7 @@ def merge_all_legacy(S, lanes, guest_tag, host_tag="L"):
     S.step(2000, changed=[f"{host_tag}{ln.id}" for ln in lanes])
 
 def merge_all(S,lanes,guest_tag,host_tag='L'):
-    """各道先同时就绪，再同时接触；全过程位于孔下方安全带。"""
+    """就近同步接触后再整形，不先将两滴拉至反应区两端或改变各自形状。"""
     import rigid
     settle_loaded(S);lanes=list(lanes)
     dry=all(getattr(S.get(f'{host_tag}{ln.id}'),'magnet_only',False) for ln in lanes)
@@ -208,67 +208,43 @@ def merge_all(S,lanes,guest_tag,host_tag='L'):
             S.remove(g.name);S.remove(h.name);g.name=h.name;g.allow=();S.add(g)
         S.step(geom.HOLD_MS,changed=[ln.name for ln in lanes])
         return
-    if all(abs(S.get(f'{host_tag}{ln.id}').vol+S.get(f'{guest_tag}{ln.id}').vol-4.2)<1e-7 for ln in lanes):
-        # EDTA贴合后独立整形成完整紧凑矩形；全部体系统一一格孔距。
-        move_rects(S,{f'{guest_tag}{ln.id}':geom.gap_x(geom.reagent_gap(ln.c)) for ln in lanes})
-        move_rects(S,{f'{host_tag}{ln.id}':geom.lane_target(ln.c,ln.r,4.,'left')[0] for ln in lanes})
-        pairs=[(f'{guest_tag}{ln.id}',f'{host_tag}{ln.id}') for ln in lanes]
-        event=dict(guest_tag=guest_tag,host_tag=host_tag,rows=[ln.r for ln in lanes],ready_step=S.nsteps-1,
-                   host_volumes={S.get(f'{host_tag}{ln.id}').name:4. for ln in lanes})
-        move_rects(S,{f'{guest_tag}{ln.id}':S.get(f'{host_tag}{ln.id}').rect[0]-S.get(f'{guest_tag}{ln.id}').rect[2] for ln in lanes},touching=pairs)
-        S.step(geom.HOLD_MS,touching=pairs,changed=[]);event['contact_step']=S.nsteps-1
-        for ln in lanes:
-            h,g=S.get(f'{host_tag}{ln.id}'),S.get(f'{guest_tag}{ln.id}')
-            h.vol=round(h.vol+g.vol,2);h.electrode_area=None;h.port_gap=None;h.margin_budget=0
-            w,H=geom.lane_shape(h.vol)
-            h.rect=(ln.X0,ln.Y0,w,H);S.remove(g.name)
-        S.step(4000,changed=[f'{host_tag}{ln.id}' for ln in lanes]);event['merge_step']=S.nsteps-1
-        S.reaction_merge_events=getattr(S,'reaction_merge_events',[]);S.reaction_merge_events.append(event)
-        return
-    # 扩宽前先让两滴分居本反应区两端，避免宿主整形时穿过已就绪的接头液。
-    guest_left={ln.id:S.get(f'{guest_tag}{ln.id}').rect[0]<S.get(f'{host_tag}{ln.id}').rect[0] for ln in lanes}
-    if host_tag=='L':
-        move_rects(S,{f'{guest_tag}{ln.id}':ln.X0 if guest_left[ln.id] else ln.X0+36-S.get(f'{guest_tag}{ln.id}').rect[2] for ln in lanes})
-        move_rects(S,{f'{host_tag}{ln.id}':ln.X0+36-S.get(f'{host_tag}{ln.id}').rect[2] if guest_left[ln.id] else ln.X0 for ln in lanes})
-    # 采用两液滴格数的公因数高度，接触前后均为完整矩形。
-    specs=[]
-    for ln in lanes:
-        host=S.get(f'{host_tag}{ln.id}');guest=S.get(f'{guest_tag}{ln.id}')
-        a,b=len(host.target_cells()),len(guest.target_cells())
-        total=round(host.vol+guest.vol,2)
-        hs=[h for h in range(1,6) if a%h==b%h==0 and (a+b)//h+geom.MIN_GAP<=geom.LANE_L
-            and (h<=3 or geom.running_gap(total)==1)]
-        assert hs,('无法以完整矩形在反应区内融合',a,b,total)
-        H=min(hs,key=lambda h:max((a+b)/h,h)/min((a+b)/h,h))
-        y=geom.physical_zone(ln.c,ln.r)[1]+(1 if H>3 else 2)
-        for tag in (host_tag,guest_tag):
-            d=S.get(f'{tag}{ln.id}');w=len(d.target_cells())//H
-            specs.append((d,(min(d.rect[0],ln.X0+geom.LANE_L-w),y,w,H)))
-    rigid.reshape_many(S,specs)
-    targets={}
-    for ln in lanes:
-        g,h=S.get(f'{guest_tag}{ln.id}'),S.get(f'{host_tag}{ln.id}')
-        if g.rect[0]<h.rect[0]:targets[g.name]=h.rect[0]-geom.MIN_GAP-g.rect[2]
-        else:targets[g.name]=h.rect[0]+h.rect[2]+geom.MIN_GAP
-    move_rects(S,targets)
     event=dict(guest_tag=guest_tag,host_tag=host_tag,rows=[ln.r for ln in lanes],ready_step=S.nsteps-1,
-               host_volumes={S.get(f'{host_tag}{ln.id}').name:S.get(f'{host_tag}{ln.id}').vol for ln in lanes})
+               host_volumes={S.get(f'{host_tag}{ln.id}').name:S.get(f'{host_tag}{ln.id}').vol for ln in lanes},
+               mode='direct_nearby_fusion',precontact_reshape=False,
+               initial_host_rects={ln.id:list(S.get(f'{host_tag}{ln.id}').rect) for ln in lanes})
     contact={};pairs=[]
     for ln in lanes:
         g,h=S.get(f'{guest_tag}{ln.id}'),S.get(f'{host_tag}{ln.id}')
         contact[g.name]=h.rect[0]-g.rect[2] if g.rect[0]<h.rect[0] else h.rect[0]+h.rect[2]
         pairs.append((g.name,h.name))
     move_rects(S,contact,touching=pairs);event['contact_step']=S.nsteps-1
+    assert all(list(S.get(f'{host_tag}{ln.id}').rect)==event['initial_host_rects'][ln.id] for ln in lanes)
     S.step(geom.HOLD_MS,touching=pairs,changed=[])
-    final=[]
+    final=[];natural=[];needs_settle=False
     for ln in lanes:
         g,h=S.get(f'{guest_tag}{ln.id}'),S.get(f'{host_tag}{ln.id}')
         cells=g.target_cells()|h.target_cells();bounds=contour.bounds(cells)
-        h.vol=round(h.vol+g.vol,2);h.electrode_area=None;h.port_gap=None;h.margin_budget+=getattr(g,'margin_budget',0);h.rect=bounds;h.set_cells(cells);S.remove(g.name)
-        w,H=geom.lane_shape(h.vol);right=min(ln.X0+geom.LANE_L,bounds[0]+bounds[2])
-        y=geom.physical_zone(ln.c,ln.r)[1]+1 if geom.running_gap(h.vol)==1 else ln.Y0+geom.LANE_H-H
-        final.append((h,(max(ln.X0,right-w),y,w,H)))
-    S.step(geom.HOLD_MS,changed=[h.name for h,_ in final]);event['merge_step']=S.nsteps-1
+        assert len(cells)==len(g.target_cells())+len(h.target_cells())
+        total=round(h.vol+g.vol,2);w,H=geom.lane_shape(total);x0,y0=geom.physical_zone(ln.c,ln.r)
+        candidates=[]
+        for x in range(x0,x0+geom.LANE_L-w+1):
+            for y in range(y0,y0+geom.PHYSICAL_LANE_H-H+1):
+                rc=(x,y,w,H);target=contour.fill(rc,len(cells))
+                if not (target&g.target_cells() and target&h.target_cells()):continue
+                if rigid.rect_ok(S,h.name,rc,allow={g.name}):
+                    candidates.append(((-len(target&cells),abs(y-ln.Y0),abs(x-bounds[0])),rc))
+        assert candidates,('就近融合后无安全完整矩形',ln.id,total,bounds)
+        rc=min(candidates)[1]
+        final.append((h,rc));natural.append((h,g,cells,bounds,total))
+    for h,g,cells,bounds,total in natural:
+        h.vol=total;h.electrode_area=len(cells);h.port_gap=None
+        h.margin_budget+=getattr(g,'margin_budget',0);S.remove(g.name)
+        if len(cells)==bounds[2]*bounds[3]:h.rect=bounds;h.set_cells(cells)
+        else:
+            # 两滴先按原形贴合保持；随后直接换成等面积完整框，避免输出L形合并中间帧。
+            rc=next(rc for d,rc in final if d is h);h.rect=rc;h.set_cells(contour.fill(rc,len(cells)))
+            needs_settle=True
+    S.step(geom.LONG_MS if needs_settle else geom.HOLD_MS,changed=[h.name for h,_ in final]);event['merge_step']=S.nsteps-1
     S.reaction_merge_events=getattr(S,'reaction_merge_events',[]);S.reaction_merge_events.append(event)
     rigid.reshape_many(S,final)
 

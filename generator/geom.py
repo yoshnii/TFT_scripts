@@ -25,7 +25,7 @@ HOLE_X = {k: 54 * k for k in (1, 2, 3, 4)}  # E_k / F_k 的 X 中心
 
 def cells(ul): return int(round(ul / CELL_UL))
 def electrode_cells(ul):
-    """唯一授权承接余量：5.90µL实际118格，采用120格完整承接框。"""
+    """体系级余量：5.90µL用120格；G14小滴的临时余量另由rigid显式登记。"""
     return 120 if abs(ul-5.90)<1e-7 else cells(ul)
 
 def running_gap(ul):

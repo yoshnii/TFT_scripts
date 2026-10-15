@@ -120,10 +120,19 @@ def tick(S, items, rule=None, allow=frozenset(), dur=geom.STEP_MS):
                 host=S.get(act[2]);old_name=d.name
                 combined_area=len(d.target_cells())+len(host.target_cells())
                 combined_margin=getattr(d,'margin_budget',0)+getattr(host,'margin_budget',0)
+                retired_padding=(getattr(d,'transport_padding_cells',0)
+                                 +getattr(host,'transport_padding_cells',0))
+                if retired_padding:
+                    assert reagent_padding_allowed(d,host)
+                    assert cand[2]*cand[3]==combined_area-retired_padding
+                    S.transport_padding_events.append(dict(kind='retire',step=S.nsteps,
+                        cells=retired_padding,actual_volume_ul=round(d.vol+host.vol,2),
+                        reason='G14运输承接余量在反应区汇合后取消；不增加液量'))
                 S.remove(old_name);S.remove(host.name)
                 d.name=host.name;d.vol=round(d.vol+host.vol,2);d.allow=()
-                d.electrode_area=combined_area
-                d.margin_budget=combined_margin
+                d.electrode_area=combined_area-retired_padding
+                d.margin_budget=combined_margin-retired_padding
+                d.transport_padding_cells=0
                 S.add(d)
                 S.pipeline_events.append(dict(kind='reagent_collect',port=d.port,row=d.row,
                                               incoming_ul=act[3],total_ul=d.vol,step=S.nsteps))
@@ -172,6 +181,7 @@ def split_many(S, specs, axis='x', offset=None, dur=CUT_MS, touching=()):
     prepared=[];morphs=[]
     for spec in specs:
         parent,finals,vols,names,*custom=spec
+        assert not getattr(parent,'transport_padding_cells',0),'运输承接余量须在融合时取消，不能当作液量继续切分'
         starts=[]
         for i,rc in enumerate(finals):
             rc=list(rc);rc[coordinate]+=offset if i==0 else -offset;starts.append(tuple(rc))
@@ -477,6 +487,29 @@ def _b02_long_axis_packets(S,root,c,tag):
         ln=Lane(c,row);S.remove(d.name);d.name=f'{tag}E1_{ln.id}';d.port=1;d.row=row;d.part='';S.add(d);packets.append((d,ln))
     return packets
 
+def reagent_padding_allowed(*drops):
+    """只允许G14的0.50µL运输滴携带此次获准的两格承接余量。"""
+    return all(not getattr(d,'transport_padding_cells',0) or
+               (getattr(d,'g14_transport_padding',False) and d.vol==.5
+                and d.transport_padding_cells==2) for d in drops)
+
+def compact_g14_transport_packets(S,packets):
+    """0.50µL液量仍是10格；只将2×5承接电极扩为3×4，独立稳定4秒。"""
+    changed=[]
+    S.transport_padding_events=getattr(S,'transport_padding_events',[])
+    for d,ln in packets:
+        if d.vol!=.5 or d.rect[2:]!=(2,5):continue
+        assert len(d.target_cells())==10 and not getattr(d,'margin_budget',0)
+        x,y,_,_=d.rect
+        d.electrode_area=12;d.margin_budget=2;d.transport_padding_cells=2
+        d.g14_transport_padding=True;d.rect=(x,y,3,4)
+        S.transport_padding_events.append(dict(kind='add',step=S.nsteps,name=d.name,
+            source_cells=10,target_cells=12,actual_volume_ul=.5,
+            rect=list(d.rect),settle_ms=geom.LONG_MS,
+            reason='用户批准R01的10格小滴采用12格3×4运输承接框'))
+        changed.append(d.name)
+    if changed:S.step(geom.LONG_MS,changed=changed)
+
 def deliver_drops(S, reagent, vol, cols, tag, on_before_load=None, on_load=None,controlled=False):
     assert len(cols)==1 and geom.odd(cols[0]), "仅支持单奇数列"
     c=cols[0]; gx=geom.gap_x(geom.reagent_gap(c))
@@ -600,6 +633,7 @@ def deliver_drops(S, reagent, vol, cols, tag, on_before_load=None, on_load=None,
         for children,(ln,k) in zip(split_many(S,specs),meta):
             for j,d in enumerate(children):d.port=k;d.row=ln.r;d.part='p'+str(j);kept.append((d,ln))
     packets=kept
+    if reagent=='G14':compact_g14_transport_packets(S,packets)
     S.step(CUT_MS,changed=[d.name for d,_ in packets])
     # 连续配送仅汇集同种试剂，不与原产物接触。所有道备齐后统一融合。
     locks={}
@@ -658,7 +692,11 @@ def deliver_drops(S, reagent, vol, cols, tag, on_before_load=None, on_load=None,
         yield from go(d,[("x",host.rect[0]-d.rect[2])])
         yield ('hold',d.rect,geom.HOLD_MS)
         right=host.rect[0]+host.rect[2];total=round(host.vol+d.vol,2)
-        union=(d.rect[0],lane_y,right-d.rect[0],max(d.rect[3],host.rect[3]))
+        retired_padding=getattr(d,'transport_padding_cells',0)+getattr(host,'transport_padding_cells',0)
+        # 保持各自原形直至接触，随后才用完整紧凑框承接融合液。
+        # 此时取消运输余量，不先拉回2×5，也不输出不同高度拼出的L形中间框。
+        W,H=shape(len(d.target_cells())+len(host.target_cells())-retired_padding)
+        union=(right-W,lane_y,W,H)
         incoming=d.vol
         yield ('merge',union,host.name,incoming)
         L,H=shape(len(d.target_cells()))

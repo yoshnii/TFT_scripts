@@ -186,6 +186,9 @@ class Scene:
             expected=getattr(d,'electrode_area',None) or geom.electrode_cells(d.vol)
             if d.vol>0:assert len(cells)==expected,('电极面积与液量不一致',d.name,d.vol,len(cells))
             if d.vol>0:assert 0<=len(cells)-geom.cells(d.vol)<=getattr(d,'margin_budget',0),('未授权承接余量',d.name,d.vol,len(cells))
+            if getattr(d,'transport_padding_cells',0):
+                assert getattr(d,'g14_transport_padding',False) and d.vol==.5
+                assert d.transport_padding_cells==2 and len(cells)==12 and d.rect[2:]==(3,4)
         codes, allr = [], [(n, r) for n, d in self.drops.items() for r in d.rects()]
         for n, r in allr:
             assert 0 <= r[0] and r[0] + r[2] <= geom.GRID_W and 0 <= r[1] and r[1] + r[3] <= geom.GRID_H, f"越界 {n} {r}"

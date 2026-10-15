@@ -1,15 +1,15 @@
 {
-  "release_id": "TFT16_20261015_onegrid_compact_rectangles",
+  "release_id": "TFT16_20261015_g14_compact12_direct_fusion",
   "date": "2026-10-15",
-  "base_commit": "2a959d7751defd61a626ea48d28f4585b7573f6f",
+  "base_commit": "7074cfa175ed77179f9cef3977a300493544bec3",
   "source": "Mac generator with preserved VM A03/A04 settings",
   "vm_path": "C:\\Users\\shan\\Desktop\\tfttest\\siro_scripts\\Engineering\\PTseq_SIRO16_A",
-  "vm_backup": "C:\\Users\\shan\\Desktop\\tfttest\\_backups\\PTseq_SIRO16_A_before_onegrid_20261015_f4t5gP",
-  "mac_backup": "/Users/shan/Documents/BGI/SIRO解决方案中心/SIRO-Plus/实验/TFT片上测试/片上测试1/工程备份/一格孔距修订前_20261015.f4t5gP",
-  "native_script_sha256": "d88cf859c66b3b31b6f53d530ec67a618125883e67cb38a3d8b98581694226d5",
+  "vm_backup": "C:\\Users\\shan\\Desktop\\tfttest\\_backups\\PTseq_SIRO16_A_before_compact12_20261015_iPVM2P",
+  "mac_backup": "/Users/shan/Documents/BGI/SIRO解决方案中心/SIRO-Plus/实验/TFT片上测试/片上测试1/工程备份/运输承接余量修订前_20261015.iPVM2P",
+  "native_script_sha256": "5ee53954d81a7addd4e462010456f96aecf1ffacfa21d4320d74143093525b9f",
   "mac_vm_file_hashes_equal": true,
   "requested_rule_revision_20261015_applied": true,
-  "offline_regression_tests_passed": 34,
+  "offline_regression_tests_passed": 39,
   "visual_check_performed": false,
   "gui_compile_performed": false,
   "hardware_execution_verified": false,
@@ -18,6 +18,17 @@
     "manual_port_gap": 1,
     "one_grid_clearance_applies_to_all_systems": true,
     "ordinary_safe_band_height_cells": 5,
+    "g14_transport_padding": {
+      "actual_liquid_ul": 0.5,
+      "actual_volume_cells": 10,
+      "electrode_cells": 12,
+      "shape": [3, 4],
+      "settle_ms": 4000,
+      "retires_at_reagent_fusion": true,
+      "extra_liquid_ul": 0,
+      "additional_droplets": 0,
+      "additional_tips": 0
+    },
     "cross_midline_systems_ul": [
       5,
       5.9
@@ -29,10 +40,13 @@
     "所有孔的最小间距统一为一格，液滴间距及温磁控半区限制不变。",
     "完整矩形优先紧凑长宽比：1.60µL使用8×4，2.00µL使用8×5，4.20µL使用21×4；液量均不变。",
     "紧凑母框再次等分前先独立整形成可原生对半的完整矩形，终态驻留4秒，避免缺角。",
+    "R01仅将32个0.50µL运输滴的2×5框改为3×4，增加的64格电极余量在反应区融合后全部取消；不作为实际液量继续分液。",
+    "A02及其他反应区融合改为全道就绪后就近同步接触，再独立整形；不预先拉到两端或分别整形。",
+    "A03原生单轮末帧仍为1000ms，总混匀计时仍1800s；软件合并预览补尾及执行器行为未验证。",
     "总量和试剂比例不变，接头手工加1.20µL并对半保留0.60µL。",
     "优先对半；25格完整母框原生切为10/15格近半，不产生缺角或微小尾滴。",
     "5.90µL体系的2格承接余量在G16接液及排废分支中守恒分配，不是每滴额外增加2格。",
-    "逐帧离线检查覆盖12079个场景帧；磁铁升降仍为外部操作时序。"
+    "39项回归通过，逐帧离线检查覆盖11833个场景帧；磁铁升降仍为外部操作时序。"
   ],
   "generic_check": {
     "errors": 0,
