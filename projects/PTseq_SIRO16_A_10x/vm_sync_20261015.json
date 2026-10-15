@@ -1,0 +1,35 @@
+{
+  "snapshot_date": "2026-10-15",
+  "source": "Windows 11:C:/Users/shan/Desktop/tfttest/siro_scripts/Engineering/PTseq_SIRO16_A",
+  "previous_git_commit": "1affa78a102991d749684deafde09727ef68f12e",
+  "native_script_sha256": "cab650017e2d8f36965ba6f74cfa814519c4a14c95d886399c1e4757675f7409",
+  "layout_sha256": "8ee942ab31ebe237828daf2f92d7e4dd40e881c4ef7ee493df87c150e1466c2d",
+  "native_files_copied_without_rewriting": true,
+  "changes": [
+    {
+      "section": "1008",
+      "name": "A03 往复混匀",
+      "high_voltage_command": "1009",
+      "scriptcycle": true,
+      "relay_count": 55,
+      "relay_duration_ms": 41250,
+      "cycle_first_and_last_electrode_state_equal": true,
+      "delay_command": "60004",
+      "delay_seconds": 1800,
+      "delay_pre_task": "1009,SS",
+      "sync_ending_commands": ["60004", "1009"]
+    },
+    {
+      "section": "1010",
+      "name": "A04 cDNA",
+      "high_voltage_command": "1017",
+      "relay_count": 1,
+      "relay_duration_ms": 4000
+    }
+  ],
+  "gui_saved_zero_flow_timeouts_preserved": true,
+  "generator_reproduces_this_gui_snapshot": false,
+  "previous_release_report_is_not_validation_of_this_snapshot": true,
+  "hardware_execution_verified": false,
+  "requested_rule_revision_20261015_applied": false
+}
