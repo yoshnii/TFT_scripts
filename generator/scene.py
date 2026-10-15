@@ -20,6 +20,7 @@ class Drop:
     """静止液滴: 一个矩形 (X,Y,W,H)。"""
     def __init__(self, name, rect, vol):
         self.name, self.rect, self.vol = name, tuple(int(v) for v in rect), vol
+        self.margin_budget=2 if abs(vol-5.90)<1e-7 else 0
     @property
     def rect(self):return self._rect
     @rect.setter
@@ -41,7 +42,7 @@ class Drop:
         import contour
         signature=(self.rect,self.vol)
         if getattr(self,'contour_signature',None)==signature:return self.contour_cells
-        n=geom.cells(self.vol) if self.vol>0 else self.rect[2]*self.rect[3]
+        n=getattr(self,'electrode_area',None) or (geom.electrode_cells(self.vol) if self.vol>0 else self.rect[2]*self.rect[3])
         return contour.fill(self.rect,n)
     def set_cells(self,cells):
         self.contour_signature=(self.rect,self.vol);self.contour_cells=frozenset(cells)
@@ -154,6 +155,10 @@ class Scene:
                 path=getattr(d,'morph_path',None);d.morph_path=None
                 if path:
                     assert path[-1]==target and all(len(p)==len(target) for p in path),'指定形变路径须等面积并止于目标'
+                # 用户允许适配孔距的独立形变：直接到完整目标框，驻留4秒，不再产生十字/缺角中间帧。
+                if len(contour.rectangles(target))==1 and not path:
+                    dur=max(dur,4000)
+                    continue
                 plans.append((d,iter(path) if path else iter(contour.morph(source,target)),target))
                 d.set_cells(source)
                 self.contour_events.append(dict(name=d.name,area=len(source),volume_ul=d.vol,step=self.nsteps))
@@ -177,20 +182,29 @@ class Scene:
             if isinstance(d,Worm) or not d.rects():continue
             cells=d.target_cells()
             assert contour.connected(cells),('液滴轮廓不连通',d.name)
-            if d.vol>0:assert len(cells)==geom.cells(d.vol),('电极面积与液量不一致',d.name,d.vol,len(cells))
+            assert len(contour.rectangles(cells))==1,('液滴不是完整矩形',d.name,d.rect,d.vol)
+            expected=getattr(d,'electrode_area',None) or geom.electrode_cells(d.vol)
+            if d.vol>0:assert len(cells)==expected,('电极面积与液量不一致',d.name,d.vol,len(cells))
+            if d.vol>0:assert 0<=len(cells)-geom.cells(d.vol)<=getattr(d,'margin_budget',0),('未授权承接余量',d.name,d.vol,len(cells))
         codes, allr = [], [(n, r) for n, d in self.drops.items() for r in d.rects()]
         for n, r in allr:
             assert 0 <= r[0] and r[0] + r[2] <= geom.GRID_W and 0 <= r[1] and r[1] + r[3] <= geom.GRID_H, f"越界 {n} {r}"
             assert geom.keep_out_ok(r), f"液滴离未使用孔过近 {n} {r} @step{self.nsteps}"
             assert not geom.between_lanes(r), f"液滴越出反应区、落在两行之间 {n} {r} @step{self.nsteps}"
+            d=self.drops[n]
+            limit=geom.LOAD_GAP if getattr(d,'receiving',False) or getattr(d,'port_dock',False) else (getattr(self,'clearance_context',None) or getattr(d,'port_gap',None) or geom.running_gap(d.vol))
+            assert geom.reaction_holes_ok(r,limit),f"液滴距反应孔不足{limit}格 {n} {r} @step{self.nsteps}"
+            edge_limit=1 if getattr(d,'receiving',False) or getattr(d,'port_dock',False) or r[1]+r[3]==188 else limit
+            assert all(geom.well_gap(r,h)>=edge_limit for h in geom.EDGE_WELLS),f"边缘孔距不足{edge_limit}格 {n} {r} @step{self.nsteps}"
             codes.append(geom.emit(r))
-        chk = {n for n in changed if n in self.drops} if changed is not None else set(self.drops)
+        chk = set(self.drops)  # 后台合排/形变也必须纳入全场碰撞校验。
         tset = {frozenset(p) for p in touching}
         for n1 in chk:
             for r1 in self.drops[n1].rects():
                 for n2, r2 in allr:
-                    if n2 == n1 or frozenset((n1, n2)) in tset: continue
+                    if n2 == n1:continue
                     assert not _overlap(r1, r2), f"重叠 {n1}{r1} ~ {n2}{r2} @step{self.nsteps}"
+                    if frozenset((n1,n2)) in tset:continue
                     assert _gap(r1, r2) >= geom.MIN_GAP, f"间距<{geom.MIN_GAP} {n1}{r1} ~ {n2}{r2} @step{self.nsteps}"
         self.relays.append(Relay(codes, dur, amp)); self.nsteps += 1
     def flush(self):

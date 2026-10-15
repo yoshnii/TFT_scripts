@@ -30,7 +30,9 @@ def in_reaction(r):
 def rect_ok(S, name, r, allow=frozenset()):
     """r 在片内, 且与其他液滴 (allow 里的除外) 间距 ≥ MIN_GAP。"""
     if not (0 <= r[0] and r[0] + r[2] <= geom.GRID_W and 0 <= r[1] and r[1] + r[3] <= geom.GRID_H): return False
-    if not geom.keep_out_ok(r) or geom.between_lanes(r): return False
+    d=S.drops.get(name)
+    gap=geom.LOAD_GAP if getattr(d,'receiving',False) or getattr(d,'port_dock',False) else (getattr(S,'clearance_context',None) or getattr(d,'port_gap',None) or geom.running_gap(d.vol))
+    if not geom.keep_out_ok(r) or geom.between_lanes(r) or not geom.reaction_holes_ok(r,gap): return False
     for n2, d2 in S.drops.items():
         if n2 == name or n2 in allow: continue
         for q in d2.rects():
@@ -39,7 +41,7 @@ def rect_ok(S, name, r, allow=frozenset()):
             bottom_limited=(171<=r[1] and r[1]+r[3]<=174) or (171<=q[1] and q[1]+q[3]<=174)
             waste_queue=(getattr(S.get(name),'waste_grid_packet',False) and getattr(d2,'waste_grid_packet',False))
             waste_dock=(getattr(S.get(name),'waste_pipeline_clearance',False) and d2.name.startswith('BLOB'))
-            entry_limited=(getattr(S.get(name),'controlled_entry',False) and r[1]>=26)
+            entry_limited=(getattr(S.get(name),'controlled_entry',False) and r[1]>=23)
             clearance = geom.MIN_GAP if row_limited or bottom_limited or waste_queue or waste_dock or entry_limited else geom.PREFERRED_GAP
             if _overlap(r, q) or _gap(r, q) < clearance: return False
     return True
@@ -91,6 +93,24 @@ def tick(S, items, rule=None, allow=frozenset(), dur=geom.STEP_MS):
         if isinstance(act, tuple): cand = tuple(act[1])
         else: dx, dy = DIRS[act]; cand = (d.rect[0] + dx, d.rect[1] + dy, d.rect[2], d.rect[3])
         al = allow | set(getattr(d, "allow", ()))
+        intermediate=False
+        if isinstance(act,tuple) and act[0]=='reshape' and d.rect[2:]!=tuple(reversed(cand[2:])):
+            ow,oh=d.rect[2:];tw,th=cand[2:]
+            if max(ow/tw,tw/ow,oh/th,th/oh)>2.5:
+                n=len(d.target_cells());metric=lambda w,h:abs(math.log(w/tw))+abs(math.log(h/th))
+                options=[]
+                for w in range(1,min(n,geom.GRID_W)+1):
+                    if n%w:continue
+                    h=n//w
+                    if max(ow/w,w/ow,oh/h,h/oh)>2.5 or metric(w,h)>=metric(ow,oh):continue
+                    ys=[cand[1]]
+                    if getattr(d,'row',None) and h<=6:
+                        y0=27+9*(d.row-1);ys.append(max(y0,min(cand[1],y0+6-h)))
+                    for y in ys:
+                        rc=(cand[0],y,w,h)
+                        if _overlap(d.rect,rc) and rect_ok(S,d.name,rc,al):options.append((metric(w,h),rc))
+                assert options,('没有温和等面积矩形形变路径',d.name,d.rect,cand)
+                cand=min(options)[1];intermediate=True
         if rect_ok(S, d.name, cand, al) and (rule is None or rule(d, cand)):
             if getattr(S,'pipeline_active',False) and not getattr(d,'transport_started',False):
                 d.transport_started=True
@@ -98,14 +118,18 @@ def tick(S, items, rule=None, allow=frozenset(), dur=geom.STEP_MS):
             if isinstance(act, tuple): assert _overlap(d.rect, cand), f"形变不连续 {d.name}"
             if isinstance(act,tuple) and act[0]=='merge':
                 host=S.get(act[2]);old_name=d.name
+                combined_area=len(d.target_cells())+len(host.target_cells())
+                combined_margin=getattr(d,'margin_budget',0)+getattr(host,'margin_budget',0)
                 S.remove(old_name);S.remove(host.name)
                 d.name=host.name;d.vol=round(d.vol+host.vol,2);d.allow=()
+                d.electrode_area=combined_area
+                d.margin_budget=combined_margin
                 S.add(d)
                 S.pipeline_events.append(dict(kind='reagent_collect',port=d.port,row=d.row,
                                               incoming_ul=act[3],total_ul=d.vol,step=S.nsteps))
             if isinstance(act,tuple):
                 frame_dur=max(frame_dur,act[2] if act[0]=='hold' else MORPH_MS)
-            d.rect = cand; d.pending = None; S.moved = getattr(S, "moved", 0) + 1
+            d.rect = cand; d.pending = act if intermediate else None; S.moved = getattr(S, "moved", 0) + 1
         elif getattr(d,'dynamic_path',False):
             # 汇液框合并后边界会逐格移动；重新求停靠间距，不锁住旧目标。
             d.pending=None
@@ -117,6 +141,7 @@ def tick(S, items, rule=None, allow=frozenset(), dur=geom.STEP_MS):
 
 def run(S, items, rule=None, allow=frozenset(), on_done=None):
     """跑到所有液滴的 gen 结束。on_done(drop) 在某液滴结束时调用一次 (如并入大滴)。"""
+    ops.settle_loaded(S)
     items = list(items); finished = set()
     while any(getattr(d, "pending", None) != "done" for d, _ in items):
         tick(S, items, rule, allow)
@@ -150,9 +175,11 @@ def split_many(S, specs, axis='x', offset=None, dur=CUT_MS, touching=()):
         starts=[]
         for i,rc in enumerate(finals):
             rc=list(rc);rc[coordinate]+=offset if i==0 else -offset;starts.append(tuple(rc))
+        parent_area=len(parent.target_cells())
         footprints=tuple(map(frozenset,custom[0])) if custom else tuple(
-            contour.fill(rc,geom.cells(v) if v>0 else rc[2]*rc[3]) for rc,v in zip(starts,vols))
+            contour.fill(rc,round(parent_area*v/parent.vol) if parent.vol and parent_area!=geom.cells(parent.vol) else geom.cells(v) if v>0 else rc[2]*rc[3]) for rc,v in zip(starts,vols))
         assert abs(sum(vols)-parent.vol)<1e-7,'切分液量不守恒'
+        assert min(geom.cells(v) for v in vols)>=.4*sum(geom.cells(v) for v in vols),'禁止大滴剥离小尾滴'
         assert not footprints[0]&footprints[1],'切分子滴电极重叠'
         union=footprints[0]|footprints[1]
         assert len(union)==len(parent.target_cells()) and contour.connected(union),'切分分区不守恒或不连通'
@@ -169,7 +196,9 @@ def split_many(S, specs, axis='x', offset=None, dur=CUT_MS, touching=()):
         assert parent.target_cells()==footprints[0]|footprints[1],'分区时改变母滴位置'
         S.remove(parent.name);children=[]
         for rc,v,n,cells in zip(starts,vols,names,footprints):
-            child=S.add(Drop(n,rc,v));child.set_cells(cells)
+            child=S.add(Drop(n,rc,v));child.electrode_area=len(cells);child.port_gap=getattr(parent,'port_gap',None) or geom.running_gap(parent.vol);child.set_cells(cells)
+            child.margin_budget=len(cells)-geom.cells(v)
+            assert 0<=child.margin_budget<=getattr(parent,'margin_budget',0)
             child.allow=tuple(getattr(parent,'allow',()))
             children.append(child)
             pairs.extend((child.name,a) for a in child.allow)
@@ -202,6 +231,38 @@ def split_many(S, specs, axis='x', offset=None, dur=CUT_MS, touching=()):
     for children,spec in zip(groups,specs):
         assert tuple(d.rect for d in children)==tuple(map(tuple,spec[1])),'逐格分离未到预定终点'
     return groups
+
+def bisect_many(S,drops,names=None,touching=()):
+    """沿母滴长尺寸截为两块；奇数电极只允许1格差，不剥小尾巴。"""
+    import contour
+    ops.settle_loaded(S)
+    drops=list(drops);specs=[];axes=[]
+    for d in drops:
+        x,y,w,h=d.rect
+        if h>3 and geom.running_gap(d.vol)==2 and 27<=y<171:
+            W,H=geom.lane_shape(d.vol);row=(y-27)//9+1;col=max(1,min(6,(x-10)//40+1))
+            x0,y0=geom.physical_zone(col,row)
+            reshape(S,d,(max(x0,min(x,x0+36-W)),y0+2,W,H))
+    for i,d in enumerate(drops):
+        x,y,w,h=d.rect
+        # 反应区内避免上下拉开碰到孔/相邻行：先适度整成横向近矩形。
+        if in_reaction(d.rect) and h>w:
+            W,H=max(w,h),min(w,h)
+            reshape(S,d,(x,y+h-H,W,H))
+        x,y,w,h=d.rect;axis='x' if w>=h else 'y';axes.append(axis)
+        cells=sorted(d.target_cells(),key=(lambda p:(p[0],p[1])) if axis=='x' else (lambda p:(p[1],p[0])))
+        half=len(cells)//2;parts=(frozenset(cells[:half]),frozenset(cells[half:]))
+        assert half>0 and all(contour.connected(p) for p in parts),'无法连通近等分'
+        finals=[];delta=geom.CUT_GAP//2
+        for j,part in enumerate(parts):
+            rc=list(contour.bounds(part));rc[0 if axis=='x' else 1]+=(-delta if j==0 else delta);finals.append(tuple(rc))
+        ns=names[i] if names is not None else (d.name+'L',d.name+'R')
+        specs.append((d,tuple(finals),tuple(round(len(p)*geom.CELL_UL,2) for p in parts),ns,parts))
+    result=[]
+    for axis in ('x','y'):
+        chosen=[s for s,a in zip(specs,axes) if a==axis]
+        if chosen:result.extend(split_many(S,chosen,axis=axis,touching=touching))
+    return result
 
 
 def cut_equal(S, d, left, right, vols=None, names=None, dur=CUT_MS):
@@ -332,11 +393,12 @@ def fixed_cascade_shape(vc,n):
     限制母框长宽比≤2，子滴宽≤4、高≤6，面积严格为计划格数。
     """
     nx=n//2
-    choices=[(w,vc//w) for w in range(1,5) if vc%w==0 and vc//w<=6
-             and max(w*nx,2*(vc//w))/min(w*nx,2*(vc//w))<=2]
+    # wf>=hf使每级X切均沿长尺寸，最后Y切也沿长尺寸；精确面积由轮廓而非包络面积决定。
+    choices=[(w,h) for h in range(2,7) for w in range(h,9)
+             if w*h>=vc and w*h-vc<=max(3,w) and max(w*nx,2*h)/min(w*nx,2*h)<=4
+             and nx*w+(nx-1)*geom.PREFERRED_GAP<=50]
     if not choices:return None
-    return min(choices,key=lambda q:(max(q[0]*nx,2*q[1])/min(q[0]*nx,2*q[1]),
-                                     max(q)/min(q)))
+    return min(choices,key=lambda q:(q[0]*q[1]-vc,max(q)/min(q),q[0]))
 
 
 def loading_plan(cells):
@@ -346,7 +408,7 @@ def loading_plan(cells):
     不新增反复加一点的人工批次；各道最后收到的总格数完全相同。
     """
     import itertools
-    if fixed_cascade_shape(cells,8):
+    if cells<=48 and fixed_cascade_shape(cells,8):
         return [(cells,8,list(range(16,8,-1))),
                 (cells,8,list(range(8,0,-1)))]
     choices=[v for v in range(1,cells) if fixed_cascade_shape(v,8)]
@@ -383,6 +445,30 @@ def _b02_two_part_fields(S,root,k,rows):
     run(S,[(f['nodes'][0][0],go(f['nodes'][0][0],[('x',f['start'][0]),('y',f['start'][1])])) for f in fields])
     return fields
 
+def _b02_long_axis_packets(S,root,c,tag):
+    """E1单孔11.20µL；按长尺寸对半切，最终每道一滴0.70µL，不恢复旧的两份配送。"""
+    run(S,[(root,go(root,[('y',7),('x',120)]))])
+    reshape(S,root,(114,10,28,8))
+    reshape(S,root,(100,12,56,4))
+    nodes=[(root,0,7)]
+    for level in range(3):
+        specs=[];meta=[]
+        for d,a,b in nodes:
+            l,r=split_x(d,d.rect[2]//2,d.rect[2]//2);half=round(d.vol/2,2)
+            specs.append((d,(l,r),(half,half),(d.name+'L',d.name+'R')));meta.append((a,(a+b+1)//2,b))
+        new=[]
+        for (left,right),(a,mid,b) in zip(split_many(S,specs),meta):new.extend(((left,a,mid-1),(right,mid,b)))
+        nodes=new
+        move_rects(S,{d.name:round(51+11*(a+b)-d.rect[2]/2) for d,a,b in nodes})
+    reshape_many(S,[(d,(d.rect[0]-4,13,14,2)) for d,a,b in nodes])
+    specs=[]
+    for d,a,b in nodes:
+        l,r=split_x(d,7,7);specs.append((d,(l,r),(.7,.7),(d.name+'a',d.name+'b')))
+    leaves=[d for pair in split_many(S,specs) for d in pair];packets=[]
+    for row,d in zip(range(16,0,-1),sorted(leaves,key=lambda d:d.rect[0])):
+        ln=Lane(c,row);S.remove(d.name);d.name=f'{tag}E1_{ln.id}';d.port=1;d.row=row;d.part='';S.add(d);packets.append((d,ln))
+    return packets
+
 def deliver_drops(S, reagent, vol, cols, tag, on_before_load=None, on_load=None,controlled=False):
     assert len(cols)==1 and geom.odd(cols[0]), "仅支持单奇数列"
     c=cols[0]; gx=geom.gap_x(geom.reagent_gap(c))
@@ -392,14 +478,19 @@ def deliver_drops(S, reagent, vol, cols, tag, on_before_load=None, on_load=None,
     if controlled:
         assert (reagent,geom.cells(vol)) in (('G8',14),('EDTA',4)),'只改变已点名的B02/B10配送'
         parts=[(geom.cells(vol),16,list(range(16,0,-1)))]
+    if reagent=='G16':parts=[(34,8,list(range(16,8,-1))),(34,8,list(range(8,0,-1)))]
     for k,(vc,n,rows) in enumerate(parts,1):
         if controlled:
-            wf,hf,nx,ny=(2,7,8,2) if reagent=='G8' else (2,2,4,4)
+            wf,hf,nx,ny=(2,7,8,2) if reagent=='G8' else (2,2,8,2)
         else:
-            wf,hf=fixed_cascade_shape(vc,n);nx,ny=n//2,2
+            wf,hf=(6,6) if reagent=='G16' else fixed_cascade_shape(vc,n);nx,ny=n//2,2
         W,H=wf*nx,hf*ny
-        rc=(geom.HOLE_X[k]-W//2,geom.E_TANG_Y,W,H)
+        capacity=wf*hf*n
+        recv=compact_receiving_shape(capacity)
+        rc=(geom.HOLE_X[k]-recv[0]//2,geom.E_TANG_Y,*recv)
         root=S.add(Drop(f"D{reagent}E{k}",rc,round(vc*n*geom.CELL_UL,2)))
+        if reagent=='G16':root.electrode_area=capacity;root.margin_budget=capacity-geom.cells(root.vol)
+        root.receiving=True
         roots.append((root,wf,hf,k,rows))
         root_grids[id(root)]=(nx,ny,13 if controlled and reagent=='EDTA' else 14)
     S.step(geom.HOLD_MS,changed=[d.name for d,_,_,_,_ in roots])
@@ -409,81 +500,122 @@ def deliver_drops(S, reagent, vol, cols, tag, on_before_load=None, on_load=None,
     if on_load: on_load(info)
     else: hold_all(S,T_DISP,geom.VOLT)
     S.step(geom.HOLD_MS,changed=[])
-    # 各孔就地同步拆分。保留原母框、小滴尺寸与切分动作，不再共用一个拆分工位。
-    run(S,[(d,go(d,[("y",root_grids[id(d)][2]-d.rect[3]//2)])) for d,_,_,_,_ in roots])
-    two_part=controlled and reagent=='G8'
-    fields=[]
-    if two_part:
-        root,wf,hf,k,rows=roots[0]
-        fields=_b02_two_part_fields(S,root,k,rows)
-    for root,wf,hf,k,rows in ([] if two_part else roots):
-        nx,ny,cy=root_grids[id(root)];p=wf+geom.PREFERRED_GAP
-        left=geom.HOLE_X[k]-(nx*wf+(nx-1)*geom.PREFERRED_GAP)//2
-        fields.append(dict(wf=wf,hf=hf,k=k,rows=rows,p=p,left=left,nx=nx,ny=ny,cy=cy,nodes=[(root,0,nx-1)]))
     S.pipeline_events=getattr(S,'pipeline_events',[])
-    S.pipeline_events.append(dict(kind='start',reagent=reagent,per_lane_ul=vol,
-                                  initial_volumes=initial_volumes,step=S.nsteps))
-    for level in range(max(int(math.log2(f['nx'])) for f in fields)):
-        moves={};ports=[];specs=[];metadata=[]
+    two_part=False
+    if controlled and reagent=='G8':
+        packets=_b02_long_axis_packets(S,roots[0][0],c,tag)
+    else:
+        # 各孔就地同步拆分。保留原母框、小滴尺寸与切分动作，不再共用一个拆分工位。
+        run(S,[(d,go(d,[("y",root_grids[id(d)][2]-d.rect[3]//2)])) for d,_,_,_,_ in roots])
+        reshape_many(S,[(d,(geom.HOLE_X[k]-wf*root_grids[id(d)][0]//2,
+                            root_grids[id(d)][2]-hf*root_grids[id(d)][1]//2,
+                            wf*root_grids[id(d)][0],hf*root_grids[id(d)][1])) for d,wf,hf,k,rows in roots])
+        two_part=False  # B02原先8:6不等分改为同一母滴逐级对半，末级每道14格。
+        fields=[]
+        if two_part:
+            root,wf,hf,k,rows=roots[0]
+            fields=_b02_two_part_fields(S,root,k,rows)
+        for root,wf,hf,k,rows in ([] if two_part else roots):
+            nx,ny,cy=root_grids[id(root)];p=wf+geom.PREFERRED_GAP
+            left=geom.HOLE_X[k]-(nx*wf+(nx-1)*geom.PREFERRED_GAP)//2
+            fields.append(dict(wf=wf,hf=hf,k=k,rows=rows,p=p,left=left,nx=nx,ny=ny,cy=cy,nodes=[(root,0,nx-1)]))
+        S.pipeline_events=getattr(S,'pipeline_events',[])
+        S.pipeline_events.append(dict(kind='start',reagent=reagent,per_lane_ul=vol,
+                                      initial_volumes=initial_volumes,step=S.nsteps))
+        for level in range(max(int(math.log2(f['nx'])) for f in fields)):
+            moves={};ports=[];specs=[];metadata=[]
+            for f in fields:
+                if level>=int(math.log2(f['nx'])):continue
+                ports.append(f['k']);f['nodes_next']=[]
+                for d,a,b in f['nodes']:
+                    wc=d.rect[2]//2;mid=(a+b+1)//2;l,r=split_x(d,wc,wc)
+                    half=round(d.vol/2,2)
+                    specs.append((d,(l,r),(half,half),(d.name+'L',d.name+'R')))
+                    metadata.append((f,a,mid,b))
+            S.pipeline_events.append(dict(kind='cut',ports=ports,axis='x',step=S.nsteps))
+            for (l,r),(f,a,mid,b) in zip(split_many(S,specs),metadata):
+                f['nodes_next'].extend([(l,a,mid-1),(r,mid,b)])
+            for f in fields:
+                if 'nodes_next' not in f:continue
+                f['nodes']=f.pop('nodes_next')
+                for d,a,b in f['nodes']:
+                    center=f['left']+(a+b)*f['p']/2+f['wf']/2
+                    moves[d.name]=round(center-d.rect[2]/2)
+            move_rects(S,moves)
+        packets=[];delta=geom.CUT_GAP//2
+        for f in fields:f['ynodes']=[(d,0,f['ny']-1) for d,a,b in f['nodes']]
+        for level in range(max(int(math.log2(f['ny'])) for f in fields)):
+            specs=[];metadata=[];ports=[]
+            for f in fields:
+                if level>=int(math.log2(f['ny'])):continue
+                f['ynext']=[];ports.append(f['k'])
+                for d,a,b in f['ynodes']:
+                    x,y,w,h=d.rect;half=round(d.vol/2,2);hh=h//2;mid=(a+b+1)//2
+                    specs.append((d,((x,y-delta,w,hh),(x,y+hh+delta,w,hh)),
+                                  (half,half),(d.name+'T',d.name+'B')));metadata.append((f,a,mid,b))
+            S.pipeline_events.append(dict(kind='cut',ports=ports,axis='y',step=S.nsteps))
+            for (top,bottom),(f,a,mid,b) in zip(split_many(S,specs,axis='y'),metadata):
+                f['ynext'].extend([(top,a,mid-1),(bottom,mid,b)])
+            moves=[]
+            for f in fields:
+                if 'ynext' not in f:continue
+                f['ynodes']=f.pop('ynext');py=f['hf']+geom.PREFERRED_GAP
+                top=f['cy']-(f['ny']*f['hf']+(f['ny']-1)*geom.PREFERRED_GAP)//2
+                for d,a,b in f['ynodes']:
+                    target=round(top+(a+b)*py/2+f['hf']/2-d.rect[3]/2)
+                    if f['ny']>2:moves.append((d,go(d,[('y',target)])))
+            if moves:run(S,moves)
         for f in fields:
-            if level>=int(math.log2(f['nx'])):continue
-            ports.append(f['k']);f['nodes_next']=[]
-            for d,a,b in f['nodes']:
-                wc=d.rect[2]//2;mid=(a+b+1)//2;l,r=split_x(d,wc,wc)
-                half=round(d.vol/2,2)
-                specs.append((d,(l,r),(half,half),(d.name+'L',d.name+'R')))
-                metadata.append((f,a,mid,b))
-        S.pipeline_events.append(dict(kind='cut',ports=ports,axis='x',step=S.nsteps))
-        for (l,r),(f,a,mid,b) in zip(split_many(S,specs),metadata):
-            f['nodes_next'].extend([(l,a,mid-1),(r,mid,b)])
-        for f in fields:
-            if 'nodes_next' not in f:continue
-            f['nodes']=f.pop('nodes_next')
-            for d,a,b in f['nodes']:
-                center=f['left']+(a+b)*f['p']/2+f['wf']/2
-                moves[d.name]=round(center-d.rect[2]/2)
-        move_rects(S,moves)
-    packets=[];delta=geom.CUT_GAP//2
-    for f in fields:f['ynodes']=[(d,0,f['ny']-1) for d,a,b in f['nodes']]
-    for level in range(max(int(math.log2(f['ny'])) for f in fields)):
-        specs=[];metadata=[];ports=[]
-        for f in fields:
-            if level>=int(math.log2(f['ny'])):continue
-            f['ynext']=[];ports.append(f['k'])
-            for d,a,b in f['ynodes']:
-                x,y,w,h=d.rect;half=round(d.vol/2,2);hh=h//2;mid=(a+b+1)//2
-                specs.append((d,((x,y-delta,w,hh),(x,y+hh+delta,w,hh)),
-                              (half,half),(d.name+'T',d.name+'B')));metadata.append((f,a,mid,b))
-        S.pipeline_events.append(dict(kind='cut',ports=ports,axis='y',step=S.nsteps))
-        for (top,bottom),(f,a,mid,b) in zip(split_many(S,specs,axis='y'),metadata):
-            f['ynext'].extend([(top,a,mid-1),(bottom,mid,b)])
-        moves=[]
-        for f in fields:
-            if 'ynext' not in f:continue
-            f['ynodes']=f.pop('ynext');py=f['hf']+geom.PREFERRED_GAP
-            top=f['cy']-(f['ny']*f['hf']+(f['ny']-1)*geom.PREFERRED_GAP)//2
-            for d,a,b in f['ynodes']:
-                target=round(top+(a+b)*py/2+f['hf']/2-d.rect[3]/2)
-                if f['ny']>2:moves.append((d,go(d,[('y',target)])))
-        if moves:run(S,moves)
-    for f in fields:
-        for j,d in enumerate(sorted((d for d,a,b in f['ynodes']),key=lambda d:(-d.rect[1],d.rect[0]))):
-            ln=Lane(c,f['rows'][j]);S.remove(d.name)
-            part=f.get('part','')
-            d.name=f'{tag}E{f["k"]}{part}_{ln.id}';d.port=f['k'];d.row=ln.r;d.part=part;S.add(d)
-            packets.append((d,ln))
+            for j,d in enumerate(sorted((d for d,a,b in f['ynodes']),key=lambda d:(-d.rect[1],d.rect[0]))):
+                ln=Lane(c,f['rows'][j]);S.remove(d.name)
+                part=f.get('part','')
+                d.name=f'{tag}E{f["k"]}{part}_{ln.id}';d.port=f['k'];d.row=ln.r;d.part=part;S.add(d)
+                packets.append((d,ln))
+    if reagent=='G14':
+        groups={}
+        for d,ln in packets:groups.setdefault((d.port,d.rect[1]),[]).append(d)
+        spread={}
+        for (port,y),ds in groups.items():
+            ds.sort(key=lambda d:d.rect[0]);width=sum(d.rect[2] for d in ds)+8*(len(ds)-1)
+            left=geom.HOLE_X[port]-width//2
+            for d in ds:spread[d.name]=left;left+=d.rect[2]+8
+        move_rects(S,spread)
+    specs=[];meta=[];kept=[]
+    for d,ln in packets:
+        x,y,w,h=d.rect
+        if reagent=='G14' and w>geom.CH_W and len(d.target_cells())==w*h:
+            wl=w//2;wr=w-wl;l,r=split_x(d,wl,wr)
+            phys=geom.cells(d.vol);a=round(phys*wl/w);va=round(a*.05,2)
+            specs.append((d,(l,r),(va,round(d.vol-va,2)),(d.name+'p0',d.name+'p1')));meta.append((ln,d.port))
+        else:kept.append((d,ln))
+    if specs:
+        for children,(ln,k) in zip(split_many(S,specs),meta):
+            for j,d in enumerate(children):d.port=k;d.row=ln.r;d.part='p'+str(j);kept.append((d,ln))
+    packets=kept
     S.step(CUT_MS,changed=[d.name for d,_ in packets])
     # 连续配送仅汇集同种试剂，不与原产物接触。所有道备齐后统一融合。
     locks={}
-    channel_width=max(d.rect[2] for d,_ in packets)
+    channel_width=min(geom.CH_W,max(d.rect[2] for d,_ in packets))
     def path(d,ln):
+        d.controlled_entry=True
+        entry_height=5 if getattr(S,'clearance_context',None)==1 else geom.LANE_H
+        def shape(n):
+            choices=[(w,n//w) for w in range(1,37) if n%w==0 and n//w<=entry_height]
+            return min(choices,key=lambda p:max(p)/min(p))
         # 左上角大孔：X<SAFE_X 的区域只在 Y≥SAFE_Y 通过；先横移到 SAFE_X，再下到安全高度。
         assert d.rect[0]>=geom.SAFE_X,'顶部分液区不得进入左上角大孔禁入范围'
         yield from go(d,[("x",geom.SAFE_X)])
         if d.rect[1]<geom.SAFE_Y:yield from go(d,[("y",geom.SAFE_Y)])
+        if d.rect[2]>geom.CH_W:
+            n=len(d.target_cells());w,h=min(((w,n//w) for w in range(1,5) if n%w==0),key=lambda p:max(p)/min(p))
+            yield ('reshape',(geom.SAFE_X,d.rect[1],w,h))
         # B02 两份小滴与产物上沿对齐，接触后直接组成近矩形；其他试剂保持竖直居中。
-        lane_y=ln.Y0 if two_part else ln.Y0+(geom.LANE_H-d.rect[3])//2
+        lane_y=geom.physical_zone(ln.c,ln.r)[1]+1 if entry_height==5 else ln.Y0
         yield from go(d,[("x",gx),("y",lane_y)])
+        if d.rect[3]>entry_height or d.rect[2]>geom.CH_W:
+            # 通道内保持4格宽；到达本道入口后单独适度整形成底部安全带形状，驻留4s。
+            w,h=shape(len(d.target_cells()))
+            yield ('reshape',(gx,lane_y,w,h))
         if d.part=='b':
             # 2×3 只在本道 2×4 停靠后进入，停在其左侧。
             while ln.id in locks or f'{tag}{ln.id}' not in S.drops:yield 'wait'
@@ -493,17 +625,20 @@ def deliver_drops(S, reagent, vol, cols, tag, on_before_load=None, on_load=None,
         staging_name=f'{tag}2{ln.id}' if d.part=='b' else f'{tag}{ln.id}'
         ahead=S.get(f'{tag}{ln.id}') if d.part=='b' else None
         collected=S.drops.get(staging_name)
-        entry=ln.X0+geom.PREFERRED_GAP
+        entry=ln.X0+(geom.MIN_GAP if reagent=='G16' else geom.PREFERRED_GAP)
         if collected:entry=min(entry,collected.rect[0]-d.rect[2]-geom.PREFERRED_GAP)
         if ahead:entry=min(entry,ahead.rect[0]-d.rect[2]-geom.PREFERRED_GAP)
-        assert entry>=gx+channel_width+geom.PREFERRED_GAP,'入口整形会阻断转运通道'
+        if collected:
+            d.allow=(collected.name,)
+            entry=max(gx+channel_width,entry)
+        else:assert entry>=gx+channel_width+geom.MIN_GAP,'入口整形会阻断转运通道'
         yield from go(d,[("x",entry)])
         S.pipeline_events.append(dict(kind='enter',port=d.port,row=d.row,step=S.nsteps))
         # 进入反应区保持原小滴形状，不再强制扩展到6格高。
         host=S.drops.get(staging_name)
         if host is None:
             # 各道试剂固定停靠右边界，与产物间隔4格；后续同种试剂从左汇入。
-            right=(ahead.rect[0] if ahead else S.get(ln.name).rect[0])-geom.PREFERRED_GAP
+            right=(ahead.rect[0] if ahead else S.get(ln.name).rect[0])-(geom.MIN_GAP if reagent=='G16' else geom.PREFERRED_GAP)
             yield from go(d,[("x",right-d.rect[2])])
             old_name=d.name;S.remove(old_name);d.name=staging_name;S.add(d)
             S.pipeline_events.append(dict(kind='reagent_collect',port=d.port,row=d.row,
@@ -515,16 +650,16 @@ def deliver_drops(S, reagent, vol, cols, tag, on_before_load=None, on_load=None,
         yield from go(d,[("x",host.rect[0]-d.rect[2])])
         yield ('hold',d.rect,geom.HOLD_MS)
         right=host.rect[0]+host.rect[2];total=round(host.vol+d.vol,2)
-        union=(d.rect[0],ln.Y0,right-d.rect[0],geom.LANE_H)
+        union=(d.rect[0],lane_y,right-d.rect[0],max(d.rect[3],host.rect[3]))
         incoming=d.vol
         yield ('merge',union,host.name,incoming)
-        L,H=geom.lane_shape(total)
+        L,H=shape(len(d.target_cells()))
         reserve=channel_width+geom.PREFERRED_GAP if total<vol-1e-7 else 0
-        if right-L-reserve < gx+channel_width+geom.PREFERRED_GAP:
+        if right-L-reserve < gx+channel_width+geom.PREFERRED_GAP and not getattr(S,'clearance_context',None):
             # 连续运输尚未清空：暂保紧凑等面积轮廓，整列就绪后再整成完整矩形。
             # 不能在通道还在行进时将34格拉成17格宽并堵住入口。
             L,H=geom.rect_len(total,geom.LANE_H),geom.LANE_H
-        for rect in reshape_plan(d,(right-L,ln.Y0,L,H)):yield ('reshape',rect)
+        for rect in reshape_plan(d,(right-L,lane_y,L,H)):yield ('reshape',rect)
         yield ('hold',d.rect,2000)
         locks.pop(ln.id)
     S.pipeline_active=True
@@ -541,7 +676,7 @@ def deliver_drops(S, reagent, vol, cols, tag, on_before_load=None, on_load=None,
             assert _gap(b.rect,a.rect)>=geom.PREFERRED_GAP
         else:
             assert abs(S.get(f'{tag}{ln.id}').vol-vol)<1e-6,'该道试剂未备齐'
-        assert _gap(S.get(f'{tag}{ln.id}').rect,S.get(ln.name).rect)>=geom.PREFERRED_GAP
+        assert _gap(S.get(f'{tag}{ln.id}').rect,S.get(ln.name).rect)>=geom.MIN_GAP
     S.pipeline_events.append(dict(kind='all_ready',rows=list(range(1,17)),step=S.nsteps))
     # 再次发出静态就绪帧，所有液滴继续上电；沿用全道同距、同步接触/融合动作。
     S.step(geom.HOLD_MS,changed=[])
@@ -760,12 +895,21 @@ def product_off_pellet(S, lanes, product_vol, pellet_vol):
         for ln in lanes:
             d=S.get(ln.name);assert abs(d.vol-product_vol)<1e-8
             S.drops.pop(d.name);d.name=f'P{ln.id}';S.drops[d.name]=d
+            d.port_dock=False
             p=S.add(Drop(ln.name,ln.rect(ln.mag-1,3),0))
             p.magnet_only=True
             d.allow=(p.name,);pairs.append((d.name,p.name))
         S.step(geom.HOLD_MS,changed=[n for p in pairs for n in p],touching=pairs)
+        ordinary=[]
+        for ln in lanes:
+            d=S.get(f'P{ln.id}')
+            if geom.running_gap(d.vol)==2 and d.rect[3]>3:
+                w,h=geom.lane_shape(d.vol)
+                ordinary.append((d,(ln.X0+36-w,ln.Y0,w,h)))
+        reshape_many(S,ordinary,touching=pairs)
         move_rects(S,{f'P{ln.id}':geom.s_block(ln.c,ln.r,product_vol)[0] for ln in lanes},touching=pairs)
         # 离开磁控半区后恢复完整矩形，磁捕获所需的缺角不带到取液终态。
+        for ln in lanes:S.get(f'P{ln.id}').port_dock=True
         reshape_many(S,[(S.get(f'P{ln.id}'),geom.s_block(ln.c,ln.r,product_vol)) for ln in lanes],touching=pairs)
         return
     pairs = []

@@ -22,10 +22,29 @@ def chain(cmds):
     return cmds
 
 class Flow:
-    def __init__(self, name, cmds, repeats=1, sync=None):
-        self.name, self.cmds, self.repeats, self.id, self.sync = name, chain(list(cmds)), repeats, None, sync   # sync: 并行分支的末指令列表
+    def __init__(self, name, cmds, repeats=1, sync=None, chain_commands=True):
+        self.name, self.cmds, self.repeats, self.id, self.sync = name, list(cmds), repeats, None, sync
+        if chain_commands: chain(self.cmds)
     @property
-    def timeout(self): return sum(c.timeout for c in self.cmds)
+    def timeout(self):
+        """依赖图的标称最长路径；并行计时不再与循环/温控时长相加。
+
+        TRUE 循环的实际停止边界由执行器决定，此处不模拟硬件整轮结束。
+        """
+        ends, active, members = {}, set(), set(self.cmds)
+        def end(c):
+            if c in ends: return ends[c]
+            assert c not in active, '指令依赖不得成环'
+            active.add(c)
+            start = 0
+            if c.pre and c.pre[0] in members:
+                previous, relation = c.pre
+                assert relation in ('FS', 'SS'), relation
+                start = end(previous) - (previous.timeout if relation == 'SS' else 0)
+            ends[c] = start + c.timeout
+            active.remove(c)
+            return ends[c]
+        return max((end(c) for c in self.cmds), default=0)
     def xml(self):
         inner = "\n".join("    " + c.xml() for c in self.cmds)
         se = f' SyncEndingCmdList="{",".join(str(c.id) for c in self.sync)}"' if self.sync else ""

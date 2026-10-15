@@ -1,4 +1,4 @@
-"""废液原形逐格移到TEC下方；整批选最少孔，整排拼接，不旋转、不重塑。"""
+"""长边近半分废液，精确轮廓逐格转运，底部整排汇集到有限F孔。"""
 from functools import lru_cache
 import collections
 import geom,contour
@@ -7,6 +7,58 @@ from scene import Drop
 PORTS=(4,3,2,1)
 PACKET_AREAS=frozenset((4,6,8,10,12,16,18,20,24))
 TRANSPORT_Y=172  # CSV内所有TEC的下边界=23+149；禁止提前横穿其他列。
+DOCK_BOTTOM=188
+
+def _compact_cells(n,rect,mirror=False):
+    """列高最多相差一格的缺角轮廓；不以包围框面积代替液量。"""
+    x,y,w,h=rect;q,r=divmod(n,w)
+    assert 0<q<=h and q+(r>0)<=h
+    return frozenset((x+(w-1-i if mirror else i),y+j)
+                     for i in range(w) for j in range(q+(i<r)))
+
+def _settled_shape(S,d,rect,cells):
+    """用户允许的局部等面积形变；调用方单独记录4秒稳定帧。"""
+    cells=frozenset(cells);before=d.target_cells();old=contour.bounds(before)
+    assert len(cells)==len(before) and contour.connected(cells)
+    assert before&cells,'形变不得替代跨空白区转移'
+    assert rect[2:]==tuple(reversed(old[2:])) or max(rect[2]/old[2],old[2]/rect[2],rect[3]/old[3],old[3]/rect[3])<=2.1
+    d.rect=rect;d.set_cells(cells)
+    if cells==before:return
+    # Scene的通用逐格形变器不适用于已获准的孔旁短时转形。
+    # 仅更新这一滴的形变起点；Scene._record仍检查全部实际电极。
+    if id(d) in S.contour_previous:
+        S.contour_previous[id(d)]=dict(object=d,rect=d.rect,vol=d.vol,cells=cells)
+    S.waste_morph_events=getattr(S,'waste_morph_events',[])
+    S.waste_morph_events.append(dict(name=d.name,frame=S.nsteps,area=len(cells),
+        before=list(old),after=list(rect),settle_ms=geom.LONG_MS,
+        source_cells=sorted(before),target_cells=sorted(cells)))
+
+def _split_widths(n,height=3):
+    hs=[h for h in range(1,height+1) if n%h==0 and 2<=n//h<=32 and min((n//h)//2,(n//h+1)//2)>=.4*(n//h)]
+    assert hs,('无法以完整矩形近半切开',n,height)
+    H=max(hs);w=n//H;wa=w//2;wb=w-wa
+    return wa*H,wb*H,wa,wb,H
+
+def _cut_x(ln,n,left_edges,height=3):
+    a,b,wa,wb,H=_split_widths(n,height)
+    x=max(ln.X0+2,max(left_edges,default=ln.X0-geom.PREFERRED_GAP)+geom.PREFERRED_GAP+2)
+    return x,wa+wb
+
+def _leaf_areas(ln,n,left_edges=(),height=3):
+    """深度优先，先清空右分支；极窄余量不足时在通道口转形。"""
+    if n<=16:return [n]
+    x,w=_cut_x(ln,n,left_edges,height)
+    if x+w+2>ln.X0+geom.LANE_L+geom.CH_W:
+        assert n<=32,('安全带放不下平衡切分',n,left_edges)
+        return [n]
+    a,b,wa,wb,H=_split_widths(n,height)
+    return _leaf_areas(ln,b,(*left_edges,x-2+wa),height)+_leaf_areas(ln,a,left_edges,height)
+
+def _packet_shape(n):
+    # 底部以不超过3格高的完整小框原形拼接，通道方向另行保持≤4格宽。
+    full=[(n//h,h) for h in range(1,4) if n%h==0]
+    if full:return min(full,key=lambda p:max(p)/min(p))
+    return (4,(n+3)//4)
 
 def layout(w,h,count):
     """固定小滴长宽，用完整行列拼成一个孔旁的紧凑矩形；放不下返回None。"""
@@ -15,7 +67,7 @@ def layout(w,h,count):
     for columns in range(1,count+1):
         if count%columns:continue
         rows=count//columns;W,H=columns*w,rows*h
-        if W<=40 and H<=189-TRANSPORT_Y and max(W,H)<=2*min(W,H):
+        if W<=40 and H<=DOCK_BOTTOM-TRANSPORT_Y and max(W,H)<=2*min(W,H):
             options.append((max(W,H)/min(W,H),max(W,H),columns,rows))
     return min(options)[2:] if options else None
 
@@ -45,7 +97,7 @@ def flush(S,blobs):
     R.run(S,[(d,R.go(d,[('x',geom.HOLE_X[k]-d.rect[2]//2)])) for k,d in items])
     for k,d in items:
         W,H=d.rect[2:]
-        assert area(d)==W*H and max(W,H)/min(W,H)<=2 and d.rect[1]+H==189
+        assert area(d)==W*H and max(W,H)/min(W,H)<=2.5 and d.rect[1]+H==DOCK_BOTTOM
     S.step(geom.HOLD_MS,changed=[])
     info=dict(hole='/'.join(f'F{k}' for k,d in items),volume_ul=round(sum(d.vol for k,d in items),3),
               port_volumes={f'F{k}':d.vol for k,d in items},drop_names=[d.name for k,d in items],
@@ -81,6 +133,7 @@ def _advance(S):
         if act=='wait':
             d.pending=None;continue
         if isinstance(act,tuple) and act[0]=='call':
+            if len(act)>4 and not act[4]():continue
             act[1]();d.pending=None;dur=max(dur,act[2]);moved.extend(n for n in act[3] if n in S.drops);continue
         dx,dy=R.DIRS[act];cand=(d.rect[0]+dx,d.rect[1]+dy,d.rect[2],d.rect[3])
         if R.rect_ok(S,d.name,cand,frozenset(getattr(d,'allow',()))) and (rule is None or rule(d,cand)):
@@ -103,12 +156,18 @@ def _make_row(S,job,r):
     row_spec=job['rows'][r]
     ds=sorted(job['arrived'][r],key=lambda q:q.slot)
     union=frozenset().union(*(q.target_cells() for q in ds));rc=contour.bounds(union)
-    assert len(union)==rc[2]*rc[3] and contour.connected(union),'整排未自然组成完整矩形'
-    assert rc[2]==job['W'] and rc[3]==row_spec['h']
+    assert len(union)==sum(area(q) for q in ds) and contour.connected(union),'整排轮廓重叠或不连通'
+    target=(rc[0],rc[1],job['W'],row_spec.get('row_h',row_spec['h']))
+    assert len(union)==target[2]*target[3],'整排终态面积不守恒'
     vol=round(sum(q.vol for q in ds),2)
+    margin=sum(getattr(q,'margin_budget',0) for q in ds)
     for q in ds:S.remove(q.name)
-    row=S.add(Drop(f"WROW{job['port']}_{r}",rc,vol));row.set_cells(union);row.allow=(f"BLOB{job['port']}",)
+    row=S.add(Drop(f"WROW{job['port']}_{r}",rc,vol));row.electrode_area=len(union);row.set_cells(union);row.allow=(f"BLOB{job['port']}",)
+    row.margin_budget=margin
+    if union!=contour.fill(target,len(union)):
+        _settled_shape(S,row,target,contour.fill(target,len(union)))
     row.tiles=len(ds);row.tile_area=ds[0].tile_area;row.tile_shapes=[q.rect[2:] for q in ds]
+    row.tile_areas=[q.tile_area for q in ds]
     S.waste_pool.items.append((row,_row_path(S,row,job,r),None))
 
 def _row_path(S,row,job,r):
@@ -123,14 +182,15 @@ def _dock(S,row,job,r):
     if host:
         union=host.target_cells()|cells
         assert len(union)==area(host)+area(row) and contour.connected(union),'汇液未接触或重叠'
-        S.remove(row.name);host.vol=round(host.vol+row.vol,2)
+        S.remove(row.name);host.vol=round(host.vol+row.vol,2);host.margin_budget+=row.margin_budget;host.electrode_area=len(union)
         host.rect=contour.bounds(union);host.set_cells(union);host.tile_count+=row.tiles
     else:
         S.remove(row.name);host=blobs[fk]=S.add(Drop(f'BLOB{fk}',contour.bounds(cells),row.vol))
+        host.electrode_area=len(cells);host.margin_budget=row.margin_budget
         host.set_cells(cells);host.tile_area=row.tile_area;host.tile_shape=tuple(row.tile_shapes[0]);host.tile_count=row.tiles
     assert area(host)==host.rect[2]*host.rect[3],'整排汇液终态缺角'
-    for c,shape in enumerate(row.tile_shapes):
-        S.waste_grid_events.append(dict(port=fk,tile_area=shape[0]*shape[1],slot=job['slot_base'][r]+c,row=r,column=c,
+    for c,(shape,tile_area) in enumerate(zip(row.tile_shapes,row.tile_areas)):
+        S.waste_grid_events.append(dict(port=fk,tile_area=tile_area,slot=job['slot_base'][r]+c,row=r,column=c,
             step=S.nsteps,merged_without_reshape=True,tile_shape=list(shape),transport_y=TRANSPORT_Y,
             row_ready=True,row_piece_count=row.tiles,actual_area=area(host),rect=list(host.rect),
             whole_port_pipeline=True))
@@ -145,13 +205,27 @@ def _tile_path(S,d,job,t,r,pos,gx):
     # 各道小块同时横移进废液通道：相邻两道相距9行，小块高4–6行，通道内间距≥3；
     # 整列一起下行，逐个到达底部运输带。出口仍受 _door_rule 保护。
     job['event']['entries'].append(dict(ticket=t,frame=S.nsteps))
+    packet_w=spec['widths'][pos]
+    n=area(d)
+    cw,ch=min(((w,n//w) for w in range(1,5) if n%w==0),key=lambda p:max(p)/min(p))
+    if job.get('balanced',False) and d.rect[2:]!=(cw,ch):
+        # 在本行和四格通道的并集中横移；只在完全落入通道后加高。
+        yield from R.go(d,[('x',gx+geom.CH_W-d.rect[2])])
+        target=(gx,origin_y,cw,ch)
+        yield ('call',lambda:_settled_shape(S,d,target,_compact_cells(area(d),target)),geom.LONG_MS,[d.name],
+               lambda:R.rect_ok(S,d.name,target,frozenset(getattr(d,'allow',()))))
     yield from R.go(d,[('x',gx)])
     if job['under_exit']:
         # 汇液框位于通道出口下方（F1）：整排要横移到出口下方再停靠，后一排在通道内带上方等前一排停靠完。
-        hold_y=TRANSPORT_Y-h-geom.PREFERRED_GAP
+        hold_y=TRANSPORT_Y-ch-geom.PREFERRED_GAP
         yield from R.go(d,[('y',max(origin_y,hold_y))])
         while job['docked'][0]<r:yield 'wait'
-    yield from R.go(d,[('y',TRANSPORT_Y)])
+    if (cw,ch)!=(packet_w,h):
+        yield from R.go(d,[('y',TRANSPORT_Y+h-ch)])
+        target=(gx,TRANSPORT_Y,packet_w,h)
+        yield ('call',lambda:_settled_shape(S,d,target,contour.fill(target,n)),geom.LONG_MS,[d.name],
+               lambda:R.rect_ok(S,d.name,target,frozenset(getattr(d,'allow',()))))
+    else:yield from R.go(d,[('y',TRANSPORT_Y)])
     yield from R.go(d,[('x',spec['stage_x'][slot])])
     job['arrived'][r].append(d)
     if len(job['arrived'][r])==spec['n']:job['ready'][r]=S.nsteps
@@ -163,13 +237,12 @@ def _tile_path(S,d,job,t,r,pos,gx):
     if job['contracted'][r]==spec['n']:job['merge_ready'][r]=S.nsteps
     while r not in job['merge_ready'] or S.nsteps<=job['merge_ready'][r]:yield 'wait'
     if slot==0:
-        yield ('call',lambda:_make_row(S,job,r),geom.HOLD_MS,[f"WROW{job['port']}_{r}"])
+        yield ('call',lambda:_make_row(S,job,r),geom.LONG_MS,[f"WROW{job['port']}_{r}"])
 
 def _row_spec(W,widths,h,port,gx):
     """一排：widths 为到达顺序的小块宽度；先到者占右侧槽位。就绪位间距 CUT_GAP，靠拢后宽度恰为 W。"""
     n=len(widths);slots=list(reversed(widths))
-    assert sum(widths)==W
-    sw=W+(n-1)*geom.CUT_GAP;left=max(gx+geom.CH_W+geom.MIN_GAP,geom.HOLE_X[port]-sw//2)
+    sw=sum(widths)+(n-1)*geom.CUT_GAP;left=max(gx+geom.CH_W+geom.MIN_GAP,geom.HOLE_X[port]-sw//2)
     assert left+sw<=geom.GRID_W
     return dict(h=h,n=n,widths=list(widths),
                 stage_x=[left+sum(slots[:s])+s*geom.CUT_GAP for s in range(n)],
@@ -177,13 +250,15 @@ def _row_spec(W,widths,h,port,gx):
 
 def _job(S,spec,blobs,gx):
     """由调度规格生成一个孔的汇液任务（首次有小块送往该孔时创建）。"""
-    rows=[];y=189;base=[];k=0
-    for widths,h in spec['rows']:
-        r=_row_spec(spec['W'],widths,h,spec['port'],gx);y-=h;r['dock_y']=y;rows.append(r);base.append(k);k+=len(widths)
+    rows=[];y=DOCK_BOTTOM;base=[];k=0
+    for row in spec['rows']:
+        widths,h,*row_h=row;row_h=row_h[0] if row_h else h
+        r=_row_spec(spec['W'],widths,h,spec['port'],gx);y-=row_h;r['row_h']=row_h;r['dock_y']=y;rows.append(r);base.append(k);k+=len(widths)
     job=dict(port=spec['port'],W=spec['W'],rows=rows,blobs=blobs,slot_base=base,
              final_x=geom.HOLE_X[spec['port']]-spec['W']//2,
              arrived={r:[] for r in range(len(rows))},ready={},contracted={r:0 for r in range(len(rows))},
              merge_ready={},docked=[0],
+             balanced=spec.get('balanced',False),
              event=dict(port=spec['port'],scheduled_drops=k,start_frame=S.nsteps,entries=[],row_merges=[]))
     job['under_exit']=job['final_x']<gx+geom.CH_W+geom.PREFERRED_GAP
     S.waste_parallel_events=getattr(S,'waste_parallel_events',[]);S.waste_parallel_events.append(job['event'])
@@ -197,7 +272,7 @@ def _send_pipeline(S,pieces,gx,blobs,plan,jobs):
     pending=sorted(pieces,key=lambda t:-t[0].r)      # 到达顺序：最深的道最先到达底部
     for ln,d in pending:
         cells=d.target_cells();rect=contour.bounds(cells)
-        assert len(cells)==rect[2]*rect[3],('排废小块必须是完整矩形',d.name,rect,len(cells))
+        assert contour.connected(cells) and len(cells)==geom.cells(d.vol)+d.margin_budget,('排废小块轮廓/面积无效',d.name,rect,len(cells))
         d.rect=rect;d.set_cells(cells);d.waste_grid_packet=True
     S.step(geom.HOLD_MS,changed=[])
     S.waste_grid_events=getattr(S,'waste_grid_events',[])
@@ -212,9 +287,9 @@ def _send_pipeline(S,pieces,gx,blobs,plan,jobs):
             assert not blobs.get(plan['specs'][key]['port']),'调度给出的收集孔已占用'
             jobs[key]=_job(S,plan['specs'][key],blobs,gx)
         job=jobs[key];spec=job['rows'][r]
-        assert d.rect[2]==spec['widths'][pos] and d.rect[3]==spec['h'],('小块形状与排规格不符',d.rect,spec)
+        assert job.get('balanced',False) or (d.rect[2]==spec['widths'][pos] and d.rect[3]==spec['h']),('小块形状与排规格不符',d.rect,spec)
         d.S=S;d.waste_fk=job['port'];d.slot=spec['n']-1-pos;d.tile_area=area(d)
-        d.waste_pipeline_clearance=True;assert d.tile_area in PACKET_AREAS
+        d.waste_pipeline_clearance=True;assert 0<d.tile_area<=32
         d.entry_ticket=t;d.allow=(f"BLOB{job['port']}",)
         pool.items.append((d,_tile_path(S,d,job,t,r,pos,gx),R._door_rule(gx)))
         tiles.append(d)
@@ -312,24 +387,62 @@ def send(S,pieces,gx,blobs,final=False,ports=None,flush_after=True,parallel=Fals
         assert not group
         if flush_after:flush(S,blobs)
 
-def _take_width(index,n,collect_three):
-    return (4,4,3,4,3,3,4)[index] if collect_three else (2 if n==118 else geom.CH_W)
-
 def cut_rounds(items,collect_three=False):
-    """按 bites 的切法（不改动）逐批预测排废小滴形状；只用电极格数计算，不产生帧。"""
-    state={ln.id:(frozenset(d.target_cells()),d.rect[2],d.rect[3]) for ln,d in items}
-    rounds=[];index=0
-    while state:
-        shapes=collections.Counter()
-        for k,(cells,W,H) in list(state.items()):
-            n=len(cells);b=contour.bounds(cells)
-            if n in PACKET_AREAS and b[2]<=geom.CH_W:
-                shapes[b[2:]]+=1;del state[k];continue
-            wr=_take_width(index,n,collect_three);take=10 if n==118 else wr*H
-            right=contour.fill((0,0,wr,H),take);left=contour.fill((0,0,W-wr,H),n-take)
-            shapes[contour.bounds(right)[2:]]+=1;state[k]=(left,W-wr,H)
-        rounds.append(shapes);index+=1
-    return rounds
+    """纯格数预测，使用与真实动作相同的近半树及空间预算。"""
+    leaves=[_leaf_areas(ln,area(d)) for ln,d in items]
+    assert leaves and all(len(q)==len(leaves[0]) for q in leaves)
+    return [collections.Counter(_packet_shape(q[i]) for q in leaves) for i in range(len(leaves[0]))]
+
+def _balanced_plans(items,final,gx,single_stop=False,fixed_edges=None):
+    """每批16道同面积；4/8个缺角包组成一排，再以几何容量分配F孔。"""
+    import itertools
+    from scene import _gap
+    leaves=[_leaf_areas(ln,area(d),(fixed_edges or {}).get(ln.id,()),5 if (getattr(d,'port_gap',None) or geom.running_gap(d.vol))==1 else 3) for ln,d in items]
+    assert leaves and all(q==leaves[0] for q in leaves),'整列排废须同液量'
+    count=len(items);assert count==16,'废液整排调度需要完整16道'
+    specs=[]
+    for n in leaves[0]:
+        w,h=_packet_shape(n)
+        choices=[m for m in range(1,count+1) if count%m==0 and w*m<=40 and h*(count//m)<=DOCK_BOTTOM-TRANSPORT_Y
+                 and max(w*m,h*(count//m))<=2.5*min(w*m,h*(count//m))]
+        assert choices,('原形小滴无法在单孔自然排成紧凑矩形',n,w,h,count)
+        m=min(choices,key=lambda m:max(w*m,h*(count//m))/min(w*m,h*(count//m)))
+        specs.append(dict(W=w*m,rows=[([w]*m,h,h)]*(count//m),balanced=True))
+        assert w*m*h*(count//m)==n*count
+    def place(group):
+        if len(group)>len(PORTS):return None
+        for ports in sorted(itertools.combinations(PORTS,len(group)),key=lambda c:(sum(c),c)):
+            occupied=[];ok=True
+            for spec,port in zip(group,ports):
+                W=spec['W'];H=sum(row[2] for row in spec['rows'])
+                assert W<=40 and H<=DOCK_BOTTOM-TRANSPORT_Y
+                final_rc=(geom.HOLE_X[port]-W//2,DOCK_BOTTOM-H,W,H)
+                for widths,h,rh in spec['rows']:
+                    rs=_row_spec(W,widths,h,port,gx)
+                    x0=min(rs['stage_x'][0],final_rc[0]);x1=max(rs['stage_x'][-1]+widths[-1],final_rc[0]+W)
+                    stage=(x0,TRANSPORT_Y,x1-x0,max(h,rh))
+                    if any(_gap(stage,b)<geom.MIN_GAP or _gap(final_rc,b)<geom.MIN_GAP for b in occupied):ok=False;break
+                if not ok:break
+                occupied.append(final_rc)
+            if ok:return ports
+        return None
+    plans=[];i=0;stop=0
+    while i<len(specs):
+        best=None
+        for j in range(i+1,min(len(specs),i+len(PORTS))+1):
+            ports=place(specs[i:j])
+            if ports is None:break
+            best=(j,ports)
+        assert best,'单批废液超出F1–F4几何容量'
+        j,ports=best;stop+=1
+        if single_stop:assert i==0 and j==len(specs),'整步废液无法安全一次装入F1–F4'
+        shared={k:dict(specs[k],port=p) for k,p in zip(range(i,j),ports)}
+        for k in range(i,j):
+            m=len(specs[k]['rows'][0][0])
+            plans.append(dict(stop=stop,flush=k==j-1 and (final or j<len(specs)),ports=[shared[k]['port']],
+                assign=[(k,t//m,t%m) for t in range(count)],specs=shared,minimum_ports=1,balanced=True))
+        i=j
+    return leaves[0],plans
 
 def _block_areas(w,h,plan,port,gx,parallel):
     """一块汇液框在孔旁的终态矩形，以及整排就绪/靠拢时在 Y172 占用的横向范围。"""
@@ -470,9 +583,13 @@ def step_plans(rounds,final=True,gx=None,single_stop=False):
     return plans
 
 def bites(S,items,blobs,final=True,pellets=None,collect_three=False,collect_a05=False,single_stop=False):
-    """主排废块按4格通道宽度切；118格先分出右侧10格余量，余108格完整。"""
+    """沿长边递归近半；先清右支，始终保留真实面积与足够厚度。"""
     import rigid as R
-    items=list(items);lanes={ln.id:ln for ln,d in items};rem={ln.id:d for ln,d in items};index=0
+    items=list(items);lanes={ln.id:ln for ln,d in items}
+    height=5 if geom.running_gap(items[0][1].vol)==1 else 3
+    for ln,d in items:d.port_gap=geom.running_gap(d.vol)
+    assert items and all(d.vol>0 and not getattr(d,'magnet_only',False) for ln,d in items)
+    assert all(ln.c==items[0][0].c and ln.odd for ln,d in items),'排废当前支持单个奇数列'
     gx=geom.gap_x(geom.waste_gap(items[0][0].c))
     if collect_three:
         assert len(items)==16 and all(ln.c==1 and area(d)==100 for ln,d in items),'三批合组仅用于单列R04的5µL液相'
@@ -480,45 +597,53 @@ def bites(S,items,blobs,final=True,pellets=None,collect_three=False,collect_a05=
     if collect_a05:
         assert len(items)==16 and all(ln.c==1 and area(d)==30 for ln,d in items)
         assert not any(blobs.values())
-    # 100格按25×4切，每次4×4；30格按6×5切成4×5+2×5。
-    # 形变与移液分别记录，先为变宽的母框让出反应区内空间。
-    big=[(ln,d) for ln,d in items if area(d)==100]
-    if big:
-        # 16道同步：先同时逐格平移到 X0+9，再同时等面积整形为 25×4（移动与形变不在同一帧）。
-        R.run(S,[(d,R.go(d,[('x',ln.X0+9)])) for ln,d in big])
-        R.reshape_many(S,[(d,(ln.X0+9,ln.Y0,25,4)) for ln,d in big])
-    # 整步统一调度：先按切法预测每批小滴，再把各批依次分到 F 孔，四孔用尽才停靠吸液。
     assert not any(blobs.get(k) for k in PORTS),'排废调度开始前必须无未吸出的旧废液'
-    rounds=cut_rounds(items,collect_three)
-    schedule=step_plans(rounds,final,gx,single_stop);jobs={}
+    item_names={d.name for ln,d in items};fixed_edges={}
+    for ln,d in items:
+        residents=[q for q in S.drops.values() if q.name not in item_names and q.vol>0
+                   and ln.Y0<=q.rect[1]<ln.Y0+4 and ln.X0<=q.rect[0]<ln.X0+geom.LANE_L]
+        assert all(q.rect[0]+q.rect[2]<=d.rect[0] for q in residents),'排废前保留液须停靠左侧'
+        fixed_edges[ln.id]=tuple(q.rect[0]+q.rect[2] for q in residents)
+    leaf_areas,schedule=_balanced_plans(items,final,gx,single_stop,fixed_edges);jobs={}
+    rounds=[collections.Counter({_packet_shape(n):len(items)}) for n in leaf_areas]
     S.waste_schedule_events=getattr(S,'waste_schedule_events',[])
-    S.waste_schedule_events.append(dict(rounds=[dict(r) for r in rounds],schedule=schedule,step=S.nsteps))
-    while rem:
-        touch=[(d.name,pellets[k].name) for k,d in rem.items()] if pellets else []
-        R.run(S,[(d,R.go(d,[('x',lanes[k].X0+geom.LANE_L-geom.CUT_GAP//2-d.rect[2])])) for k,d in rem.items()])
-        specs=[];keys=[];pieces=[];gone=[]
-        for k,d in rem.items():
-            ln=lanes[k];n=area(d)
-            if n in PACKET_AREAS and contour.bounds(d.target_cells())[2]<=geom.CH_W:
-                # 仅调整描述包围框，不扩展实际电极格。
-                cells=d.target_cells();d.rect=contour.bounds(cells);d.set_cells(cells)
-                pieces.append((ln,d));gone.append(k);continue
-            H=d.rect[3]
-            wr=_take_width(index,n,collect_three)
-            take=10 if n==118 else wr*H
-            assert n>take and H in (4,5,6)
-            assert wr*H>=take
-            wl=d.rect[2]-wr;l,r=R.split_x(d,wl,wr)
-            assert n-take<=wl*H
-            v=take*geom.CELL_UL if d.vol else 0
-            specs.append((d,(l,r),(round(d.vol-v,2),round(v,2)),(d.name,f'WG{k}_{index}')));keys.append(k)
-        if specs:
-            for k,(left,right) in zip(keys,R.split_many(S,specs,touching=touch)):
-                rem[k]=left;pieces.append((lanes[k],right))
-        for k in gone:del rem[k]
-        S.step(geom.HOLD_MS,changed=[d.name for ln,d in pieces],touching=touch)
-        shapes=collections.Counter(contour.bounds(d.target_cells())[2:] for ln,d in pieces)
-        assert shapes==rounds[index],('排废切块与整步调度预测不一致',index,dict(shapes),dict(rounds[index]))
+    S.waste_schedule_events.append(dict(rounds=[dict(r) for r in rounds],packet_areas=leaf_areas,
+                                       schedule=schedule,step=S.nsteps,balanced=True))
+    stacks={ln.id:[d] for ln,d in items};serial=0
+    for index,expected in enumerate(leaf_areas):
+        # 栈中的低层均是左兄弟，几何预算与纯规划函数一致。
+        while True:
+            active=[(ln,stacks[ln.id][-1]) for ln,d in items]
+            n=area(active[0][1]);assert all(area(d)==n for ln,d in active)
+            edges={ln.id:[*fixed_edges[ln.id],*(q.rect[0]+q.rect[2] for q in stacks[ln.id][:-1])] for ln,d in active}
+            x,w=_cut_x(active[0][0],n,edges[active[0][0].id],height) if n>16 else (0,0)
+            if n<=16 or x+w+2>active[0][0].X0+geom.LANE_L+geom.CH_W:break
+            a,b,wa,wb,H=_split_widths(n,height);specs=[];touch=[]
+            R.run(S,[(d,R.go(d,[('x',_cut_x(ln,n,edges[ln.id],height)[0])])) for ln,d in active])
+            for ln,d in active:
+                x,w=_cut_x(ln,n,edges[ln.id],height);y=geom.physical_zone(ln.c,ln.r)[1]+(1 if height==5 else 2)
+                left=(x,y,wa,H);right=(x+wa,y,wb,H)
+                cells=(_compact_cells(a,left,True),_compact_cells(b,right))
+                _settled_shape(S,d,(x,y,w,H),cells[0]|cells[1])
+                finals=((x-2,y,wa,H),(x+wa+2,y,wb,H))
+                names=(d.name,f'WG{ln.id}_{serial}')
+                actual=geom.cells(d.vol);pa=round(actual*a/(a+b));va=round(pa*.05,2)
+                specs.append((d,finals,(va,round(d.vol-va,2)),names,cells))
+                if pellets:touch.append((d.name,pellets[ln.id].name))
+            S.step(geom.LONG_MS,changed=[d.name for ln,d in active],touching=touch)
+            for (ln,d),(left,right) in zip(active,R.split_many(S,specs,touching=touch)):
+                stacks[ln.id][-1:]=[left,right]
+            serial+=1
+        pieces=[]
+        for ln,d in active:
+            assert area(d)==expected,(index,area(d),expected)
+            stacks[ln.id].pop();w=(expected+3)//4
+            # 先保持本行厚度，到门口才把必要的30格包变成4×8。
+            w=(expected+geom.LANE_H-1)//geom.LANE_H
+            # 原生切出的完整矩形保持原形，到四格通道处才按需转形。
+            assert len(d.target_cells())==d.rect[2]*d.rect[3]
+            pieces.append((ln,d))
+        S.step(geom.LONG_MS,changed=[d.name for ln,d in pieces])
         plan=schedule[index]
         # 流水线（全部排废步骤）：本批登记到后台；本批全部离开反应区和进液通道（到达底部运输带或已汇入）后，
         # 立即切下一批，与本批在底部的行进、靠拢、停靠并行。本次停靠的最后一批送完后才吸液。
@@ -527,7 +652,7 @@ def bites(S,items,blobs,final=True,pellets=None,collect_three=False,collect_a05=
             _drain(S,lambda:not S.waste_pool.items);flush(S,blobs)
         else:
             _drain(S,lambda:all(S.drops.get(d.name) is not d or d.rect[1]>=TRANSPORT_Y for d in tiles))
-        index+=1
+    assert not any(stacks.values()),'近半切分树仍有未排出的子滴'
     if pellets:
         for k,p in pellets.items():
             S.remove(p.name);p.name=lanes[k].name;p.allow=();p.magnet_only=(p.vol==0);S.add(p)

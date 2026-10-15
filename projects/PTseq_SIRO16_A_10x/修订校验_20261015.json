@@ -1,0 +1,277 @@
+{
+  "status": "passed",
+  "validation": "offline_only",
+  "visual_check": false,
+  "hardware_verified": false,
+  "workbook_sha256": "c5b7019d988d47a35a2a7a6a54ca86af61e8829d2f3b1b4f0ebcc7cbde07303c",
+  "script_sha256": "512b2a32c7f679c10ccbc5181229d9906b4e80c75972c37fb9f1e76f076f5eb3",
+  "geometry": {
+    "all_frames_full_rectangles": true,
+    "ordinary_hole_gap": 2,
+    "approved_one_grid_systems": [
+      4.0,
+      5.0,
+      5.9
+    ],
+    "actual_590_ul": 5.9,
+    "electrode_590_cells": 120,
+    "no_foreign_TEC": true,
+    "no_overlap": true,
+    "translation_max_cells": 1,
+    "reshape_settle_ms": 4000
+  },
+  "timing": {
+    "step_ms": 1000,
+    "pcr_cycles": 30,
+    "pcr_pulse_ms": [
+      1000,
+      1000
+    ],
+    "mixing_closed_loops": 18,
+    "scriptcycle": "TRUE",
+    "runtime_cycle_end_behavior_verified": false
+  },
+  "amounts": {
+    "G4": 0.4,
+    "AMP": 2.0,
+    "G14": 2.5,
+    "G8": 0.7,
+    "LIG": 1.4,
+    "EDTA": 0.2,
+    "G16": 1.7
+  },
+  "manual_loading_groups": 16,
+  "manual_aspiration_groups": 12,
+  "thermal": {
+    "A04": [
+      [
+        37,
+        600
+      ],
+      [
+        85,
+        5
+      ],
+      [
+        4,
+        30
+      ]
+    ],
+    "A08": [
+      [
+        95,
+        180
+      ]
+    ],
+    "A09": [
+      [
+        95,
+        30
+      ],
+      [
+        60,
+        60
+      ],
+      [
+        72,
+        45
+      ]
+    ],
+    "A10": [
+      [
+        72,
+        60
+      ],
+      [
+        4,
+        30
+      ]
+    ],
+    "B04": [
+      [
+        37,
+        240
+      ],
+      [
+        4,
+        30
+      ]
+    ],
+    "B09": [
+      [
+        25,
+        600
+      ],
+      [
+        4,
+        30
+      ]
+    ]
+  },
+  "magnet_events": [
+    {
+      "target": "down",
+      "reason": "R1 结合混匀前",
+      "frame": 2573,
+      "previous": "down",
+      "hardware_control": false
+    },
+    {
+      "target": "up",
+      "reason": "R1 全部液滴到右侧后捕获",
+      "frame": 2640,
+      "previous": "down",
+      "hardware_control": false
+    },
+    {
+      "target": "down",
+      "reason": "R1 第1次洗脱液覆盖磁珠后重悬前",
+      "frame": 4714,
+      "previous": "up",
+      "hardware_control": false
+    },
+    {
+      "target": "up",
+      "reason": "R1 第1次洗脱孵育完成且液滴到右侧后",
+      "frame": 4844,
+      "previous": "down",
+      "hardware_control": false
+    },
+    {
+      "target": "down",
+      "reason": "R1 第2次洗脱液覆盖磁珠后重悬前",
+      "frame": 4871,
+      "previous": "up",
+      "hardware_control": false
+    },
+    {
+      "target": "up",
+      "reason": "R1 第2次洗脱孵育完成且液滴到右侧后",
+      "frame": 5001,
+      "previous": "down",
+      "hardware_control": false
+    },
+    {
+      "target": "down",
+      "reason": "R1 两次产物吸出且额外3.00µL载液覆盖磁珠后，重悬排珠",
+      "frame": 5028,
+      "previous": "up",
+      "hardware_control": false
+    },
+    {
+      "target": "down",
+      "reason": "C 结合混匀前",
+      "frame": 8260,
+      "previous": "down",
+      "hardware_control": false
+    },
+    {
+      "target": "up",
+      "reason": "C 全部液滴到右侧后捕获",
+      "frame": 8311,
+      "previous": "down",
+      "hardware_control": false
+    },
+    {
+      "target": "down",
+      "reason": "C 第1次洗脱液覆盖磁珠后重悬前",
+      "frame": 10396,
+      "previous": "up",
+      "hardware_control": false
+    },
+    {
+      "target": "up",
+      "reason": "C 第1次洗脱孵育完成且液滴到右侧后",
+      "frame": 10457,
+      "previous": "down",
+      "hardware_control": false
+    },
+    {
+      "target": "down",
+      "reason": "C 第2次洗脱液覆盖磁珠后重悬前",
+      "frame": 10486,
+      "previous": "up",
+      "hardware_control": false
+    },
+    {
+      "target": "up",
+      "reason": "C 第2次洗脱孵育完成且液滴到右侧后",
+      "frame": 10547,
+      "previous": "down",
+      "hardware_control": false
+    },
+    {
+      "target": "down",
+      "reason": "C 两次产物吸出且额外3.00µL载液覆盖磁珠后，重悬排珠",
+      "frame": 10576,
+      "previous": "up",
+      "hardware_control": false
+    }
+  ],
+  "elution_events": [
+    {
+      "stage": "R1",
+      "round": 1,
+      "initial_mix_cycles": 12,
+      "incubation_seconds": 300,
+      "periodic_mixing": [
+        {
+          "start_seconds": 120,
+          "cycles": 2,
+          "end_seconds": 169.0
+        },
+        {
+          "start_seconds": 240,
+          "cycles": 2,
+          "end_seconds": 289.0
+        }
+      ]
+    },
+    {
+      "stage": "R1",
+      "round": 2,
+      "initial_mix_cycles": 12,
+      "incubation_seconds": 300,
+      "periodic_mixing": [
+        {
+          "start_seconds": 120,
+          "cycles": 2,
+          "end_seconds": 169.0
+        },
+        {
+          "start_seconds": 240,
+          "cycles": 2,
+          "end_seconds": 289.0
+        }
+      ]
+    },
+    {
+      "stage": "C",
+      "round": 1,
+      "initial_mix_cycles": 12,
+      "incubation_seconds": 180,
+      "periodic_mixing": []
+    },
+    {
+      "stage": "C",
+      "round": 2,
+      "initial_mix_cycles": 12,
+      "incubation_seconds": 180,
+      "periodic_mixing": []
+    }
+  ],
+  "frames": {
+    "frames": 11663,
+    "moving_liquid_frames": 136490,
+    "reshaping_liquid_frames": 1011
+  },
+  "flows": 62,
+  "commands": 170,
+  "split_events": 530,
+  "split_minimum_fraction": 0.4,
+  "waste_maximum_port_count": 4,
+  "notes": [
+    "计划液量与承接面积分别核算，只有5.90µL体系及其分支继承已批准的两格余量。",
+    "奇数列单列16道；磁铁升降为外部操作时序，不是电机闭环或执行验证。"
+  ]
+}

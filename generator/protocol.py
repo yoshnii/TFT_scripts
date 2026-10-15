@@ -1,6 +1,8 @@
 """PTseq 单列10×流程：体积按TFT片上试剂体积表_单列.xlsx，温控按POCS；手工边界保持上电。
 20261009：多E孔顶部等分、固定小滴转运、S孔两次洗脱、全区重悬、明确结合/洗脱孵育、手工吸液后续行。
+20261015：A09 PCR脉冲供电为持续上电例外；周期末帧ON，执行器同步停机边界仍待验证。
 仅完成离线几何/计划体积校验，未验证液体、磁控或芯片执行。"""
+import math
 import geom, ops, rigid
 from ops import Lane, lanes_all
 from scene import Scene, Drop, Worm, Relay
@@ -16,6 +18,12 @@ BEAD_ELUTE_MIX = 12                  # 原6轮加倍，固定矩形全区往返
 BEAD_CLEANUP_UL = 3.00               # ASI96 260902_96sampleV2_1：TE分液2267，每滴10×6=60格；额外排珠载液。
 BEAD_CAPTURE_SECONDS = {'R1':180, 'C':120}  # POCS 2.2.2.1 / 2.3.6.2
 BEAD_ELUTE_CAPTURE_SECONDS = {'R1':120, 'C':120}  # POCS 2.2.2.5；C段按用户要求由30s改为120s（磁铁升起捕获不少于2min）
+NOMINAL_MIX_STEP_SECONDS = 0.75       # 保留修订前轮数对应的标称混匀时间；实际移动帧由 geom.STEP_MS 控制。
+# 969ac87动作层全区往返（每格0.75s）的单轮时间，仅用于计时，不用于液滴几何。
+# 新安全带改变宽度时，仍保留已批准的标称时间，而非按新宽度缩短反应混匀。
+NOMINAL_MIX_ROUND_SECONDS = {2.00:42, 2.50:39, 2.60:34.5, 3.00:39,
+                             4.00:30, 4.20:33, 5.00:24, 5.90:24}
+A03_MIX_SECONDS = 1800               # 969ac87：原生VM已设定的并行计时，不从旧生成器轮数反推。
 
 class Protocol:
     def __init__(self, cols=(1, 2, 3, 4, 5, 6)):
@@ -29,6 +37,7 @@ class Protocol:
         self.magnet_events=[]
         self.elution_events=[]
         self.bead_cleanup_events=[]
+        self._restore_after_pulse = False
     def magnet(self, target, reason):
         """记录外部磁铁动作时序；不伪造XaxisMotor指令或位置确认。"""
         assert target in ('up','down')
@@ -37,10 +46,16 @@ class Protocol:
         self.magnet_state=target
     # ── 记录 ──
     def cmd(self, name):
-        rel = [r for r in self.S.flush() if r.codes]  # 无液相/无电极时不输出空驱动帧。
-        if not rel: return None
-        c = Cmd(name, "HighVoltage", "CMD_SCRIPTCYCLE", max(1, round(sum(r.dur for r in rel) / 1000)), "SCRIPTCYCLE_FALSE", rel)
         events = {id(r): info for r, info in (self.S.manual_aspirations or [])}
+        rel = []
+        for r in self.S.flush():
+            if not r.codes: continue  # 无液相/无电极时不输出空驱动帧。
+            if (rel and id(r) not in events and id(rel[-1]) not in events
+                    and r.codes == rel[-1].codes and r.amp == rel[-1].amp):
+                rel[-1].dur += r.dur    # 静态保持压成单帧；手工吸液帧保持原对象与边界。
+            else: rel.append(r)
+        if not rel: return None
+        c = Cmd(name, "HighVoltage", "CMD_SCRIPTCYCLE", max(1, math.ceil(sum(r.dur for r in rel) / 1000)), "SCRIPTCYCLE_FALSE", rel)
         c.aspiration_gates = [(i, events[id(r)]) for i, r in enumerate(rel) if id(r) in events]
         return c
     def flow(self, seg, name, cmds, repeats=1):
@@ -67,6 +82,11 @@ class Protocol:
     # ── 复合动作 ──
     def add_reagent(self, seg, title, reagent, vol, park=True):
         S, cmds = self.S, []
+        total=round(S.get(self.ALL[0].name).vol+vol,2)
+        S.clearance_context=1 if geom.running_gap(total)==1 else None
+        if total in (4.,5.,5.9):
+            H={4.:4,5.:5,5.9:4}[total]
+            rigid.reshape_many(S,[(S.get(ln.name),(min(S.get(ln.name).rect[0],ln.X0+36-geom.cells(S.get(ln.name).vol)//H),geom.physical_zone(ln.c,ln.r)[1]+1,geom.cells(S.get(ln.name).vol)//H,H)) for ln in self.ALL])
         if park: ops.park_all(S, self.ALL, "reagent"); cmds.append(self.cmd("常驻液滴让开进液端"))
         for ph, lab, lanes in self.phases():
             cols = [c for c in self.cols if geom.odd(c) == (ph == 1)]
@@ -90,17 +110,72 @@ class Protocol:
         left = [l for l in self.ALL if f"T{reagent}{l.id}" in S.drops]
         if left: ops.merge_all(S, left, f"T{reagent}"); cmds.append(self.cmd(f"{reagent} 与各道液滴合并"))
         self.flow(seg, title, cmds)
-    def mix(self, seg, title, cycles=ops.MIXN, span=None, center_tec=False):
-        ops.mix_all(self.S, self.ALL, cycles, span,full_region=True)
-        if center_tec:
-            ops.park_all(self.S, self.ALL, "tec_center")
-        self.flow(seg, title, [self.cmd("往复混匀 (全部液滴带电)")])
-    def thermal(self, seg, title, program, repeats=1, lid=None, final_4c=True, park=True):
+        S.clearance_context=None
+    def mix(self, seg, title, cycles=ops.MIXN, span=None, seconds=None, spec=None, initial=(), complete_rounds=None):
+        """左端定位后只输出一轮闭合往返，与Delay同时启动并同步结束。
+
+        首末电极和Scene终态一致；TRUE+Sync沿用VM结构，不证明执行器只在整轮结束时停机。
+        后续TEC/磁铁停靠由后续流程执行，不放入重复轨迹。
+        span沿用旧接口：full_region混匀仍覆盖整个反应区，不改几何范围。
+        """
+        assert cycles > 0
+        S = self.S
+        whole_region = spec is None
+        if spec is None:
+            spec = {ln.name: (ln.X0, ln.X0 + geom.LANE_L - S.get(ln.name).rect[2]) for ln in self.ALL}
+        assert spec and all(hi > lo for lo, hi in spec.values()), '混匀须有完整往返行程'
+        ops.move_rects(S, {name: lo for name, (lo, _) in spec.items()})
+        S.step(geom.HOLD_MS, changed=[])
+        cmds = [c for c in initial if c]
+        position = self.cmd('液滴左端定位 · 随后启动混匀（全部液滴带电）')
+        if cmds: position.pre = (cmds[-1], 'FS')
+        cmds.append(position)
+        S.step(geom.STEP_MS, changed=[])
+        ops.mix_range(S, spec, 1)
+        hv = self.cmd('往复混匀 · 单轮闭合循环（全部液滴带电）')
+        assert hv and hv.relays[0].codes == hv.relays[-1].codes, '混匀轨迹首末必须闭合'
+        hv.params = 'SCRIPTCYCLE_TRUE'
+        hv.pre = (position, 'FS')
+        round_seconds = 2 * max(hi-lo for lo, hi in spec.values()) * NOMINAL_MIX_STEP_SECONDS
+        if whole_region:
+            round_seconds = max(NOMINAL_MIX_ROUND_SECONDS.get(round(S.get(name).vol, 2), round_seconds)
+                                for name in spec)
+        nominal = math.ceil(cycles * round_seconds)
+        duration = nominal if seconds is None else seconds
+        if complete_rounds is not None:
+            assert seconds is None and complete_rounds > 0
+            duration = math.ceil(complete_rounds * sum(r.dur for r in hv.relays) / 1000)
+        assert duration > 0 and int(duration) == duration
+        timer = Cmd(f'混匀计时 {duration}s（同步结束）', 'Delay', 'CMD_DELAY', duration)
+        timer.pre = (hv, 'SS')
+        hv.mix_timing = dict(intended_cycles=cycles, nominal_seconds=nominal,
+                             timer_seconds=duration, complete_round_ms=sum(r.dur for r in hv.relays),
+                             hardware_stop_verified=False)
+        f = Flow(title, [*cmds, hv, timer], sync=[timer, hv], chain_commands=False)
+        self.segs.setdefault(seg, []).append(f)
+        return f.timeout
+
+    def hold(self, name, seconds):
+        """独立孵育/磁吸等待：一条完整时长的静态Relay，不与混匀计时合并。"""
+        milliseconds = round(seconds * 1000)
+        if milliseconds <= 0: return None
+        self.S.step(milliseconds, geom.HOLD_VOLT, changed=[])
+        return self.cmd(name)
+
+    def thermal(self, seg, title, program, repeats=1, lid=None, final_4c=True, park=True, pulse=False):
         """温控与高压保持并行。Heater 参数与参考工程一致: 目标温度,精度(1℃)。"""
+        assert not pulse or (seg == 'A' and title.startswith('A09 ') and repeats == 30), '只有A09 PCR30轮允许脉冲供电'
         S, cmds, root = self.S, [], None
+        if self._restore_after_pulse:
+            root = self.hold('PCR脉冲组后恢复全液滴持续上电', 1)
+            cmds.append(root)
+            self._restore_after_pulse = False
         if park:
-            ops.park_all(S, self.ALL, "tec_center"); root = self.cmd("液滴停 TEC 区")
-            if root: cmds.append(root)
+            ops.park_all(S, self.ALL, "tec_center"); positioning = self.cmd("液滴停 TEC 区")
+            if positioning:
+                if root: positioning.pre = (root, 'FS')
+                root = positioning
+                cmds.append(root)
         ops.assert_half(S, self.ALL, 'left')
         seq = list(program) + ([(4, 30)] if final_4c and (not program or program[-1][0] != 4) else [])
         heater_ends, heater_first = [], []
@@ -109,33 +184,31 @@ class Protocol:
             for temp, secs in seq:
                 on = Cmd(f"Heater{col}_{temp}℃", f"Heater{col}", "CMD_TEMP_ON", 60, f"{temp},1")
                 delay = Cmd(f"保温 {temp}℃ {secs}s", "Delay", "CMD_DELAY", secs, "")
-                on.pre = (prev, "FS") if prev else ((root, "FS") if root else None)
+                on.pre = (prev, "FS") if prev else ((root, "FS") if root else
+                                                    ((heater_first[0], 'SS') if heater_first else None))
+                if prev is None: heater_first.append(on)
                 delay.pre = (on, "FS"); prev = delay
-                if not heater_first: heater_first.append(on)
                 cmds.extend([on, delay])
             if prev: heater_ends.append(prev)
-        # 合并预览按 Temp on 的 Timeout 计算温度切换时段，不能只覆盖 Delay。
-        hold_secs = sum(s + 60 for _, s in seq)
-        ops.hold_all(S, hold_secs)
-        hv = self.cmd("液滴持续通电保持（循环至温控结束）")
+        S.step(geom.LONG_MS, geom.HOLD_VOLT, changed=[])
+        hv = self.cmd('PCR例外：OFF1000ms/ON1000ms（循环至温控结束；周期末帧上电）' if pulse else
+                      '液滴持续通电保持（循环至温控结束）')
         if hv:
-            hv.params = "SCRIPTCYCLE_TRUE"   # ASI96 的循环高压 + 同时结束方式；此处只有静态保持
-            if root: hv.pre = (root, "SS")
-            elif heater_first: hv.pre = (heater_first[0], "SS")
+            if pulse:
+                codes = list(hv.relays[0].codes)
+                hv.relays = [Relay(codes, 1000, 0), Relay(list(codes), 1000, geom.HOLD_VOLT)]
+                hv.timeout = 2
+            hv.params = "SCRIPTCYCLE_TRUE"
+            if heater_first: hv.pre = (heater_first[0], "SS")
             cmds.append(hv)
         if not cmds: return
         suffix = f" [热盖{lid}℃]" if lid else ""
-        f = Flow(title + suffix, cmds, repeats, sync=heater_ends + ([hv] if hv else []))
-        # Flow 构造器默认串联，这里恢复已设定的温控/高压并行分支。
-        if root:
-            root.pre = None
-            for col_i, col in enumerate(self.cols):
-                first = next((c for c in cmds if c.name.startswith(f"Heater{col}_")), None)
-                if first: first.pre = (root, "FS" if col_i == 0 else "SS")
-            if hv: hv.pre = (root, "SS")
-        elif heater_first and hv:
-            heater_first[0].pre = None; hv.pre = (heater_first[0], "SS")
+        f = Flow(title + suffix, cmds, repeats, sync=heater_ends + ([hv] if hv else []), chain_commands=False)
         self.segs.setdefault(seg, []).append(f)
+        if pulse:
+            # 周期末帧ON只改善整轮结束的边界；Sync能否整轮停止仍未验证。
+            # 现有A10的首指令恢复供电；手工单跑A09再启动A10的间隔不能宣称持续上电。
+            self._restore_after_pulse = True
     def egress_phases(self, seg_cmds, tag, label, touching=()):
         """tag+lane 液滴 → 蠕虫 → 排废。偶数列先 (其分离块贴着左侧空隙), 奇数列后。"""
         S = self.S
@@ -158,17 +231,17 @@ class Protocol:
         S, cmds = self.S, []
         self.magnet('down',f'{seg} 结合混匀前')
         ops.park_all(S, self.ALL, "tec"); cmds.append(self.cmd("[外部磁控]确认磁铁已下降 · 液滴停 TEC 区"))
-        ops.mix_all(S, self.ALL, mix_cycles, mix_span,full_region=True); cmds.append(self.cmd(f"磁铁保持下降 · 全反应区往复混匀 (结合) {mix_cycles}轮"))
+        self.mix(seg, title + ' · 磁铁保持下降 · 结合混匀', mix_cycles, mix_span, initial=cmds)
+        cmds = []
         incubation=300 if seg=='R1' else 180
-        ops.hold_all(S,incubation)
-        cmds.append(self.cmd(f"[外部磁控]磁铁未升起 · 室温结合孵育 {incubation}s · 全液滴保持上电"))
+        cmds.append(self.hold(f"[外部磁控]磁铁未升起 · 室温结合孵育 {incubation}s · 全液滴保持上电", incubation))
         right_half = self.rigid
         ops.to_magnet_all(S,self.ALL,right_half=right_half,allow_590_cross=seg=='C')
-        cmds.append(self.cmd(("5.90µL已授权例外：右端停靠，向左跨中线2列；118格守恒" if seg=='C'
-                              else "等面积整形后逐格移入右半区（必要时允许缺角）") if right_half else "移至磁铁位并拉长"))
+        cmds.append(self.cmd(("5.90µL实际液量不变：24×5完整承接框120格；一格孔距、允许跨中线" if seg=='C'
+                              else "5.00µL：20×5完整矩形；一格孔距、允许跨中线，仍在本反应区") if right_half else "移至磁铁位并拉长"))
         self.magnet('up',f'{seg} 全部液滴到右侧后捕获')
         capture=BEAD_CAPTURE_SECONDS[seg]
-        ops.hold_all(S, capture); cmds.append(self.cmd(f"[外部磁控]磁铁升起 捕获 {capture}s 持续通电"))
+        cmds.append(self.hold(f"[外部磁控]磁铁升起 捕获 {capture}s 持续通电", capture))
         self.flow(seg, title, cmds)
     def supernatant_off(self, seg, title):
         """磁珠团留在磁铁位，液相按小矩形逐格切开，从排废端移走。"""
@@ -176,7 +249,7 @@ class Protocol:
         assert self.magnet_state=='up','排液期间磁铁必须保持升起'
         if self.rigid:
             rigid.supernatant_bites(S, self.ALL, self.blob, PELLET, final=True,collect_three=seg=='R1')
-            grouping='三批连续收集至F3/F2/F1，全部到齐后统一吸液；' if seg=='R1' else ''
+            grouping='按F1–F4几何容量流水收集，整批到齐后吸液；'
             cmds.append(self.cmd("磁铁保持升起 · 分离 → 小矩形逐格切开移液 → 整排等齐汇液；"+grouping+"待手工吸出后续行，反应区只留磁珠"))
             self.flow(seg, title, cmds); return
         items_by_par = {True: [], False: []}
@@ -195,8 +268,8 @@ class Protocol:
     def elute(self, seg, title, reagent, vol, product_vol, resus_cycles=6):
         S, cmds = self.S, []
         self.add_reagent(seg, f"{title} · 送入洗脱液", reagent, vol, park=False)     # 直接进磁珠团
-        ops.resuspend_all(S, self.ALL, resus_cycles); cmds.append(self.cmd("[外部磁控]磁铁落下 · 重悬往复"))
-        ops.hold_all(S, ops.T_RESUS_MAG); cmds.append(self.cmd(f"[外部磁控]磁铁升起 {ops.T_RESUS_MAG}s 持续通电"))
+        self.mix(seg, title + ' · [外部磁控]磁铁落下 · 重悬往复', resus_cycles)
+        cmds.append(self.hold(f"[外部磁控]磁铁升起 {ops.T_RESUS_MAG}s 持续通电", ops.T_RESUS_MAG))
         # 产物离开磁珠团: 奇数列去左 (TEC 端), 偶数列先去右侧让路
         pairs = []
         if self.rigid:
@@ -236,34 +309,29 @@ class Protocol:
         S.step(geom.HOLD_MS,changed=[])
         ops.merge_all(S,self.ALL,'E');cmds.append(self.cmd('S孔加液完成 · 磁铁保持升起 · 洗脱液逐格覆盖磁珠后再降下'))
         self.magnet('down',f'{seg} 第{round_no}次洗脱液覆盖磁珠后重悬前')
-        ops.resuspend_all(S, self.ALL, resus_cycles); cmds.append(self.cmd(f"第{round_no}次：磁铁落下 · 固定矩形扫过整个反应区 · 往返{resus_cycles}轮"))
+        self.mix(seg, title + f' · 第{round_no}次磁铁落下重悬', resus_cycles, initial=cmds)
+        cmds = []
         incubation=300 if seg=='R1' else 180
         if seg=='R1':
             # POCS 2.2.2.4：5min洗脱期间每2min轻晃。往返时间计入300s，不能另加300s。
             elapsed=0.0;periodic=[]
             for at in (120,240):
-                ops.hold_all(S,at-elapsed)
-                before=sum(r.dur for r in S.relays)
-                ops.resuspend_all(S,self.ALL,2)
-                elapsed=at+(sum(r.dur for r in S.relays)-before)/1000
+                wait = self.hold(f'磁铁保持下降 · 洗脱孵育等待 {at-elapsed:g}s', at-elapsed)
+                elapsed += self.mix(seg, title + f' · 孵育第{at}s轻晃', cycles=2, initial=[wait])
                 assert elapsed<=incubation,'轻晃动作超过洗脱孵育窗口'
                 periodic.append(dict(start_seconds=at,cycles=2,end_seconds=elapsed))
-            ops.hold_all(S,incubation-elapsed)
+            cmds.append(self.hold(f'第{round_no}次：洗脱孵育剩余等待 {incubation-elapsed:g}s', incubation-elapsed))
         else:
-            periodic=[];ops.hold_all(S,incubation)
+            periodic=[];cmds.append(self.hold(f'第{round_no}次：室温洗脱孵育 {incubation}s · 全液滴保持上电', incubation))
         self.elution_events.append(dict(stage=seg,round=round_no,initial_mix_cycles=resus_cycles,
                                         incubation_seconds=incubation,periodic_mixing=periodic))
-        cmds.append(self.cmd(f'第{round_no}次：室温洗脱孵育 {incubation}s · '+
-                             ('第120/240s磁铁下降状态轻晃各2轮，动作时间包含在孵育内 · ' if periodic else '')+
-                             '全液滴保持上电'))
         ops.to_magnet_all(S,self.ALL,right_half=True)
         cmds.append(self.cmd(f'第{round_no}次：固定形状逐格移回磁铁侧，再升磁铁'))
         self.magnet('up',f'{seg} 第{round_no}次洗脱孵育完成且液滴到右侧后')
         capture=BEAD_ELUTE_CAPTURE_SECONDS[seg]
-        ops.hold_all(S, capture); cmds.append(self.cmd(f"第{round_no}次：磁铁升起 {capture}s · 全液滴持续通电"))
+        cmds.append(self.hold(f"第{round_no}次：磁铁升起 {capture}s · 全液滴持续通电", capture))
         rigid.product_off_pellet(S, self.ALL, product_vol, PELLET)
         cmds.append(self.cmd(f"第{round_no}次：产物 {product_vol:.2f}µL 与磁珠团分离"))
-        ops.move_rects(S, {f"P{ln.id}": ln.X0 + geom.S_DX - S.get(f"P{ln.id}").rect[2] // 2 for ln in self.ALL})
         S.step(geom.HOLD_MS,changed=[])
         info=dict(hole='S孔×16',volume_ul=round(product_vol*len(self.ALL),2),
                   per_lane_ul=product_vol,drop_names=[f'P{ln.id}' for ln in self.ALL],
@@ -293,10 +361,12 @@ class Protocol:
         ops.merge_all(S,self.ALL,'E')
         cmds=[self.cmd('排珠载液逐格覆盖磁珠 · 磁铁仍升起 · 每道真实液量3.00µL')]
         self.magnet('down',f'{seg} 两次产物吸出且额外3.00µL载液覆盖磁珠后，重悬排珠')
-        ops.resuspend_all(S,self.ALL,BEAD_ELUTE_MIX)
-        cmds.append(self.cmd(f'[外部磁控]磁铁下降 · 3.00µL载液带磁珠全反应区往返{BEAD_ELUTE_MIX}轮'))
+        cleanup_cycles = 2 if seg == 'C' else BEAD_ELUTE_MIX
+        self.mix(seg, f'{title} · 磁珠清理重悬（额外3.00µL载液）', cleanup_cycles, initial=cmds,
+                 complete_rounds=2 if seg == 'C' else None)
+        cmds = []
         event=dict(stage=seg,per_lane_ul=BEAD_CLEANUP_UL,total_ul=round(len(self.ALL)*BEAD_CLEANUP_UL,2),
-                   reagent=reagent,loading_hole='S孔×16',mix_cycles=BEAD_ELUTE_MIX,
+                   reagent=reagent,loading_hole='S孔×16',mix_cycles=cleanup_cycles,
                    reference='260902_96sampleV2_1.elab Flow2267 Command2268：8滴×60格',
                    waste_begin_frame=S.nsteps,magnet_state=self.magnet_state)
         self.bead_cleanup_events.append(event)
@@ -347,11 +417,11 @@ class Protocol:
         ops.merge_all(S, ALL, "TWS", host_tag="Q"); cmds.append(self.cmd("WS 与定量份合并"))
         self.flow(seg, f"{title} · Q02 加 Qubit 工作液 {WS_VOL:.2f}µL", cmds)
         # Q03 混匀 (文库那侧留 2 格)
-        ops.mix_range(S, {f"Q{ln.id}": ((ln.X0 + 5, ln.X0 + 14) if ln.odd else (ln.X0 + 8, ln.X0 + 17)) for ln in ALL}, ops.MIXN)
-        self.flow(seg, f"{title} · Q03 往复混匀", [self.cmd("往复混匀 (全部液滴带电)")])
+        self.mix(seg, f"{title} · Q03 往复混匀", spec={f"Q{ln.id}":
+                 ((ln.X0 + 5, ln.X0 + 14) if ln.odd else (ln.X0 + 8, ln.X0 + 17)) for ln in ALL})
         # Q04 避光 → 读数 (Quant 指令与保持通电指令并行启动)
-        ops.hold_all(S, T_DARK); c_dark = self.cmd(f"[避光]{T_DARK}s 持续通电")
-        ops.hold_all(S, T_READ); c_hold = self.cmd(f"[定量]读数期间持续通电 {T_READ}s")
+        c_dark = self.hold(f"[避光]{T_DARK}s 持续通电", T_DARK)
+        c_hold = self.hold(f"[定量]读数期间持续通电 {T_READ}s", T_READ)
         c_q = Cmd("[定量]Quant 读数 (DS 双链标曲)", "Quant", "CMD_QUANT_DEF", T_READ, "DS")
         f = Flow(f"{title} · Q04 避光{T_DARK//60}min → Quant 读数", [c_dark, c_hold, c_q], 1, sync=[c_hold, c_q]); c_q.pre = (c_hold, "SS")
         self.segs.setdefault(seg, []).append(f)
@@ -416,16 +486,15 @@ class Protocol:
             geom.magnetic_shape(round(4.20+1.70,2),allow_590_cross=True)
         S = self.S
         # 段 A
-        self.load_samples("A", "A01 上样 1.60µL (S 孔切线块承接)", "S", 1.60, "L", "待测核酸")
+        self.load_samples("A", "A01 上样 1.60µL (S孔距一格承接)", "S", 1.60, "L", "待测核酸")
         self.add_reagent("A", "A02 加 G4 cDNA合成反应液 0.40µL", "G4", 0.40)
-        ops.park_all(S, self.ALL, "tec"); self.flow("A", "A03 液滴停 TEC 区", [self.cmd("液滴停 TEC 区")])
-        self.mix("A", "A03 往复混匀", center_tec=True)
+        self.mix("A", "A03 往复混匀", seconds=A03_MIX_SECONDS)
         self.thermal("A", "A04 cDNA合成 37℃10min→85℃5s→4℃", [(37, 600), (85, 5)], lid=105)
         self.split_waste("A", "A05 劈裂 留25%(0.50µL) 弃1.50µL", 0.50, "cDNA 弃液 1.50µL")
         self.add_reagent("A", "A06 加靶向扩增反应液 2.00µL(台面预混)", "AMP", 2.00)
-        ops.park_all(S, self.ALL, "tec"); self.flow("A", "A07 液滴停 TEC 区", [self.cmd("液滴停 TEC 区")]); self.mix("A", "A07 往复混匀", center_tec=True)
+        self.mix("A", "A07 往复混匀")
         self.thermal("A", "A08 预变性 95℃3min", [(95, 180)], lid=105, final_4c=False)
-        self.thermal("A", "A09 循环 95℃30s/60℃60s/72℃45s ×30", [(95, 30), (60, 60), (72, 45)], repeats=30, lid=105, final_4c=False, park=False)
+        self.thermal("A", "A09 循环 95℃30s/60℃60s/72℃45s ×30", [(95, 30), (60, 60), (72, 45)], repeats=30, lid=105, final_4c=False, park=False, pulse=True)
         self.thermal("A", "A10 终延伸 72℃1min→4℃", [(72, 60)], lid=105, park=False)
         # 刷新点 1
         self.add_reagent("R1", "R01 加 G14 磁珠 2.50µL (1:1)", "G14", 2.50)
@@ -434,34 +503,28 @@ class Protocol:
         self.elute_offchip("R1", "R05 纯化1第1次洗脱：溶解液 5.00µL → 产物离片", "G15", 5.00, 5.00, 1, final=False)
         self.elute_offchip("R1", "R06 纯化1第2次洗脱：溶解液 5.00µL → 产物离片", "G15", 5.00, 5.00, 2, final=True)
         # 两次洗脱产物下片 Qubit/手工均一化；以 1.30µL/道回片开始段 B。
-        self.load_samples("B", "B01 均一化后产物 1.30µL 回片 (S 孔切线块承接)", "S", 1.30, "L", "均一化产物")
+        self.load_samples("B", "B01 均一化后产物 1.30µL 回片 (S孔距一格承接)", "S", 1.30, "L", "均一化产物")
         self.add_reagent("B", "B02 加 Rapid End Repair ReadyMix 0.70µL", "G8", 0.70)
-        ops.park_all(S, self.ALL, "tec"); self.flow("B", "B03 液滴停 TEC 区", [self.cmd("液滴停 TEC 区")]); self.mix("B", "B03 往复混匀", center_tec=True)
+        self.mix("B", "B03 往复混匀")
         self.thermal("B", "B04 末端修复加A 37℃4min→4℃", [(37, 240)], lid=105)
-        ops.load_holes(S, self.ALL, "B", 1.00, "K", manual=True)
-        c1 = self.loading_cmd(dict(hole="B孔×16", reagent="同配比条形码接头预混液（保留G11 0.20 + G15 0.40）", volume_ul=1.00,
-                                   per_lane_ul=1.00, lanes="A1-A16（各自barcode，加1.00µL，分弃0.40µL，保留0.60µL）", batch=1, batches=1))
+        ops.load_holes(S, self.ALL, "B", 1.20, "K", manual=True)
+        c1 = self.loading_cmd(dict(hole="B孔×16", reagent="同配比条形码接头预混液（非稀释；保留G11 0.20 + G15 0.40）", volume_ul=1.20,
+                                   per_lane_ul=1.20, lanes="A1-A16（各自barcode，每道加同配比预混液1.20µL，16道合计19.20µL；等分弃0.60µL、保留0.60µL）", batch=1, batches=1))
         S.step(geom.HOLD_MS,changed=[])
-        specs=[]
-        for ln in self.ALL:
-            d=S.get(f'K{ln.id}');left,right=rigid.split_x(d,3,2)
-            specs.append((d,(left,right),(.60,.40),(d.name,f'BKWA{ln.id}')))
-        rigid.split_many(S,specs)
-        c2=self.cmd('各道1.00µL接头液原位分成0.60µL保留、0.40µL弃液，逐格拉开')
+        ops.settle_loaded(S)
+        rigid.bisect_many(S, [S.get(f'K{ln.id}') for ln in self.ALL],
+                          names=[(f'K{ln.id}', f'BKWA{ln.id}') for ln in self.ALL])
+        c2=self.cmd('各道同配比1.20µL接头预混液原位等分：0.60µL保留、0.60µL弃液，逐格拉开')
         rigid.egress_pieces(S,[(ln,S.get(f'BKWA{ln.id}')) for ln in self.ALL],self.blob)
-        c3=self.cmd('接头多加的0.40µL/道经废液通道排出（不走公共进液通道）')
+        c3=self.cmd('接头等分后的0.60µL/道经废液通道排出（不走公共进液通道）')
         ops.merge_all(S,self.ALL,'K');c4=self.cmd('全部保留的0.60µL接头液就绪后与各道产物同步合并')
-        self.flow('B','B05 接头预混液加1.00µL，分弃0.40µL，投入0.60µL（同配比）',[c1,c2,c3,c4])
+        self.flow('B','B05 同配比接头预混液每道加1.20µL（16道共19.20µL），等分弃0.60µL、投入0.60µL',[c1,c2,c3,c4])
         self.mix("B", "B06 往复混匀")
         self.add_reagent("B", "B07 加连接反应预混液 1.40µL (Buffer 1.00 + Ligase 0.40)", "LIG", 1.40)
-        ops.park_all(S, self.ALL, "tec"); self.flow("B", "B08 液滴停 TEC 区", [self.cmd("液滴停 TEC 区")]); self.mix("B", "B08 往复混匀", center_tec=True)
+        self.mix("B", "B08 往复混匀")
         self.thermal("B", "B09 连接反应 25℃10min→4℃", [(25, 600)], lid=75)
         self.add_reagent("B", "B10 加 EDTA 终止液 0.20µL", "EDTA", 0.20)
-        ops.move_rects(S,{ln.name:ln.X0 for ln in self.ALL})
-        ops.mix_all(S,self.ALL,20,full_region=True)
-        termination=self.cmd('B10 EDTA终止后轻柔往复混匀20轮（片上移液不等同枪头吹打）')
-        previous=self.segs['B'][-1].cmds[-1];termination.pre=(previous,'FS')
-        self.segs['B'][-1].cmds.append(termination)
+        self.mix('B', 'B10 EDTA终止后轻柔往复混匀（片上移液不等同枪头吹打）', cycles=20)
         # 刷新点 2
         self.add_reagent("C", "C01 加磁珠(0.4××4.20µL) 1.70µL", "G16", 1.70)
         self.bead_capture("C", "C02-C03 混匀孵育3min → 移至磁铁 → 磁吸", mix_cycles=BEAD_BIND_MIX['C'], mix_span=19)

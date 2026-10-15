@@ -1,35 +1,50 @@
 {
-  "snapshot_date": "2026-10-15",
-  "source": "Windows 11:C:/Users/shan/Desktop/tfttest/siro_scripts/Engineering/PTseq_SIRO16_A",
-  "previous_git_commit": "1affa78a102991d749684deafde09727ef68f12e",
-  "native_script_sha256": "cab650017e2d8f36965ba6f74cfa814519c4a14c95d886399c1e4757675f7409",
-  "layout_sha256": "8ee942ab31ebe237828daf2f92d7e4dd40e881c4ef7ee493df87c150e1466c2d",
-  "native_files_copied_without_rewriting": true,
-  "changes": [
-    {
-      "section": "1008",
-      "name": "A03 往复混匀",
-      "high_voltage_command": "1009",
-      "scriptcycle": true,
-      "relay_count": 55,
-      "relay_duration_ms": 41250,
-      "cycle_first_and_last_electrode_state_equal": true,
-      "delay_command": "60004",
-      "delay_seconds": 1800,
-      "delay_pre_task": "1009,SS",
-      "sync_ending_commands": ["60004", "1009"]
-    },
-    {
-      "section": "1010",
-      "name": "A04 cDNA",
-      "high_voltage_command": "1017",
-      "relay_count": 1,
-      "relay_duration_ms": 4000
-    }
-  ],
-  "gui_saved_zero_flow_timeouts_preserved": true,
-  "generator_reproduces_this_gui_snapshot": false,
-  "previous_release_report_is_not_validation_of_this_snapshot": true,
+  "release_id": "TFT16_20261015_rules13",
+  "date": "2026-10-15",
+  "base_commit": "969ac87a5e777dd5b1f38c59690c8083ab0d4361",
+  "source": "Mac generator with preserved VM A03/A04 settings",
+  "vm_path": "C:\\Users\\shan\\Desktop\\tfttest\\siro_scripts\\Engineering\\PTseq_SIRO16_A",
+  "vm_backup": "C:\\Users\\shan\\Desktop\\tfttest\\_backups\\PTseq_SIRO16_A_13rules_before_20261015_rOzOdz",
+  "mac_backup": "/Users/shan/Documents/BGI/SIRO解决方案中心/SIRO-Plus/实验/TFT片上测试/片上测试1/工程备份/13条修订前_20261015.rOzOdz",
+  "native_script_sha256": "512b2a32c7f679c10ccbc5181229d9906b4e80c75972c37fb9f1e76f076f5eb3",
+  "mac_vm_file_hashes_equal": true,
+  "requested_rule_revision_20261015_applied": true,
+  "offline_regression_tests_passed": 31,
+  "visual_check_performed": false,
+  "gui_compile_performed": false,
   "hardware_execution_verified": false,
-  "requested_rule_revision_20261015_applied": false
+  "authorizations": {
+    "ordinary_running_port_gap": 2,
+    "manual_port_gap": 1,
+    "one_grid_reaction_systems_ul": [
+      4,
+      5,
+      5.9
+    ],
+    "cross_midline_systems_ul": [
+      5,
+      5.9
+    ],
+    "actual_590_ul": 5.9,
+    "electrode_590_cells": 120
+  },
+  "behavior_notes": [
+    "总量和试剂比例不变，接头手工加1.20µL并对半保留0.60µL。",
+    "优先对半；25格完整母框原生切为10/15格近半，不产生缺角或微小尾滴。",
+    "5.90µL体系的2格承接余量在G16接液及排废分支中守恒分配，不是每滴额外增加2格。",
+    "31项回归及逐帧离线检查通过；磁铁升降仍为外部操作时序。"
+  ],
+  "generic_check": {
+    "errors": 0,
+    "warnings": 5,
+    "explanations": [
+      "main的BuildMd5为空：按要求未执行GUI编译。",
+      "PTseq_16_A的BuildMd5为空：按要求未执行GUI编译。",
+      "旧版5.2µL单滴阈值提示：包含已批准的大体积顶部接液、底部汇液及5.90µL体系。",
+      "50V/20Hz保持电压是有意设置。",
+      "0V仅出现在A09 PCR的1秒关/1秒开循环。"
+    ]
+  },
+  "runtime_cycle_end_behavior_verified": false,
+  "validation_report": "修订校验_20261015.json"
 }

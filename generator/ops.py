@@ -23,7 +23,7 @@ class Lane:
             assert L <= geom.TEC_L, f"{self.id} 液滴宽度 {L} 超出 TEC 区"
             return self.X0 + (geom.TEC_L - L) // 2
         if mode == "far": return self.X0 + geom.LANE_L - L
-        if mode == "reagent": return (self.X0 + 20) if self.odd else self.X0
+        if mode == "reagent": return self.X0+geom.LANE_L-L if self.odd else self.X0
         if mode == "waste":   return self.X0 if self.odd else (self.X0 + geom.LANE_L - L)
         raise ValueError(mode)
 
@@ -31,12 +31,21 @@ def lanes_all(cols=range(1, 7)): return [Lane(c, r) for c in cols for r in range
 
 # ── 通用步进 ─────────────────────────────────────────────────────────
 def hold_all(S, secs, amp=geom.HOLD_VOLT):
-    n, rem = divmod(int(secs) * 1000, geom.LONG_MS)
-    for _ in range(n): S.step(geom.LONG_MS, amp, changed=[])
-    if rem: S.step(rem, amp, changed=[])
+    if secs>0:S.step(round(secs*1000),amp,changed=[])
+
+def settle_loaded(S):
+    """承接框距孔1格；手工加好后先整滴向下1格，再开始常规动作。"""
+    ds=[d for d in S.drops.values() if getattr(d,'receiving',False)]
+    if not ds:return
+    for d in ds:
+        d.receiving=False
+        x,y,w,h=d.rect
+        if geom.running_gap(d.vol)==2:d.rect=(x,y+1,w,h)
+    S.step(geom.HOLD_MS,changed=[d.name for d in ds])
 
 def move_rects(S, moves, touching=()):
     """moves: {name: X_to}; 每步各液滴沿 X 走 1 格, 直到全部到位。"""
+    settle_loaded(S)
     active = {n: x for n, x in moves.items() if S.get(n).rect[0] != x}
     while active:
         for n, x in list(active.items()):
@@ -56,14 +65,15 @@ def assert_half(S, lanes, side, tag='L', allow_590_cross=False):
         raise ValueError(side)
     for ln in lanes:
         d = S.get(f'{tag}{ln.id}')
-        exception = side=='right' and allow_590_cross and abs(d.vol-5.90)<1e-7
+        exception = side=='right' and (abs(d.vol-5.00)<1e-7 or allow_590_cross and abs(d.vol-5.90)<1e-7)
         if d.vol > 0:
             (geom.magnetic_shape(d.vol, exception) if side=='right' else geom.half_shape(d.vol))
         lo = ln.X0 + (geom.TEC_L if side == 'right' else 0)
-        if exception:lo=ln.X0+geom.LANE_L-20
+        if exception:lo=ln.X0+geom.LANE_L-geom.lane_shape(d.vol)[0]
         hi = lo + geom.TEC_L
         if exception:hi=ln.X0+geom.LANE_L
-        if not all(lo <= x < hi and ln.Y0 <= y < ln.Y0 + geom.LANE_H
+        py=geom.physical_zone(ln.c,ln.r)[1]
+        if not all(lo <= x < hi and py <= y < py + geom.PHYSICAL_LANE_H
                    for x, y in d.target_cells()):
             raise ValueError(f'{ln.id} {d.vol:.2f}µL实际电极越过{side}半区边界')
 
@@ -74,20 +84,9 @@ def park_half(S, lanes, side, tag='L', allow_590_cross=False):
     if side not in ('left', 'right'):
         raise ValueError(side)
     # 预检整列，避免最后一孔超容量时前面孔已产生部分动作。
-    shapes = [(ln, geom.magnetic_shape(S.get(f'{tag}{ln.id}').vol, allow_590_cross)
-               if side=='right' else geom.half_shape(S.get(f'{tag}{ln.id}').vol)) for ln in lanes]
-    targets = []
-    for ln, (w, h) in shapes:
-        d = S.get(f'{tag}{ln.id}')
-        target = (d.rect[0], ln.Y0 + (geom.LANE_H-h)//2, w, h)
-        if d.rect != target:
-            targets.append((d, target))
-    if targets:
-        rigid.reshape_many(S, targets)
-    moves = {f'{tag}{ln.id}': (ln.X0+geom.LANE_L-w if w>geom.TEC_L else
-             ln.X0+(geom.TEC_L if side=='right' else 0)+(geom.TEC_L-w)//2)
-             for ln,(w,h) in shapes}
-    move_rects(S, moves)
+    targets=[(S.get(f'{tag}{ln.id}'),geom.lane_target(ln.c,ln.r,S.get(f'{tag}{ln.id}').vol,side)) for ln in lanes]
+    move_rects(S,{d.name:min(rc[0],ln.X0+geom.LANE_L-d.rect[2]) for ln,(d,rc) in zip(lanes,targets)})
+    rigid.reshape_many(S,[(d,rc) for d,rc in targets if d.rect!=rc])
     assert_half(S, lanes, side, tag, allow_590_cross)
 
 # ── 加样孔 (S / B) ──────────────────────────────────────────────────
@@ -95,16 +94,12 @@ def load_holes(S, lanes, which, vol, tag, manual=False):
     """所有道: 孔下方按体积算好的方框先通电, 等待分注 (液体一次落在方框上) → 该方框就是液滴, 命名 tag+lane。"""
     for ln in lanes:
         rect=(geom.s_block if which == "S" else geom.b_block)(ln.c,ln.r,vol)
-        if which=='S' and vol==1.30 and tag=='L':
-            rect=(ln.X0+geom.S_DX-3,ln.Y0,7,4)  # 用户批准B01的26格紧凑缺角框。
-        if which=='B' and vol==1.00 and tag=='K':
-            rect=(ln.X0+geom.B_DX-2,ln.Y0,5,4)  # 20格母框直接按3×4+2×4分区。
-        S.add(Drop(f"{tag}{ln.id}",rect,vol))
+        d=S.add(Drop(f"{tag}{ln.id}",rect,vol));d.receiving=True
     if manual: S.step(geom.HOLD_MS, geom.VOLT, changed=[f"{tag}{ln.id}" for ln in lanes])
     else: hold_all(S, T_LOAD, geom.VOLT)
 
 # ── 泳道内: 合并 / 混匀 / 劈裂 ─────────────────────────────────────
-def merge_all(S, lanes, guest_tag, host_tag="L"):
+def merge_all_legacy(S, lanes, guest_tag, host_tag="L"):
     """每道: 客液滴走到宿主旁 (间距 2) → 贴合 → 合成一块 (锚在宿主远离客的一侧)。"""
     lanes=list(lanes)
     dry=[getattr(S.get(f'{host_tag}{ln.id}'),'magnet_only',False) for ln in lanes]
@@ -199,7 +194,89 @@ def merge_all(S, lanes, guest_tag, host_tag="L"):
     rigid.reshape_many(S,targets)
     S.step(2000, changed=[f"{host_tag}{ln.id}" for ln in lanes])
 
-def merge_chain(S, lanes, guest_tags, host_tag="L"):
+def merge_all(S,lanes,guest_tag,host_tag='L'):
+    """各道先同时就绪，再同时接触；全过程位于孔下方安全带。"""
+    import rigid
+    settle_loaded(S);lanes=list(lanes)
+    dry=all(getattr(S.get(f'{host_tag}{ln.id}'),'magnet_only',False) for ln in lanes)
+    if dry:
+        target={}
+        for ln in lanes:
+            g,h=S.get(f'{guest_tag}{ln.id}'),S.get(f'{host_tag}{ln.id}')
+            target[g.name]=max(ln.X0,min(ln.X0+geom.LANE_L-g.rect[2],h.rect[0]+h.rect[2]-g.rect[2]))
+        move_rects(S,target)
+        for ln in lanes:
+            g,h=S.get(f'{guest_tag}{ln.id}'),S.get(f'{host_tag}{ln.id}')
+            S.remove(g.name);S.remove(h.name);g.name=h.name;g.allow=();S.add(g)
+        S.step(geom.HOLD_MS,changed=[ln.name for ln in lanes])
+        return
+    if all(abs(S.get(f'{host_tag}{ln.id}').vol+S.get(f'{guest_tag}{ln.id}').vol-4.2)<1e-7 for ln in lanes):
+        # 4.00µL保留一格例外；EDTA自身两格，融合后立即恢复4.20µL两格安全框。
+        move_rects(S,{f'{guest_tag}{ln.id}':geom.gap_x(geom.reagent_gap(ln.c)) for ln in lanes})
+        move_rects(S,{f'{host_tag}{ln.id}':geom.lane_target(ln.c,ln.r,4.,'left')[0] for ln in lanes})
+        pairs=[(f'{guest_tag}{ln.id}',f'{host_tag}{ln.id}') for ln in lanes]
+        event=dict(guest_tag=guest_tag,host_tag=host_tag,rows=[ln.r for ln in lanes],ready_step=S.nsteps-1,
+                   host_volumes={S.get(f'{host_tag}{ln.id}').name:4. for ln in lanes})
+        move_rects(S,{f'{guest_tag}{ln.id}':S.get(f'{host_tag}{ln.id}').rect[0]-S.get(f'{guest_tag}{ln.id}').rect[2] for ln in lanes},touching=pairs)
+        S.step(geom.HOLD_MS,touching=pairs,changed=[]);event['contact_step']=S.nsteps-1
+        for ln in lanes:
+            h,g=S.get(f'{host_tag}{ln.id}'),S.get(f'{guest_tag}{ln.id}')
+            h.vol=round(h.vol+g.vol,2);h.electrode_area=None;h.port_gap=None;h.margin_budget=0
+            h.rect=(ln.X0,ln.Y0,28,3);S.remove(g.name)
+        S.step(4000,changed=[f'{host_tag}{ln.id}' for ln in lanes]);event['merge_step']=S.nsteps-1
+        S.reaction_merge_events=getattr(S,'reaction_merge_events',[]);S.reaction_merge_events.append(event)
+        return
+    # 扩宽前先让两滴分居本反应区两端，避免宿主整形时穿过已就绪的接头液。
+    guest_left={ln.id:S.get(f'{guest_tag}{ln.id}').rect[0]<S.get(f'{host_tag}{ln.id}').rect[0] for ln in lanes}
+    if host_tag=='L':
+        move_rects(S,{f'{guest_tag}{ln.id}':ln.X0 if guest_left[ln.id] else ln.X0+36-S.get(f'{guest_tag}{ln.id}').rect[2] for ln in lanes})
+        move_rects(S,{f'{host_tag}{ln.id}':ln.X0+36-S.get(f'{host_tag}{ln.id}').rect[2] if guest_left[ln.id] else ln.X0 for ln in lanes})
+    # 采用两液滴格数的公因数高度，接触前后均为完整矩形。
+    specs=[]
+    for ln in lanes:
+        host=S.get(f'{host_tag}{ln.id}');guest=S.get(f'{guest_tag}{ln.id}')
+        a,b=len(host.target_cells()),len(guest.target_cells())
+        total=round(host.vol+guest.vol,2)
+        hs=[h for h in range(1,6) if a%h==b%h==0 and (a+b)//h+geom.MIN_GAP<=geom.LANE_L
+            and (h<=3 or geom.running_gap(total)==1)]
+        assert hs,('无法以完整矩形在反应区内融合',a,b,total)
+        H=min(hs,key=lambda h:max((a+b)/h,h)/min((a+b)/h,h))
+        y=geom.physical_zone(ln.c,ln.r)[1]+(1 if H>3 else 2)
+        for tag in (host_tag,guest_tag):
+            d=S.get(f'{tag}{ln.id}');w=len(d.target_cells())//H
+            specs.append((d,(min(d.rect[0],ln.X0+geom.LANE_L-w),y,w,H)))
+    rigid.reshape_many(S,specs)
+    targets={}
+    for ln in lanes:
+        g,h=S.get(f'{guest_tag}{ln.id}'),S.get(f'{host_tag}{ln.id}')
+        if g.rect[0]<h.rect[0]:targets[g.name]=h.rect[0]-geom.MIN_GAP-g.rect[2]
+        else:targets[g.name]=h.rect[0]+h.rect[2]+geom.MIN_GAP
+    move_rects(S,targets)
+    event=dict(guest_tag=guest_tag,host_tag=host_tag,rows=[ln.r for ln in lanes],ready_step=S.nsteps-1,
+               host_volumes={S.get(f'{host_tag}{ln.id}').name:S.get(f'{host_tag}{ln.id}').vol for ln in lanes})
+    contact={};pairs=[]
+    for ln in lanes:
+        g,h=S.get(f'{guest_tag}{ln.id}'),S.get(f'{host_tag}{ln.id}')
+        contact[g.name]=h.rect[0]-g.rect[2] if g.rect[0]<h.rect[0] else h.rect[0]+h.rect[2]
+        pairs.append((g.name,h.name))
+    move_rects(S,contact,touching=pairs);event['contact_step']=S.nsteps-1
+    S.step(geom.HOLD_MS,touching=pairs,changed=[])
+    final=[]
+    for ln in lanes:
+        g,h=S.get(f'{guest_tag}{ln.id}'),S.get(f'{host_tag}{ln.id}')
+        cells=g.target_cells()|h.target_cells();bounds=contour.bounds(cells)
+        h.vol=round(h.vol+g.vol,2);h.electrode_area=None;h.port_gap=None;h.margin_budget+=getattr(g,'margin_budget',0);h.rect=bounds;h.set_cells(cells);S.remove(g.name)
+        w,H=geom.lane_shape(h.vol);right=min(ln.X0+geom.LANE_L,bounds[0]+bounds[2])
+        y=geom.physical_zone(ln.c,ln.r)[1]+1 if geom.running_gap(h.vol)==1 else ln.Y0+geom.LANE_H-H
+        final.append((h,(max(ln.X0,right-w),y,w,H)))
+    S.step(geom.HOLD_MS,changed=[h.name for h,_ in final]);event['merge_step']=S.nsteps-1
+    S.reaction_merge_events=getattr(S,'reaction_merge_events',[]);S.reaction_merge_events.append(event)
+    rigid.reshape_many(S,final)
+
+def merge_chain(S,lanes,guest_tags,host_tag='L'):
+    for tag in guest_tags:merge_all(S,lanes,tag,host_tag)
+
+def merge_chain_legacy(S, lanes, guest_tags, host_tag="L"):
     """同一试剂的多份完整矩形小滴在宿主同一侧（进液端）依次排队：
     全道同步逐格靠到 MIN_GAP → 依次贴合成一串 → 一次融合，再逐格整形为 lane_shape。
     guest_tags 由宿主向外排列。各份不先彼此汇合，避免形成细长条。"""
@@ -284,7 +361,7 @@ def mix_range(S, spec, cycles):
                     if lo <= X <= hi: d.rect = (X, d.rect[1], d.rect[2], d.rect[3])
                 S.step(changed=list(spec))
 
-def split_all(S, lanes, keep_vol, away_tag, tag="L"):
+def split_all_legacy(S, lanes, keep_vol, away_tag, tag="L"):
     """选共同整数高度，完整母矩形原位分区后逐格拉开，不造缺角母滴。"""
     lanes=list(lanes)
     keep_cells=geom.cells(keep_vol)
@@ -311,6 +388,24 @@ def split_all(S, lanes, keep_vol, away_tag, tag="L"):
         specs.append((d,tuple(c[0] for c in children),tuple(c[1] for c in children),tuple(c[2] for c in children)))
     import rigid
     rigid.split_many(S,specs)
+
+def split_all(S,lanes,keep_vol,away_tag,tag='L'):
+    """保留半份或四分之一；四分之一由两次对半获得，废份在独立区域再合并。"""
+    import rigid
+    lanes=list(lanes);settle_loaded(S)
+    volumes={S.get(f'{tag}{ln.id}').vol for ln in lanes}
+    assert len(volumes)==1
+    total=next(iter(volumes));assert round(total/keep_vol,6) in (2,4),'仅支持两次内对半取样'
+    # 为切分两侧各1格逐帧外移预留边界。
+    move_rects(S,{f'{tag}{ln.id}':ln.X0+geom.CUT_GAP//2 for ln in lanes})
+    names=[(f'{tag}{ln.id}',f'{away_tag}{ln.id}') for ln in lanes]
+    rigid.bisect_many(S,[S.get(f'{tag}{ln.id}') for ln in lanes],names)
+    move_rects(S,{f'{away_tag}{ln.id}':ln.X0+geom.LANE_L-S.get(f'{away_tag}{ln.id}').rect[2] for ln in lanes})
+    if round(total/keep_vol)==4:
+        move_rects(S,{f'{tag}{ln.id}':ln.X0+geom.CUT_GAP//2 for ln in lanes})
+        rigid.bisect_many(S,[S.get(f'{tag}{ln.id}') for ln in lanes],
+                          [(f'{tag}{ln.id}',f'{away_tag}extra{ln.id}') for ln in lanes])
+        merge_all(S,lanes,away_tag+'extra',away_tag)
 
 # ── 磁控 ───────────────────────────────────────────────────────────
 def to_magnet_all(S, lanes, tag="L", right_half=False, allow_590_cross=False):
@@ -533,7 +628,7 @@ def _aspirate(S, blob_state, fk):
 
 # ── 液珠分液 (参考 PCR-free WGS "4μl一拆8 → 移动到门口 → 进反应区" 与 ASI96 "分液 → 分液移动 → 移动到N列") ──
 DISPENSE_MODE = "drops"          # "drops": 顶部空白带先拆成液珠再逐道送入 (单列); "slug": 旧的液柱逐行剥离
-CUT_MS, MORPH_MS = 1000, 1000    # 切分 / 变形 每步时长 (参考脚本用 1000 ms)
+CUT_MS, MORPH_MS = 1000, 4000    # 切分逐格；允许的中等幅度形变终态驻留4秒
 SLOT_X0, BAND_YC = 12, 12        # 液珠排成一行: 最左槽位 X, 顶部空白带中心 Y
 
 def _shape(cells):
