@@ -297,8 +297,12 @@ def _job(S,spec,blobs,gx):
 
 def _send_pipeline(S,pieces,gx,blobs,plan,jobs):
     """登记一批小块到后台流水线后立即返回。plan['assign'] 按到达顺序给出每块的 (孔任务, 排, 排内到达序号)。
-    规则不变：小块不变形、通道内间距≥3；每排在就绪区到齐后同步靠拢成完整矩形，自下而上逐排停靠。"""
+    原形3×4/4×4小块优先紧凑2×2汇集；其余旧测试计划仍沿用整排接口。
+    小块不变形、通道内间距≥3；已汇集长方块不得沿长轴搬运。"""
     import rigid as R
+    import compact_collect
+    if compact_collect.accepts(pieces,plan):
+        return compact_collect.send(S,pieces,gx,blobs,plan,jobs)
     pool=_pool(S)
     pending=sorted(pieces,key=lambda t:-t[0].r)      # 到达顺序：最深的道最先到达底部
     for ln,d in pending:
