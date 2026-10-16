@@ -75,8 +75,9 @@ class NativePacketTests(unittest.TestCase):
         self.assertEqual({tuple(e['volumes']) for e in s.split_events},
                          {(2.5,2.5),(1.25,1.25),(.625,.625)})
         self.assertTrue(all(d.magnet_only and d.vol==0 for d in s.drops.values()))
-        self.assertEqual(len(s.approved_mother_shapes),16)
-        self.assertTrue(all(e['actual_ul']==5. and e['after_cells']==120 for e in s.approved_mother_shapes))
+        self.assertEqual(len(s.approved_mother_shapes),32)
+        self.assertTrue(all(e['actual_ul']==2.5 and e['after_cells']==64 for e in s.approved_mother_shapes))
+        self.assertTrue(all(e['tile_shape']==[4,4] for e in s.waste_grid_events))
 
     def test_cdna_quarter_two_equal_cuts_then_outlet_waste(self):
         p=protocol.Protocol((1,))
@@ -93,11 +94,11 @@ class NativePacketTests(unittest.TestCase):
 
     def test_c04_actual_volume_not_six_microlitres(self):
         self.assertAlmostEqual(8*.7375,5.9)
-        self.assertEqual(8*3*5,120)
-        self.assertNotEqual(8*.7375,120*.05)
-        p=schedule(8,3,5,'C04')
+        self.assertEqual(8*4*4,128)
+        self.assertNotEqual(8*.7375,128*.05)
+        p=schedule(8,4,4,'C04')
         self.assertEqual([i for i,x in enumerate(p) if x['flush']],[3,7])
-        self.assertTrue(all(x['specs'][k]['W']==15 for x in p for k in x['specs']))
+        self.assertTrue(all(x['specs'][k]['W']==16 for x in p for k in x['specs']))
 
     def test_renumber_changes_names_not_command_or_flow_ids(self):
         flows=[]

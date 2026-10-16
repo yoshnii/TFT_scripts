@@ -26,6 +26,7 @@ def schedule(round_count,w,h,kind):
             key=(stop,k);specs[key]=dict(port=k,W=W,
                 rows=[([w]*columns,h,row_h)]*rows,native=True)
             if kind=='A05' and (w,h)==(4,4):specs[key]['a06_compact']=True
+            if kind in ('R04','C04','cleanup') and (w,h)==(4,4):specs[key]['a06_compact']=True
             if kind=='barcode':specs[key]['strict_staging']=True
             assign.extend((key,i//columns,i%columns) for i in range(per_port))
         for r in range(nround):
@@ -42,25 +43,17 @@ def bites(S,items,blobs,final=True,pellets=None,collect_three=False,collect_a05=
     assert not any(blobs.values()),'新废液批次前必须已吸走旧废液'
     assert all(d.vol>0 for ln,d in items),'磁珠必须加入真实载液后才能排走'
     n=len(items[0][1].target_cells());assert all(len(d.target_cells())==n for ln,d in items)
-    if n==100:kind='R04';round_count=8;w,h=3,5
-    elif n==120:kind='C04';round_count=8;w,h=3,5
+    if n==100:kind='R04';round_count=8;w,h=4,4
+    elif n==120:kind='C04';round_count=8;w,h=4,4
     elif n==32 and collect_a05:kind='A05';round_count=2;w,h=4,4
-    elif n in (30,60):kind='A05' if n==30 else 'cleanup';round_count=n//15;w,h=3,5
+    elif n in (30,60):kind='A05' if n==30 else 'cleanup';round_count=n//15;w,h=(3,5) if n==30 else (4,4)
     elif n==12:kind='barcode';round_count=1;w,h=3,4
     else:raise ValueError(f'未审核的等体积排废计划：{n}格')
+    if kind in ('R04','C04','cleanup'):
+        from square_waste import bites as square_bites
+        return square_bites(S,items,blobs,kind,pellets,single_stop)
     gx=geom.gap_x(geom.waste_gap(items[0][0].c));plans=schedule(round_count,w,h,kind)
     if single_stop:assert sum(p['flush'] for p in plans)==1,'整步废液无法安全一次装入F1–F4'
-    if kind=='R04':
-        S.approved_mother_shapes=getattr(S,'approved_mother_shapes',[])
-        for ln,d in items:
-            before=list(d.rect)
-            target=(ln.X0+12,ln.Y0,24,5)
-            S.approved_mother_shapes.append(dict(reagent='R04',name=d.name,frame=S.nsteps,
-                actual_ul=d.vol,before=before,after=list(target),before_cells=100,
-                after_cells=120,hold_ms=geom.LONG_MS))
-            d.electrode_area=120;d.margin_budget=20;d.native_authorized_padding=True
-            d.native_fractional_volume=True;d.rect=target
-        S.step(geom.LONG_MS,changed=[d.name for ln,d in items]);n=120
     if n>w*h:
         # 仅整块母液按最终竖向叶子的行高定形；不让整高母液横穿S孔。
         height=4 if n==32 and collect_a05 else 5

@@ -106,7 +106,7 @@ class RevisionWasteTests(unittest.TestCase):
         pairs={tuple(e['volumes']) for e in scene.split_events}
         self.assertEqual(pairs,{(2.95,2.95),(1.475,1.475),(.7375,.7375)})
         self.assertGreaterEqual(min(e['tile_area'] for e in scene.waste_grid_events),14)
-        self.assertTrue(all(e['tile_area']==15 for e in scene.waste_grid_events))
+        self.assertTrue(all(e['tile_area']==16 and e['tile_shape']==[4,4] for e in scene.waste_grid_events))
 
     def test_c06_three_microlitre_carrier_one_capacity_checked_stop(self):
         scene=self.run_waste(60,single_stop=True)

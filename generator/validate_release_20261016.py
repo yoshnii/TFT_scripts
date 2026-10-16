@@ -37,7 +37,8 @@ def validate(out):
             if old and old[0] is d and abs(old[1]-d.vol)<1e-9:
                 if len(cells)!=len(old[2]):
                     policies={('G4',1.6,36,40),('G4',.8,20,24),('A06',1.,20,24),
-                              ('G8',1.4,30,32),('LIG',1.4,30,32),('R04',5.,100,120)}
+                              ('G8',1.4,30,32),('LIG',1.4,30,32),('R04',2.5,50,64),
+                              ('C04',2.95,60,64),('cleanup',3.,60,64)}
                     matched=[e for e in getattr(S,'approved_mother_shapes',[])
                              if e['frame']==S.nsteps-1 and e['name']==d.name]
                     assert len(matched)==1,('未授权电极面积变化',d.name,len(old[2]),len(cells))
@@ -146,8 +147,8 @@ def validate(out):
         assert all(0<=b-a<=1 for a,b in zip(e['gaps'],e['gaps'][1:]))
     schedules={e['kind']:e for e in S.waste_schedule_events}
     assert abs(schedules['C04']['actual_packet_ul']-.7375)<1e-9
-    assert schedules['C04']['packet_areas']==[15]*8
-    assert schedules['R04']['packet_areas']==[15]*8
+    assert schedules['C04']['packet_areas']==[16]*8
+    assert schedules['R04']['packet_areas']==[16]*8
     assert schedules['R04']['actual_packet_ul']==.625
     from audit_binary_frames import audit
     binary_frames=audit(out/'PTseq_16_A.elab')
@@ -173,11 +174,11 @@ def validate(out):
         equal_volume_splits=True,binary_only=True,split_events=len(S.split_events),
         independent_exported_frame_audit=binary_frames,
         authorized_fractional_packets_ul={'G14':.625,'R04':.625,'C04':.7375},
-        r04_carrier=dict(actual_ul=5.,electrode_cells=120,extra_cells=20,extra_liquid_ul=0),
+        r04_carrier=dict(actual_ul=5.,electrode_cells=128,extra_cells=28,extra_liquid_ul=0),
         no_per_packet_reshape=True,no_foreign_TEC=True,translation_max_cells=1,
         cumulative_actual_load_ul=loaded,cumulative_actual_aspirate_ul=asp,
-        c04=dict(actual_per_lane_ul=5.9,electrode_cells=120,packet_count=8,packet_actual_ul=.7375,
-                 packet_shape=[3,5],volume_quantization_exception=True),
+        c04=dict(actual_per_lane_ul=5.9,reaction_electrode_cells=120,electrode_cells=128,
+                 packet_count=8,packet_actual_ul=.7375,packet_shape=[4,4],volume_quantization_exception=True),
         waste_schedules=S.waste_schedule_events,whole_row_morphs=getattr(S,'waste_morph_events',[]),
         native_padding=S.native_padding_events,thermal=thermal,
         approved_mother_shapes=S.approved_mother_shapes,native_leaf_specs=leaf_specs,

@@ -1,0 +1,144 @@
+{
+  "status": "passed",
+  "date": "2026-10-17",
+  "scope": [
+    "C05",
+    "C06",
+    "C15",
+    "R05",
+    "R06",
+    "R19"
+  ],
+  "base_script_sha256": "b7a6c930f687d215fa0ee2652766dc9e5a3783fbe7420da4a0e0407981aee6ee",
+  "script_sha256": "ad1c772e0c710a837feddacf486be2295a1b4e554fbff54903d0b899bac48228",
+  "cases": [
+    {
+      "sections": [
+        "R05",
+        "R06"
+      ],
+      "actual_per_lane_ul": 5.0,
+      "packet_ul": 0.625,
+      "packet_shape": [
+        4,
+        4
+      ],
+      "leaf_count_per_lane": 8,
+      "carrier_cells_per_lane": 128,
+      "additional_carrier_cells_per_leaf": 1,
+      "actual_extra_liquid_ul": 0,
+      "aspiration_volumes_ul": [
+        40.0,
+        40.0
+      ],
+      "split_events": 112,
+      "stats": {
+        "frames": 2325,
+        "mother_cell_moves": 1376,
+        "thin_mother_cell_moves": 0,
+        "packet_reshape_frames": 0
+      }
+    },
+    {
+      "sections": [
+        "C05",
+        "C06"
+      ],
+      "actual_per_lane_ul": 5.9,
+      "packet_ul": 0.7375,
+      "packet_shape": [
+        4,
+        4
+      ],
+      "leaf_count_per_lane": 8,
+      "carrier_cells_per_lane": 128,
+      "additional_carrier_cells_per_leaf": 1,
+      "actual_extra_liquid_ul": 0,
+      "aspiration_volumes_ul": [
+        47.2,
+        47.2
+      ],
+      "split_events": 112,
+      "stats": {
+        "frames": 2323,
+        "mother_cell_moves": 1344,
+        "thin_mother_cell_moves": 0,
+        "packet_reshape_frames": 0
+      }
+    },
+    {
+      "sections": [
+        "R19"
+      ],
+      "actual_per_lane_ul": 3.0,
+      "packet_ul": 0.75,
+      "packet_shape": [
+        4,
+        4
+      ],
+      "leaf_count_per_lane": 4,
+      "carrier_cells_per_lane": 64,
+      "additional_carrier_cells_per_leaf": 1,
+      "actual_extra_liquid_ul": 0,
+      "aspiration_volumes_ul": [
+        48.0
+      ],
+      "split_events": 48,
+      "stats": {
+        "frames": 1166,
+        "mother_cell_moves": 752,
+        "thin_mother_cell_moves": 0,
+        "packet_reshape_frames": 0
+      }
+    },
+    {
+      "sections": [
+        "C15"
+      ],
+      "actual_per_lane_ul": 3.0,
+      "packet_ul": 0.75,
+      "packet_shape": [
+        4,
+        4
+      ],
+      "leaf_count_per_lane": 4,
+      "carrier_cells_per_lane": 64,
+      "additional_carrier_cells_per_leaf": 1,
+      "actual_extra_liquid_ul": 0,
+      "aspiration_volumes_ul": [
+        48.0
+      ],
+      "split_events": 48,
+      "stats": {
+        "frames": 1166,
+        "mother_cell_moves": 752,
+        "thin_mother_cell_moves": 0,
+        "packet_reshape_frames": 0
+      }
+    }
+  ],
+  "unrelated_sections_unchanged": true,
+  "targeted_unit_tests_passed": 5,
+  "movement_comparison": {
+    "baseline_commit": "fab8b2f84da4e689fd4bb78d41dd3446b94d64dd",
+    "mother_cell_moves_before": 6048,
+    "mother_cell_moves_after": 4224,
+    "nominal_seconds_before": 7398,
+    "nominal_seconds_after": 6994,
+    "nominal_seconds_saved": 404,
+    "measured_on_hardware": false
+  },
+  "upstream_downstream_boundary_audit": {
+    "energized_frames": 6903,
+    "geometric_splitting_transitions": 320,
+    "non_equal_binary_transitions": [],
+    "physical_liquid_verified": false
+  },
+  "full_workflow_rerun": false,
+  "visual_check": false,
+  "hardware_verified": false,
+  "vm_verified": true,
+  "vm_files_verified": 20,
+  "vm_path": "C:\\Users\\shan\\Desktop\\tfttest\\siro_scripts\\Engineering\\PTseq_SIRO16_A",
+  "no_local_backup_created": true
+}
