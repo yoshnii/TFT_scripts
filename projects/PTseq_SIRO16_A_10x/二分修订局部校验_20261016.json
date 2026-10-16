@@ -1,0 +1,80 @@
+{
+  "status": "passed",
+  "baseline_script_sha256": "cc8ccf97453a8e5f2155059f8a79c0c476cd1e27e598e34395a7fdf1dbf4a9a8",
+  "script_sha256": "b7a6c930f687d215fa0ee2652766dc9e5a3783fbe7420da4a0e0407981aee6ee",
+  "changed_sections": [
+    {
+      "section": "R02",
+      "flow_id": "50002",
+      "commands": [
+        "2003"
+      ]
+    },
+    {
+      "section": "R03",
+      "flow_id": "2004",
+      "commands": [
+        "2005"
+      ]
+    },
+    {
+      "section": "R05",
+      "flow_id": "2013",
+      "commands": [
+        "2014"
+      ]
+    },
+    {
+      "section": "R06",
+      "flow_id": "51000",
+      "commands": [
+        "60000"
+      ]
+    },
+    {
+      "section": "B07",
+      "flow_id": "50004",
+      "commands": [
+        "3020"
+      ]
+    }
+  ],
+  "unrelated_sections_unchanged": true,
+  "existing_A08_changes_preserved": true,
+  "R03_only_incoming_position_changed": true,
+  "native_packet_regressions_passed": 12,
+  "waste_regressions_passed": 2,
+  "independent_exported_frame_audit": {
+    "energized_frames": 13301,
+    "geometric_splitting_transitions": 578,
+    "non_equal_binary_transitions": [],
+    "physical_liquid_verified": false
+  },
+  "generic_check_errors": 0,
+  "generic_check_warnings": 5,
+  "warning_reasons": [
+    "main BuildMd5 empty: GUI compilation not performed",
+    "PTseq_16_A BuildMd5 empty: GUI compilation not performed",
+    "approved large loading/collection electrode blocks exceed legacy 5.2uL threshold",
+    "intentional 50V hold frames",
+    "intentional PCR 0V pulse"
+  ],
+  "mac_files_verified": {
+    "PTseq_16_A.elab": "b7a6c930f687d215fa0ee2652766dc9e5a3783fbe7420da4a0e0407981aee6ee",
+    "PTseq_16_A.elab.layout": "c824809befb5e853c5f45a83901146319e0cb116e5481c4838fb7ef2a372031f",
+    "PTseq_SIRO16_A_10x.elabprj": "0377fbd487feb007ae3c85da70b66bd7bc01466d0e4079422475c2a08d995f33",
+    "main.elab": "3c4260188384d683d7a4710f2f93bd76c751504aec4624cbbda8a80faed0155a",
+    "main.elab.layout": "e4a341e3cd54a44795c2553bb3af2973eb227d9c2983b8605cab5330fff16ad2",
+    "交付代码校验_20261016.json": "b422112d88f1a69278462e546bd1eb25d141a1663775fa3830204baffd4de90b",
+    "手工加液运行.html": "45fd0594fce9deb56f7273da384e1162fd09860ec947d2b4675e65235e9b8273",
+    "手工加液顺序.csv": "33f7899010f0d51539e5bb929267ce81b81d486e87d47625d7eca098231579c0",
+    "手工吸液顺序.csv": "48676d24699270f9c14e06bf7ef932e227302c9a08ef94ea5c5a568bd9553d1b",
+    "步骤编号映射_20261016.json": "c2d32dfcdbce48e9c9075562047690b0c636be5650cce6a1c29ac46480808e90"
+  },
+  "vm_verified": true,
+  "vm_files_verified": 19,
+  "vm_path": "C:\\Users\\shan\\Desktop\\tfttest\\siro_scripts\\Engineering\\PTseq_SIRO16_A",
+  "visual_check": false,
+  "hardware_verified": false,
+  "no_local_backup_created": true
+}

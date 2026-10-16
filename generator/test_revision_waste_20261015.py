@@ -89,8 +89,9 @@ class RevisionWasteTests(unittest.TestCase):
 
     def test_r04_balanced_five_microlitres(self):
         scene=self.run_waste(100,supernatant=True)
-        pairs={tuple(geom.cells(v) for v in e['volumes']) for e in scene.split_events}
-        self.assertEqual(pairs,{(20,20,20,20,20)})
+        pairs={tuple(e['volumes']) for e in scene.split_events}
+        self.assertEqual(pairs,{(2.5,2.5),(1.25,1.25),(.625,.625)})
+        self.assertEqual([info['volume_ul'] for relay,info in scene.manual_aspirations],[40.,40.])
         self.assertTrue(all(d.magnet_only and d.vol==0 for d in scene.drops.values()))
         self.assertTrue(all(e['tile_area']==e['tile_shape'][0]*e['tile_shape'][1] for e in scene.waste_grid_events))
 

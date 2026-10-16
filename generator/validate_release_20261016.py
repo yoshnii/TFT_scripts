@@ -37,7 +37,7 @@ def validate(out):
             if old and old[0] is d and abs(old[1]-d.vol)<1e-9:
                 if len(cells)!=len(old[2]):
                     policies={('G4',1.6,36,40),('G4',.8,20,24),('A06',1.,20,24),
-                              ('G8',1.4,30,32),('LIG',1.4,30,32)}
+                              ('G8',1.4,30,32),('LIG',1.4,30,32),('R04',5.,100,120)}
                     matched=[e for e in getattr(S,'approved_mother_shapes',[])
                              if e['frame']==S.nsteps-1 and e['name']==d.name]
                     assert len(matched)==1,('未授权电极面积变化',d.name,len(old[2]),len(cells))
@@ -110,7 +110,7 @@ def validate(out):
     finishes=[e for e in S.pipeline_events if e['kind']=='finish']
     assert {e['reagent'] for e in finishes}==set(expected)
     for e in finishes:assert all(abs(v-before[e['reagent']]-expected[e['reagent']])<1e-8 for v in e['final_volumes'].values())
-    leaf_specs={'G4':(16,.4,[3,4],4),'AMP':(32,1.,[4,5],0),'G14':(80,.5,[3,4],2),
+    leaf_specs={'G4':(16,.4,[3,4],4),'AMP':(32,1.,[4,5],0),'G14':(64,.625,[3,5],3),
                 'G8':(16,.7,[4,4],2),'LIG':(32,.7,[4,4],2),'EDTA':(16,.2,[2,2],0),
                 'G16':(32,.85,[4,5],3)}
     for reagent,(count,vol,shape,extra) in leaf_specs.items():
@@ -125,6 +125,7 @@ def validate(out):
         'LIG':{240:[10,12],120:[6,10],60:[6,5],32:[4,4]},
         'G16':{320:[10,16],160:[10,8],80:[5,8],40:[4,5]}}
     for e in S.split_events:
+        assert len(e['volumes'])==2,('非二分动作',e['parent'],e['volumes'])
         for reagent,path in approved_paths.items():
             if e['parent'].startswith('D'+reagent+'E'):
                 assert e['area'] in path and path[e['area']] is not None
@@ -146,7 +147,11 @@ def validate(out):
     schedules={e['kind']:e for e in S.waste_schedule_events}
     assert abs(schedules['C04']['actual_packet_ul']-.7375)<1e-9
     assert schedules['C04']['packet_areas']==[15]*8
-    assert schedules['R04']['packet_areas']==[20]*5
+    assert schedules['R04']['packet_areas']==[15]*8
+    assert schedules['R04']['actual_packet_ul']==.625
+    from audit_binary_frames import audit
+    binary_frames=audit(out/'PTseq_16_A.elab')
+    assert not binary_frames['non_equal_binary_transitions'],binary_frames['non_equal_binary_transitions']
     assert all(e['name'].startswith('WROW') for e in getattr(S,'waste_morph_events',[]))
     mix=[c for f in flows for c in f.cmds if hasattr(c,'mix_timing')]
     assert all(c.params=='SCRIPTCYCLE_TRUE' and c.relays[0].codes==c.relays[-1].codes for c in mix)
@@ -165,7 +170,10 @@ def validate(out):
         script_sha256=hashlib.sha256((out/'PTseq_16_A.elab').read_bytes()).hexdigest(),
         workbook_sha256=workbook_sha,approved_per_lane_reagent_ul=expected,
         frames=stats,flows=len(flows),commands=sum(len(f.cmds) for f in flows),
-        equal_volume_splits=True,binary_or_equal_five_way=True,split_events=len(S.split_events),
+        equal_volume_splits=True,binary_only=True,split_events=len(S.split_events),
+        independent_exported_frame_audit=binary_frames,
+        authorized_fractional_packets_ul={'G14':.625,'R04':.625,'C04':.7375},
+        r04_carrier=dict(actual_ul=5.,electrode_cells=120,extra_cells=20,extra_liquid_ul=0),
         no_per_packet_reshape=True,no_foreign_TEC=True,translation_max_cells=1,
         cumulative_actual_load_ul=loaded,cumulative_actual_aspirate_ul=asp,
         c04=dict(actual_per_lane_ul=5.9,electrode_cells=120,packet_count=8,packet_actual_ul=.7375,

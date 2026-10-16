@@ -1,0 +1,24 @@
+{
+  "scope": "A08 initial two AMP mother reshapes only",
+  "passed": true,
+  "old_script_sha256": "c3a01664d198e611d3fc4060cbe8826ecbebe9d5f3a20feeeb55c5d912cb0932",
+  "script_sha256": "aefe0c470652431c006c350ae870c7a88c13e36e3526093a9f818ab873b9c72f",
+  "parallel_mothers": 2,
+  "shape_from": [
+    20,
+    16
+  ],
+  "shape_to": [
+    32,
+    10
+  ],
+  "hold_ms": 4000,
+  "saved_ms": 4000,
+  "remaining_frames_unchanged": true,
+  "A07_unchanged": true,
+  "A09_unchanged": true,
+  "actual_per_port_ul": 16.0,
+  "actual_per_well_AMP_ul": 2.0,
+  "full_workflow_rerun": false,
+  "visual_check": false
+}

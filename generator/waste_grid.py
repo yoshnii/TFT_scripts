@@ -176,8 +176,9 @@ def _row_path(S,row,job,r):
     import rigid as R
     spec=job['rows'][r]
     compact_exit=job.get('a06_compact',False)
-    if (job['under_exit'] and (compact_exit or spec.get('row_h',spec['h'])<spec['h'])
-            and spec['dock_y']<TRANSPORT_Y+spec['h']+(geom.MIN_GAP if compact_exit else 0)
+    strict=job.get('strict_staging',False)
+    if (job['under_exit'] and (compact_exit or strict or spec.get('row_h',spec['h'])<spec['h'])
+            and spec['dock_y']<TRANSPORT_Y+spec['h']+(geom.MIN_GAP if compact_exit or strict else 0)
             and r+1<len(job['rows'])):
         # F1末两排：先把已齐的整排停在出口左侧，再放后排通过；
         # 不让5格高子滴穿过已升至Y176的4格高汇液排。
@@ -243,7 +244,7 @@ def _tile_path(S,d,job,t,r,pos,gx):
     if len(job['arrived'][r])==spec['n']:job['ready'][r]=S.nsteps
     while r not in job['ready'] or S.nsteps<=job['ready'][r]:yield 'wait'
     ds=job['arrived'][r]
-    d.allow=(f"BLOB{job['port']}",*(q.name for q in ds if q is not d))
+    d.allow=(() if job.get('strict_staging',False) else (f"BLOB{job['port']}",))+tuple(q.name for q in ds if q is not d)
     yield from R.go(d,[('x',spec['contract_x'][slot])])
     job['contracted'][r]+=1
     if job['contracted'][r]==spec['n']:job['merge_ready'][r]=S.nsteps
@@ -278,12 +279,17 @@ def _job(S,spec,blobs,gx):
                   else fx-sw-geom.MIN_GAP)
             r['stage_x']=[left+s*(widths[0]+geom.CUT_GAP) for s in range(len(widths))]
             r['contract_x']=[left+s*widths[0] for s in range(len(widths))]
+        if spec.get('strict_staging',False):
+            left=geom.HOLE_X[spec['port']]+spec['W']//2+geom.PREFERRED_GAP
+            r['stage_x']=[left+s*(widths[0]+geom.CUT_GAP) for s in range(len(widths))]
+            r['contract_x']=[left+s*widths[0] for s in range(len(widths))]
         y-=row_h;r['row_h']=row_h;r['dock_y']=y;rows.append(r);base.append(k);k+=len(widths)
     job=dict(port=spec['port'],W=spec['W'],rows=rows,blobs=blobs,slot_base=base,
              final_x=geom.HOLE_X[spec['port']]-spec['W']//2,
              arrived={r:[] for r in range(len(rows))},ready={},contracted={r:0 for r in range(len(rows))},
              merge_ready={},docked=[0],lookahead=set(),
              balanced=spec.get('balanced',False),a06_compact=spec.get('a06_compact',False),
+             strict_staging=spec.get('strict_staging',False),
              event=dict(port=spec['port'],scheduled_drops=k,start_frame=S.nsteps,entries=[],row_merges=[]))
     job['under_exit']=job['final_x']<gx+geom.CH_W+geom.PREFERRED_GAP
     S.waste_parallel_events=getattr(S,'waste_parallel_events',[]);S.waste_parallel_events.append(job['event'])
@@ -315,7 +321,7 @@ def _send_pipeline(S,pieces,gx,blobs,plan,jobs):
         assert job.get('balanced',False) or (d.rect[2]==spec['widths'][pos] and d.rect[3]==spec['h']),('小块形状与排规格不符',d.rect,spec)
         d.S=S;d.waste_fk=job['port'];d.slot=spec['n']-1-pos;d.tile_area=area(d)
         d.waste_pipeline_clearance=True;assert 0<d.tile_area<=32
-        d.entry_ticket=t;d.allow=(f"BLOB{job['port']}",)
+        d.entry_ticket=t;d.allow=() if job.get('strict_staging',False) else (f"BLOB{job['port']}",)
         pool.items.append((d,_tile_path(S,d,job,t,r,pos,gx),R._door_rule(gx)))
         tiles.append(d)
     return tiles

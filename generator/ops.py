@@ -222,7 +222,13 @@ def merge_all(S,lanes,guest_tag,host_tag='L'):
     contact={};pairs=[];fixed_guests={}
     for ln in lanes:
         g,h=S.get(f'{guest_tag}{ln.id}'),S.get(f'{host_tag}{ln.id}')
-        if getattr(g,'native_packet',False) and g.rect[3]==6:
+        if guest_tag=='TAMP' and h.vol<g.vol:
+            # A08: keep the assembled 2µL reagent fixed; move the 0.5µL aliquot.
+            contact[h.name]=(g.rect[0]+g.rect[2] if g.rect[0]<h.rect[0]
+                             else g.rect[0]-h.rect[2])
+            fixed_guests[g.name]=g.rect
+            event['mode']='small_aliquot_approaches_fixed_AMP'
+        elif getattr(g,'native_packet',False) and g.rect[3]==6:
             # 整高G16必须留在S孔左侧；由宿主靠近，不让试剂从孔下横穿。
             contact[h.name]=g.rect[0]+g.rect[2];fixed_guests[g.name]=g.rect
         else:
@@ -231,7 +237,7 @@ def merge_all(S,lanes,guest_tag,host_tag='L'):
     move_rects(S,contact,touching=pairs);event['contact_step']=S.nsteps-1
     if fixed_guests:
         assert all(S.get(n).rect==rc for n,rc in fixed_guests.items())
-        event['mode']='host_approach_avoids_sample_hole'
+        if event['mode']=='direct_nearby_fusion':event['mode']='host_approach_avoids_sample_hole'
     else:assert all(list(S.get(f'{host_tag}{ln.id}').rect)==event['initial_host_rects'][ln.id] for ln in lanes)
     S.step(geom.HOLD_MS,touching=pairs,changed=[])
     final=[];natural=[];needs_settle=False

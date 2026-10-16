@@ -137,9 +137,12 @@ def tick(S, items, rule=None, allow=frozenset(), dur=geom.STEP_MS):
                         cells=retired_padding,actual_volume_ul=round(d.vol+host.vol,2),
                         reason='G14运输承接余量在反应区汇合后取消；不增加液量'))
                 S.remove(old_name);S.remove(host.name)
-                d.name=host.name;d.vol=round(d.vol+host.vol,2);d.allow=()
+                d.name=host.name;d.vol=round(d.vol+host.vol,10);d.allow=()
                 d.electrode_area=combined_area-retired_padding
-                d.margin_budget=combined_margin-retired_padding
+                # Fractional half-drops do not have additive rounded cell counts
+                # (0.625µL + 0.625µL = 25 cells, not 12 + 12).
+                d.margin_budget=d.electrode_area-geom.cells(d.vol)
+                assert d.margin_budget>=0
                 d.transport_padding_cells=0
                 S.add(d)
                 S.pipeline_events.append(dict(kind='reagent_collect',port=d.port,row=d.row,

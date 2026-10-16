@@ -1,0 +1,28 @@
+{
+  "scope": "A08 small-to-large fusion and A09 positioning only",
+  "passed": true,
+  "old_script_sha256": "aefe0c470652431c006c350ae870c7a88c13e36e3526093a9f818ab873b9c72f",
+  "script_sha256": "cc8ccf97453a8e5f2155059f8a79c0c476cd1e27e598e34395a7fdf1dbf4a9a8",
+  "fixed_AMP_ul": 2.0,
+  "moving_aliquot_ul": 0.5,
+  "actual_final_per_well_ul": 2.5,
+  "AMP_rectangle": [
+    31,
+    28,
+    8,
+    5
+  ],
+  "fusion_rectangle": [
+    31,
+    28,
+    10,
+    5
+  ],
+  "all_16_wells_merge_together": true,
+  "no_post_merge_return": true,
+  "earlier_A08_frames_unchanged": true,
+  "A09_mix_cycle_and_timer_unchanged": true,
+  "A09_positioning_frames_removed": 2,
+  "full_workflow_rerun": false,
+  "visual_check": false
+}

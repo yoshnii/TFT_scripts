@@ -1,7 +1,7 @@
 """已审核的母框分液：先规划叶子矩形，运输时不再逐滴变形。
 
-实际µL与电极承接面积分别记账；R01等五分是待湿实验验证的新动作，
-不是参考脚本已经验证过的物理保证。C04的120格只承接实际5.90µL。
+实际µL与电极承接面积分别记账；只允许逐级二分，不能把逻辑五等份
+当作实际对半分裂。G14的0.625µL及排废承接余量为本次明确授权。
 """
 import math
 import geom
@@ -16,7 +16,8 @@ def partition(S, parents, count=2, axis='x', gap=3, names=None):
     调用方须为展开后的子滴预留空间；不会自动挪回一个固定切割站。
     """
     parents=list(parents);groups=[];events=[];pairs=[];idx=0 if axis=='x' else 1
-    assert count>=2 and axis in ('x','y')
+    assert count==2,'禁止多份预登记后逐缝剥离；每次只能对半分裂'
+    assert axis in ('x','y')
     S.split_events=getattr(S,'split_events',[])
     for i,p in enumerate(parents):
         x,y,w,h=p.rect;extent=(w,h)[idx]
@@ -71,7 +72,7 @@ def _configuration(reagent):
     # repeated leaves per reaction. No extra dispensing tips/batches are added.
     # G4 only: approved +4 carrier cells per 1.6/.8/.4µL child.
     return {'G4':(2,8,.4,3,4,1),'AMP':(2,16,1.,4,5,2),
-            'G14':(4,20,.5,3,4,5),'G8':(1,16,.7,4,4,1),
+            'G14':(4,16,.625,3,5,4),'G8':(1,16,.7,4,4,1),
             'LIG':(2,16,.7,4,4,2),'EDTA':(1,16,.2,2,2,1),
             'G16':(2,16,.85,4,5,2)}[reagent]
 
@@ -149,15 +150,19 @@ def deliver(S,reagent,vol,cols,tag,on_before_load=None,on_load=None,controlled=F
     S.pipeline_events=getattr(S,'pipeline_events',[])
     S.pipeline_events.append(dict(kind='start',reagent=reagent,per_lane_ul=vol,initial_volumes=initial,step=S.nsteps))
     # Only mothers are reshaped. Layout accounts for gaps before splitting.
+    parallel_amp=[]
     for f in fields:
         if reagent in ('G8','LIG','G16'):continue
-        W,H=(12,6) if reagent=='G4' else (30,8) if reagent=='G14' else (f['nx']*w,2*h)
+        W,H=(12,6) if reagent=='G4' else (20,12) if reagent=='G14' else (f['nx']*w,2*h)
         d=f['root'];cy=d.rect[1]+(d.rect[3]-H)//2
-        R.reshape(S,d,(geom.HOLE_X[f['port']]-W//2,cy,W,H))
+        target=(geom.HOLE_X[f['port']]-W//2,cy,W,H)
+        if reagent=='AMP':parallel_amp.append((d,target))
+        else:R.reshape(S,d,target)
+    if parallel_amp:R.reshape_many(S,parallel_amp,dur=geom.LONG_MS)
     R.run(S,[(f['root'],R.go(f['root'],[('y',7),('x',f['root'].rect[0] if reagent=='G4'
                                        else f['left']+27 if reagent=='G14'
                                        else f['left']+(f['nx']-1)*spacing)]))
-             for f in fields if reagent not in ('G8','LIG','G16')])
+             for f in fields if reagent not in ('G8','LIG','G16','G14')])
     if reagent in ('G8','LIG','G16'):
         from compact_cascade import generate
         generate(S,fields,reagent)
@@ -193,12 +198,20 @@ def deliver(S,reagent,vol,cols,tag,on_before_load=None,on_load=None,controlled=F
         leaves=[d for ds in partition(S,nodes,2,'x',spacing) for d in ds]
         for i,f in enumerate(fields):f['leaves']=leaves[i*8:(i+1)*8]
     elif reagent=='G14':
-        # Five equal 2µL mothers, then 1µL / 0.5µL native binary cuts.
-        groups=partition(S,roots,5,'x',6)
-        nodes=[d for ds in groups for d in ds]
+        # 10→5→2.5→1.25→0.625µL. Four native 3×5 packets per lane.
+        R.run(S,[(d,R.go(d,[('y',4),('x',30+60*i)])) for i,d in enumerate(roots)])
+        nodes=[d for ds in partition(S,roots,2,'x',4) for d in ds]
+        R.run(S,[(d,R.go(d,[('x',20+60*i+25*j),('y',8)]))
+                 for i in range(ports) for j,d in enumerate(nodes[2*i:2*i+2])])
         nodes=[d for ds in partition(S,nodes,2,'y',3) for d in ds]
-        leaves=[d for ds in partition(S,nodes,2,'x',3) for d in ds]
-        for f,ds in zip(fields,[leaves[i*20:(i+1)*20] for i in range(ports)]):f['leaves']=ds
+        R.reshape_many(S,[(d,(d.rect[0],d.rect[1],12,5)) for d in nodes])
+        nodes=[d for ds in partition(S,nodes,2,'x',4) for d in ds]
+        positions=[(14+60*i+14*(2*half+side),4+9*row)
+                   for i in range(ports) for half in range(2) for row in range(2) for side in range(2)]
+        R.run(S,[(d,R.go(d,[('y',y),('x',x)])) for d,(x,y) in zip(nodes,positions)])
+        leaves=[d for ds in partition(S,nodes,2,'x',4) for d in ds]
+        for i,f in enumerate(fields):f['leaves']=leaves[i*16:(i+1)*16]
+        for d in leaves:d.native_fractional_volume=True
     else:
         for f in fields:f['nodes']=[(f['root'],0,f['nx']-1,0,1)]
         while any(a<b or ya<yb for f in fields for d,a,b,ya,yb in f['nodes']):
@@ -269,9 +282,8 @@ def deliver(S,reagent,vol,cols,tag,on_before_load=None,on_load=None,controlled=F
         # Preserve the released A03 endpoint and its one-cell transition into A04.
         ops.move_rects(S,{ln.name:ln.X0+26 for ln in lanes})
     elif reagent=='AMP' and all(getattr(S.get(ln.name),'a06_authorized_padding',False) for ln in lanes):
-        # A06 compact retained aliquot changes only this incoming boundary.
-        # Restore the released A08 endpoint before the unchanged A09 mix.
-        ops.move_rects(S,{ln.name:ln.X0+23 for ln in lanes})
+        # A08 now ends at the nearby fusion site; A09 starts its leftward
+        # positioning there instead of forcing a return to an old endpoint.
         for ln in lanes:delattr(S.get(ln.name),'a06_authorized_padding')
     final={r:S.get(ops.Lane(c,r).name).vol for r in range(1,17)}
     assert all(abs(final[r]-initial[r]-vol)<1e-8 for r in final)
