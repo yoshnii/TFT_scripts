@@ -68,7 +68,8 @@ def partition(S, parents, count=2, axis='x', gap=3, names=None):
 def _configuration(reagent):
     # port_count, leaves_per_port, actual_leaf_ul, leaf_width, leaf_height,
     # repeated leaves per reaction. No extra dispensing tips/batches are added.
-    return {'G4':(2,8,.4,2,4,1),'AMP':(2,16,1.,4,5,2),
+    # G4 only: approved +4 carrier cells per 1.6/.8/.4µL child.
+    return {'G4':(2,8,.4,3,4,1),'AMP':(2,16,1.,4,5,2),
             'G14':(4,20,.5,3,4,5),'G8':(1,16,.7,3,5,1),
             'LIG':(2,16,.7,3,5,2),'EDTA':(1,16,.2,2,2,1),
             'G16':(2,16,.85,3,6,2)}[reagent]
@@ -112,8 +113,10 @@ def deliver(S,reagent,vol,cols,tag,on_before_load=None,on_load=None,controlled=F
     if on_before_load:on_before_load()
     roots=[];fields=[];left=geom.SAFE_X;spacing=3
     for k in range(1,ports+1):
-        capacity=w*h*n;actual=round(pv*n,10)
+        capacity=72 if reagent=='G4' else w*h*n
+        actual=round(pv*n,10)
         rw,rh=R.compact_receiving_shape(capacity)
+        if reagent=='G4':rw,rh=12,6  # Direct manual receiving frame; no 8×8 stage.
         d=S.add(Drop(f'D{reagent}E{k}',(geom.HOLE_X[k]-rw//2,geom.E_TANG_Y,rw,rh),actual))
         d.electrode_area=capacity;d.margin_budget=capacity-geom.cells(actual)
         d.native_authorized_padding=d.margin_budget>0;d.receiving=True
@@ -138,12 +141,40 @@ def deliver(S,reagent,vol,cols,tag,on_before_load=None,on_load=None,controlled=F
     S.pipeline_events.append(dict(kind='start',reagent=reagent,per_lane_ul=vol,initial_volumes=initial,step=S.nsteps))
     # Only mothers are reshaped. Layout accounts for gaps before splitting.
     for f in fields:
-        W,H=(30,8) if reagent=='G14' else (f['nx']*w,2*h)
+        W,H=(12,6) if reagent=='G4' else (30,8) if reagent=='G14' else (f['nx']*w,2*h)
         d=f['root'];cy=d.rect[1]+(d.rect[3]-H)//2
         R.reshape(S,d,(geom.HOLE_X[f['port']]-W//2,cy,W,H))
-    R.run(S,[(f['root'],R.go(f['root'],[('y',7),('x',f['left']+27 if reagent=='G14'
+    R.run(S,[(f['root'],R.go(f['root'],[('y',7),('x',f['root'].rect[0] if reagent=='G4'
+                                       else f['left']+27 if reagent=='G14'
                                        else f['left']+(f['nx']-1)*spacing)])) for f in fields])
-    if reagent=='G14':
+    if reagent=='G4':
+        # Mother reshapes are parallel and add four cells, never remove area.
+        # Descendants stay native 3×4 until the existing chemical fusion.
+        def expand_mothers(nodes,width,height):
+            for d in nodes:
+                x,y,ow,oh=d.rect
+                assert width*height==ow*oh+4
+                assert R.rect_ok(S,d.name,(x,y,width,height))
+            for d in nodes:
+                x,y,_,_=d.rect
+                d.electrode_area=width*height
+                d.margin_budget=d.electrode_area-geom.cells(d.vol)
+                d.native_authorized_padding=True
+                d.rect=(x,y,width,height)
+                S.native_padding_events.append(dict(kind='g4_mother_expand',
+                    name=d.name,actual_ul=d.vol,cells=d.electrode_area,
+                    extra_cells=d.margin_budget,step=S.nsteps))
+            S.step(geom.LONG_MS,changed=[d.name for d in nodes])
+        groups=partition(S,roots,2,'x',spacing)
+        nodes=[d for ds in groups for d in ds]
+        R.run(S,[(d,R.go(d,[('x',x)])) for d,x in zip(nodes,(30,54,84,108))])
+        expand_mothers(nodes,10,4)
+        nodes=[d for ds in partition(S,nodes,2,'x',spacing) for d in ds]
+        R.run(S,[(d,R.go(d,[('x',20+16*i)])) for i,d in enumerate(nodes)])
+        expand_mothers(nodes,6,4)
+        leaves=[d for ds in partition(S,nodes,2,'x',spacing) for d in ds]
+        for i,f in enumerate(fields):f['leaves']=leaves[i*8:(i+1)*8]
+    elif reagent=='G14':
         # Five equal 2µL mothers, then 1µL / 0.5µL native binary cuts.
         groups=partition(S,roots,5,'x',6)
         nodes=[d for ds in groups for d in ds]
@@ -213,6 +244,9 @@ def deliver(S,reagent,vol,cols,tag,on_before_load=None,on_load=None,controlled=F
         assert abs(S.get(f'{tag}{ln.id}').vol-vol)<1e-8
     S.pipeline_events.append(dict(kind='all_ready',rows=list(range(1,17)),step=S.nsteps))
     S.step(geom.HOLD_MS,changed=[]);ops.merge_all(S,lanes,tag)
+    if reagent=='G4':
+        # Preserve the released A03 endpoint and its one-cell transition into A04.
+        ops.move_rects(S,{ln.name:ln.X0+26 for ln in lanes})
     final={r:S.get(ops.Lane(c,r).name).vol for r in range(1,17)}
     assert all(abs(final[r]-initial[r]-vol)<1e-8 for r in final)
     S.pipeline_events.append(dict(kind='finish',reagent=reagent,final_volumes=final,step=S.nsteps))

@@ -1,0 +1,48 @@
+{
+  "scope": "A02/A03 and unchanged A01/A04 boundaries only",
+  "full_workflow_checked": false,
+  "visual_check": false,
+  "receiving_shape": [
+    12,
+    6
+  ],
+  "daughter_shapes": [
+    [
+      6,
+      6
+    ],
+    [
+      5,
+      4
+    ],
+    [
+      3,
+      4
+    ]
+  ],
+  "actual_per_port_ul": 3.2,
+  "mother_reshapes": [
+    [
+      6,
+      6,
+      10,
+      4
+    ],
+    [
+      5,
+      4,
+      6,
+      4
+    ]
+  ],
+  "mother_reshape_hold_ms": 4000,
+  "electrode_extra_per_child": 4,
+  "final_reaction_ul": 2.0,
+  "final_reaction_cells": 40,
+  "actual_per_well_ul": 0.4,
+  "receiving_electrodes_per_port": 72,
+  "actual_cells_per_port": 64,
+  "split_events_checked": 14,
+  "unrelated_flows_unchanged": true,
+  "script_sha256": "d108b3b831566190007732a25c894cdf131ee77abc4264132d39ea9ebe47d4c7"
+}
