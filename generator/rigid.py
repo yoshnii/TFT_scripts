@@ -18,11 +18,11 @@ def in_reaction(r):
     if not (1 <= row <= 16):
         return False
     for col in range(1, 7):
-        x0, y0 = geom.zone(col, row)
+        x0, y0 = geom.physical_zone(col, row)
         # 行内和门口的整高矩形受9格行距约束，最多留3格。
         # 完整进入通道后纵向错开即可留4格；不可在转移前要求同一行距留4格。
         if (x0-geom.CH_W <= x and x+w <= x0+geom.LANE_L+geom.CH_W
-                and y0 <= y and y+h <= y0+geom.LANE_H):
+                and y0 <= y and y+h <= y0+geom.PHYSICAL_LANE_H):
             return True
     return False
 
@@ -42,7 +42,8 @@ def rect_ok(S, name, r, allow=frozenset()):
             waste_queue=(getattr(S.get(name),'waste_grid_packet',False) and getattr(d2,'waste_grid_packet',False))
             waste_dock=(getattr(S.get(name),'waste_pipeline_clearance',False) and d2.name.startswith('BLOB'))
             entry_limited=(getattr(S.get(name),'controlled_entry',False) and r[1]>=23)
-            clearance = geom.MIN_GAP if row_limited or bottom_limited or waste_queue or waste_dock or entry_limited else geom.PREFERRED_GAP
+            native_queue=getattr(S.get(name),'native_packet',False) and getattr(d2,'native_packet',False)
+            clearance = geom.MIN_GAP if row_limited or bottom_limited or waste_queue or waste_dock or entry_limited or native_queue else geom.PREFERRED_GAP
             if _overlap(r, q) or _gap(r, q) < clearance: return False
     return True
 
@@ -116,12 +117,18 @@ def tick(S, items, rule=None, allow=frozenset(), dur=geom.STEP_MS):
                 d.transport_started=True
                 S.pipeline_events.append(dict(kind='transport_start',port=d.port,row=d.row,step=S.nsteps))
             if isinstance(act, tuple): assert _overlap(d.rect, cand), f"形变不连续 {d.name}"
-            if isinstance(act,tuple) and act[0]=='merge':
+            if isinstance(act,tuple) and act[0] in ('merge','merge_native'):
                 host=S.get(act[2]);old_name=d.name
                 combined_area=len(d.target_cells())+len(host.target_cells())
                 combined_margin=getattr(d,'margin_budget',0)+getattr(host,'margin_budget',0)
                 retired_padding=(getattr(d,'transport_padding_cells',0)
                                  +getattr(host,'transport_padding_cells',0))
+                if act[0]=='merge_native':
+                    assert not retired_padding
+                    assert d.rect[1]==host.rect[1] and d.rect[3]==host.rect[3]
+                    assert cand[2]*cand[3]==combined_area
+                    d.native_authorized_padding=(getattr(d,'native_authorized_padding',False)
+                                                 or getattr(host,'native_authorized_padding',False))
                 if retired_padding:
                     assert reagent_padding_allowed(d,host)
                     assert cand[2]*cand[3]==combined_area-retired_padding
@@ -137,7 +144,7 @@ def tick(S, items, rule=None, allow=frozenset(), dur=geom.STEP_MS):
                 S.pipeline_events.append(dict(kind='reagent_collect',port=d.port,row=d.row,
                                               incoming_ul=act[3],total_ul=d.vol,step=S.nsteps))
             if isinstance(act,tuple):
-                frame_dur=max(frame_dur,act[2] if act[0]=='hold' else MORPH_MS)
+                frame_dur=max(frame_dur,act[2] if act[0]=='hold' else geom.HOLD_MS if act[0]=='merge_native' else MORPH_MS)
             d.rect = cand; d.pending = act if intermediate else None; S.moved = getattr(S, "moved", 0) + 1
         elif getattr(d,'dynamic_path',False):
             # 汇液框合并后边界会逐格移动；重新求停靠间距，不锁住旧目标。
@@ -1001,5 +1008,7 @@ def quant_pass(S, lanes, blob_state, tag="Q", final=True):
     send([(ln, lr) for ln, (ll, lr) in zip(lanes, lq)]); send([(ln, ll) for ln, (ll, lr) in zip(lanes, lq)])
     if final: _aspirate(S, blob_state, fk)
 
-# 正式单列工程使用小矩形分排汇液；旧横条汇液只保留作历史算法对照。
+# 正式单列入口使用母框原生等分；前面的旧实现保留给独立历史试验。
 from waste_grid import egress_pieces, supernatant_bites
+from native_packets import deliver as deliver_drops
+from native_waste import egress_pieces, supernatant_bites

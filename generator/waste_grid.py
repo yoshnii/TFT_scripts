@@ -159,11 +159,13 @@ def _make_row(S,job,r):
     assert len(union)==sum(area(q) for q in ds) and contour.connected(union),'整排轮廓重叠或不连通'
     target=(rc[0],rc[1],job['W'],row_spec.get('row_h',row_spec['h']))
     assert len(union)==target[2]*target[3],'整排终态面积不守恒'
-    vol=round(sum(q.vol for q in ds),2)
-    margin=sum(getattr(q,'margin_budget',0) for q in ds)
+    vol=round(sum(q.vol for q in ds),10)
+    margin=len(union)-geom.cells(vol)
+    assert margin>=0
     for q in ds:S.remove(q.name)
     row=S.add(Drop(f"WROW{job['port']}_{r}",rc,vol));row.electrode_area=len(union);row.set_cells(union);row.allow=(f"BLOB{job['port']}",)
     row.margin_budget=margin
+    row.native_fractional_volume=any(getattr(q,'native_fractional_volume',False) for q in ds)
     if union!=contour.fill(target,len(union)):
         _settled_shape(S,row,target,contour.fill(target,len(union)))
     row.tiles=len(ds);row.tile_area=ds[0].tile_area;row.tile_shapes=[q.rect[2:] for q in ds]
@@ -172,8 +174,16 @@ def _make_row(S,job,r):
 
 def _row_path(S,row,job,r):
     import rigid as R
-    yield from R.go(row,[('x',job['final_x'])])
+    spec=job['rows'][r]
+    if (job['under_exit'] and spec.get('row_h',spec['h'])<spec['h']
+            and spec['dock_y']<TRANSPORT_Y+spec['h'] and r+1<len(job['rows'])):
+        # F1末两排：先把已齐的整排停在出口左侧，再放后排通过；
+        # 不让5格高子滴穿过已升至Y176的4格高汇液排。
+        yield from R.go(row,[('x',geom.gap_x(1)-geom.PREFERRED_GAP-row.rect[2])])
+        job['lookahead'].add(r+1)
+        while len(job['arrived'][r+1])<job['rows'][r+1]['n']:yield 'wait'
     while job['docked'][0]!=r:yield 'wait'            # 自下而上逐排停靠
+    yield from R.go(row,[('x',job['final_x'])])
     yield from R.go(row,[('y',job['rows'][r]['dock_y'])])
     yield ('call',lambda:_dock(S,row,job,r),geom.HOLD_MS,[f"BLOB{job['port']}"])
 
@@ -182,7 +192,7 @@ def _dock(S,row,job,r):
     if host:
         union=host.target_cells()|cells
         assert len(union)==area(host)+area(row) and contour.connected(union),'汇液未接触或重叠'
-        S.remove(row.name);host.vol=round(host.vol+row.vol,2);host.margin_budget+=row.margin_budget;host.electrode_area=len(union)
+        S.remove(row.name);host.vol=round(host.vol+row.vol,10);host.margin_budget=len(union)-geom.cells(host.vol);host.electrode_area=len(union)
         host.rect=contour.bounds(union);host.set_cells(union);host.tile_count+=row.tiles
     else:
         S.remove(row.name);host=blobs[fk]=S.add(Drop(f'BLOB{fk}',contour.bounds(cells),row.vol))
@@ -219,7 +229,7 @@ def _tile_path(S,d,job,t,r,pos,gx):
         # 汇液框位于通道出口下方（F1）：整排要横移到出口下方再停靠，后一排在通道内带上方等前一排停靠完。
         hold_y=TRANSPORT_Y-ch-geom.PREFERRED_GAP
         yield from R.go(d,[('y',max(origin_y,hold_y))])
-        while job['docked'][0]<r:yield 'wait'
+        while job['docked'][0]<r and r not in job['lookahead']:yield 'wait'
     if (cw,ch)!=(packet_w,h):
         yield from R.go(d,[('y',TRANSPORT_Y+h-ch)])
         target=(gx,TRANSPORT_Y,packet_w,h)
@@ -237,12 +247,17 @@ def _tile_path(S,d,job,t,r,pos,gx):
     if job['contracted'][r]==spec['n']:job['merge_ready'][r]=S.nsteps
     while r not in job['merge_ready'] or S.nsteps<=job['merge_ready'][r]:yield 'wait'
     if slot==0:
-        yield ('call',lambda:_make_row(S,job,r),geom.LONG_MS,[f"WROW{job['port']}_{r}"])
+        yield ('call',lambda:_make_row(S,job,r),geom.LONG_MS if spec.get('row_h',h)!=h else geom.HOLD_MS,[f"WROW{job['port']}_{r}"])
 
-def _row_spec(W,widths,h,port,gx):
+def _row_spec(W,widths,h,port,gx,native=False,row_h=None):
     """一排：widths 为到达顺序的小块宽度；先到者占右侧槽位。就绪位间距 CUT_GAP，靠拢后宽度恰为 W。"""
     n=len(widths);slots=list(reversed(widths))
-    sw=sum(widths)+(n-1)*geom.CUT_GAP;left=max(gx+geom.CH_W+geom.MIN_GAP,geom.HOLE_X[port]-sw//2)
+    sw=sum(widths)+(n-1)*geom.CUT_GAP
+    left=max(gx+geom.CH_W+geom.MIN_GAP,geom.HOLE_X[port]-sw//2)
+    if native and row_h is not None and row_h<h:
+        fx=geom.HOLE_X[port]-W//2
+        left=(max(gx+geom.CH_W+geom.MIN_GAP,fx+W+geom.PREFERRED_GAP)
+              if fx<gx+geom.CH_W+geom.PREFERRED_GAP else fx-sw-geom.MIN_GAP)
     assert left+sw<=geom.GRID_W
     return dict(h=h,n=n,widths=list(widths),
                 stage_x=[left+sum(slots[:s])+s*geom.CUT_GAP for s in range(n)],
@@ -253,11 +268,11 @@ def _job(S,spec,blobs,gx):
     rows=[];y=DOCK_BOTTOM;base=[];k=0
     for row in spec['rows']:
         widths,h,*row_h=row;row_h=row_h[0] if row_h else h
-        r=_row_spec(spec['W'],widths,h,spec['port'],gx);y-=row_h;r['row_h']=row_h;r['dock_y']=y;rows.append(r);base.append(k);k+=len(widths)
+        r=_row_spec(spec['W'],widths,h,spec['port'],gx,spec.get('native',False),row_h);y-=row_h;r['row_h']=row_h;r['dock_y']=y;rows.append(r);base.append(k);k+=len(widths)
     job=dict(port=spec['port'],W=spec['W'],rows=rows,blobs=blobs,slot_base=base,
              final_x=geom.HOLE_X[spec['port']]-spec['W']//2,
              arrived={r:[] for r in range(len(rows))},ready={},contracted={r:0 for r in range(len(rows))},
-             merge_ready={},docked=[0],
+             merge_ready={},docked=[0],lookahead=set(),
              balanced=spec.get('balanced',False),
              event=dict(port=spec['port'],scheduled_drops=k,start_frame=S.nsteps,entries=[],row_merges=[]))
     job['under_exit']=job['final_x']<gx+geom.CH_W+geom.PREFERRED_GAP

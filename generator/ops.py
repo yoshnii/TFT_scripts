@@ -212,24 +212,34 @@ def merge_all(S,lanes,guest_tag,host_tag='L'):
                host_volumes={S.get(f'{host_tag}{ln.id}').name:S.get(f'{host_tag}{ln.id}').vol for ln in lanes},
                mode='direct_nearby_fusion',precontact_reshape=False,
                initial_host_rects={ln.id:list(S.get(f'{host_tag}{ln.id}').rect) for ln in lanes})
-    contact={};pairs=[]
+    contact={};pairs=[];fixed_guests={}
     for ln in lanes:
         g,h=S.get(f'{guest_tag}{ln.id}'),S.get(f'{host_tag}{ln.id}')
-        contact[g.name]=h.rect[0]-g.rect[2] if g.rect[0]<h.rect[0] else h.rect[0]+h.rect[2]
+        if getattr(g,'native_packet',False) and g.rect[3]==6:
+            # 整高G16必须留在S孔左侧；由宿主靠近，不让试剂从孔下横穿。
+            contact[h.name]=g.rect[0]+g.rect[2];fixed_guests[g.name]=g.rect
+        else:
+            contact[g.name]=h.rect[0]-g.rect[2] if g.rect[0]<h.rect[0] else h.rect[0]+h.rect[2]
         pairs.append((g.name,h.name))
     move_rects(S,contact,touching=pairs);event['contact_step']=S.nsteps-1
-    assert all(list(S.get(f'{host_tag}{ln.id}').rect)==event['initial_host_rects'][ln.id] for ln in lanes)
+    if fixed_guests:
+        assert all(S.get(n).rect==rc for n,rc in fixed_guests.items())
+        event['mode']='host_approach_avoids_sample_hole'
+    else:assert all(list(S.get(f'{host_tag}{ln.id}').rect)==event['initial_host_rects'][ln.id] for ln in lanes)
     S.step(geom.HOLD_MS,touching=pairs,changed=[])
     final=[];natural=[];needs_settle=False
     for ln in lanes:
         g,h=S.get(f'{guest_tag}{ln.id}'),S.get(f'{host_tag}{ln.id}')
         cells=g.target_cells()|h.target_cells();bounds=contour.bounds(cells)
         assert len(cells)==len(g.target_cells())+len(h.target_cells())
-        total=round(h.vol+g.vol,2);w,H=geom.lane_shape(total);x0,y0=geom.physical_zone(ln.c,ln.r)
+        total=round(h.vol+g.vol,10);w,H=geom.lane_shape(total);x0,y0=geom.physical_zone(ln.c,ln.r)
+        target_area=geom.electrode_cells(total)
+        retired=len(cells)-target_area
+        assert retired>=0 and (not retired or getattr(g,'native_authorized_padding',False)),('未授权取消承接余量',g.name,retired)
         candidates=[]
         for x in range(x0,x0+geom.LANE_L-w+1):
             for y in range(y0,y0+geom.PHYSICAL_LANE_H-H+1):
-                rc=(x,y,w,H);target=contour.fill(rc,len(cells))
+                rc=(x,y,w,H);target=contour.fill(rc,target_area)
                 if not (target&g.target_cells() and target&h.target_cells()):continue
                 if rigid.rect_ok(S,h.name,rc,allow={g.name}):
                     candidates.append(((-len(target&cells),abs(y-ln.Y0),abs(x-bounds[0])),rc))
@@ -237,12 +247,16 @@ def merge_all(S,lanes,guest_tag,host_tag='L'):
         rc=min(candidates)[1]
         final.append((h,rc));natural.append((h,g,cells,bounds,total))
     for h,g,cells,bounds,total in natural:
-        h.vol=total;h.electrode_area=len(cells);h.port_gap=None
-        h.margin_budget+=getattr(g,'margin_budget',0);S.remove(g.name)
-        if len(cells)==bounds[2]*bounds[3]:h.rect=bounds;h.set_cells(cells)
+        target_area=geom.electrode_cells(total);retired=len(cells)-target_area
+        if retired:
+            S.native_padding_events.append(dict(kind='retire_at_chemical_fusion',name=g.name,
+                actual_ul=total,extra_cells=retired,step=S.nsteps))
+        h.vol=total;h.electrode_area=target_area;h.port_gap=None
+        h.margin_budget=target_area-geom.cells(total);S.remove(g.name)
+        if len(cells)==bounds[2]*bounds[3] and not retired:h.rect=bounds;h.set_cells(cells)
         else:
             # 两滴先按原形贴合保持；随后直接换成等面积完整框，避免输出L形合并中间帧。
-            rc=next(rc for d,rc in final if d is h);h.rect=rc;h.set_cells(contour.fill(rc,len(cells)))
+            rc=next(rc for d,rc in final if d is h);h.rect=rc;h.set_cells(contour.fill(rc,target_area))
             needs_settle=True
     S.step(geom.LONG_MS if needs_settle else geom.HOLD_MS,changed=[h.name for h,_ in final]);event['merge_step']=S.nsteps-1
     S.reaction_merge_events=getattr(S,'reaction_merge_events',[]);S.reaction_merge_events.append(event)
@@ -371,6 +385,9 @@ def split_all(S,lanes,keep_vol,away_tag,tag='L'):
     volumes={S.get(f'{tag}{ln.id}').vol for ln in lanes}
     assert len(volumes)==1
     total=next(iter(volumes));assert round(total/keep_vol,6) in (2,4),'仅支持两次内对半取样'
+    if total==2. and keep_vol==.5:
+        from native_packets import quarter_cdna
+        return quarter_cdna(S,lanes,tag,away_tag)
     # 为切分两侧各1格逐帧外移预留边界。
     move_rects(S,{f'{tag}{ln.id}':ln.X0+geom.CUT_GAP//2 for ln in lanes})
     names=[(f'{tag}{ln.id}',f'{away_tag}{ln.id}') for ln in lanes]

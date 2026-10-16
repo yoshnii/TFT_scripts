@@ -19,11 +19,12 @@ class RevisionWasteTests(unittest.TestCase):
             if vol in (5.,5.9):rc=geom.lane_target(1,r,vol,'right')
             else:
                 width,height=geom.lane_shape(vol);rc=(ln.X0+12 if resident else ln.X0+2,ln.Y0,width,height)
+                if n==12:rc=(rc[0],rc[1],3,4)
             d=scene.add(Drop(ln.name,rc,vol));items.append((ln,d))
             if resident:
                 w,h=geom.lane_shape(round(resident*.05,2));rc=(ln.X0,ln.Y0,w,h)
                 keep=scene.add(Drop('KEEP'+ln.id,rc,round(resident*geom.CELL_UL,2)))
-        expected=(n+resident)*16;previous={};parallel=[False];original=Scene._record
+        expected=(n+resident)*16*.05;previous={};parallel=[False];original=Scene._record
 
         def record(s,*args,**kwargs):
             duration=args[0] if args else kwargs.get('dur',geom.STEP_MS)
@@ -31,8 +32,8 @@ class RevisionWasteTests(unittest.TestCase):
             current={id(d):(d,d.target_cells(),d.rect) for d in s.drops.values() if d.rects()}
             positive=[cells for d,cells,rc in current.values() if d.vol>0]
             self.assertEqual(len(frozenset().union(*positive)),sum(map(len,positive)))
-            aspirated=sum(geom.cells(info['volume_ul']) for relay,info in s.manual_aspirations)
-            self.assertEqual(sum(geom.cells(d.vol) for d,cells,rc in current.values())+aspirated,expected)
+            aspirated=sum(info['volume_ul'] for relay,info in s.manual_aspirations)
+            self.assertAlmostEqual(sum(d.vol for d,cells,rc in current.values())+aspirated,expected)
             moved=0
             for key,(d,cells,rc) in current.items():
                 self.assertEqual(len(cells),geom.cells(d.vol)+d.margin_budget);self.assertTrue(contour.connected(cells))
@@ -59,15 +60,15 @@ class RevisionWasteTests(unittest.TestCase):
                 children=[current[k] for k in event['_child_keys']]
                 self.assertEqual(frozenset().union(*(q[1] for q in children)),old)
                 areas=[len(q[1]) for q in children]
-                self.assertGreaterEqual(min(areas),.4*sum(areas))
+                self.assertLess(max(event['volumes'])-min(event['volumes']),1e-8)
                 self.assertEqual(sum(areas),len(old))
                 self.assertEqual(event['axis'],'x');self.assertGreaterEqual(rc[2],rc[3])
             previous.clear();previous.update(current)
 
         with patch.object(Scene,'_record',record):
             scene.step(changed=[])
-            if supernatant:W.supernatant_bites(scene,lanes,blobs,0,collect_three=n==100)
-            else:W.egress_pieces(scene,items,blobs,single_stop=single_stop,collect_a05=n==30)
+            if supernatant:rigid.supernatant_bites(scene,lanes,blobs,0,collect_three=n==100)
+            else:rigid.egress_pieces(scene,items,blobs,single_stop=single_stop,collect_a05=n==30)
         self.assertFalse(scene.waste_pool.items)
         self.assertTrue(all(d is None for d in blobs.values()))
         self.assertAlmostEqual(sum(i['volume_ul'] for _,i in scene.manual_aspirations),n*16*.05)
@@ -89,7 +90,7 @@ class RevisionWasteTests(unittest.TestCase):
     def test_r04_balanced_five_microlitres(self):
         scene=self.run_waste(100,supernatant=True)
         pairs={tuple(geom.cells(v) for v in e['volumes']) for e in scene.split_events}
-        self.assertTrue({(50,50),(25,25),(10,15)}<=pairs)
+        self.assertEqual(pairs,{(20,20,20,20,20)})
         self.assertTrue(all(d.magnet_only and d.vol==0 for d in scene.drops.values()))
         self.assertTrue(all(e['tile_area']==e['tile_shape'][0]*e['tile_shape'][1] for e in scene.waste_grid_events))
 
@@ -101,8 +102,8 @@ class RevisionWasteTests(unittest.TestCase):
 
     def test_c04_balanced_118_cells_without_tiny_fragments(self):
         scene=self.run_waste(118,supernatant=True)
-        pairs={tuple(sorted(geom.cells(v) for v in e['volumes'])) for e in scene.split_events}
-        self.assertTrue({(59,59),(29,30),(14,15)}<=pairs)
+        pairs={tuple(e['volumes']) for e in scene.split_events}
+        self.assertEqual(pairs,{(2.95,2.95),(1.475,1.475),(.7375,.7375)})
         self.assertGreaterEqual(min(e['tile_area'] for e in scene.waste_grid_events),14)
         self.assertTrue(all(e['tile_area']==15 for e in scene.waste_grid_events))
 

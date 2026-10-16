@@ -54,11 +54,13 @@ class CompactTransportTests(unittest.TestCase):
         self.assertEqual(len(loads),1)
         self.assertEqual(loads[0]['volume_ul'],40.)
         self.assertEqual(loads[0]['port_volumes'],{'E1':10.,'E2':10.,'E3':10.,'E4':10.})
-        events=p.S.transport_padding_events
-        adds=[e for e in events if e['kind']=='add'];ends=[e for e in events if e['kind']=='retire']
-        self.assertEqual(len(adds),32)
-        self.assertEqual(sum(e['target_cells']-e['source_cells'] for e in adds),64)
-        self.assertEqual(sum(e['cells'] for e in ends),64)
+        events=p.S.native_padding_events
+        adds=[e for e in events if e['kind']=='mother_reserve'];ends=[e for e in events if e['kind']=='retire_at_chemical_fusion']
+        self.assertEqual(len(adds),4)
+        self.assertEqual(sum(e['extra_cells'] for e in adds),160)
+        self.assertEqual(sum(e['extra_cells'] for e in ends),160)
+        leaves=[e for e in p.S.pipeline_events if e['kind']=='reagent_collect' and e['incoming_ul']==.5]
+        self.assertEqual(len(leaves),80)
         self.assertTrue(all(p.S.get(ln.name).vol==5. for ln in p.ALL))
         self.assertTrue(all(len(p.S.get(ln.name).target_cells())==100 for ln in p.ALL))
         self.assertFalse(any(getattr(d,'transport_padding_cells',0) for d in p.S.drops.values()))
