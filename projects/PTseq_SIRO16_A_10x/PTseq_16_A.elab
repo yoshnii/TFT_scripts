@@ -6020,7 +6020,7 @@
     </Command>
     <Command ID="2021" Name="混匀计时 288s（同步结束）" PreTask="2020,SS" Component="Delay" Action="CMD_DELAY" Params="" Timeout="288" Path="" />
   </Flow>
-  <Flow ID="2022" Name="R09 纯化1第1次洗脱：溶解液 5.00µL → 产物离片 · 孵育第120s轻晃" Repeats="1" Timeout="169" SyncEndingCmdList="2026,2025">
+  <Flow ID="2022" Name="R09 纯化1第1次洗脱：溶解液 5.00µL → 产物离片 · 洗脱孵育300s（第120/240s轻晃）" Repeats="1" Timeout="300" SyncEndingCmdList="2026,2025;2031,2030">
     <Command ID="2023" Name="磁铁保持下降 · 洗脱孵育等待 120s" PreTask="-1,UnTask" Component="HighVoltage" Action="CMD_SCRIPTCYCLE" Params="SCRIPTCYCLE_FALSE" Timeout="120" Path="" ScriptContent="0">
       <RelayItem ItemID="1" RelayCode="(28,10)(5,20);(37,10)(5,20);(46,10)(5,20);(55,10)(5,20);(64,10)(5,20);(73,10)(5,20);(82,10)(5,20);(91,10)(5,20);(100,10)(5,20);(109,10)(5,20);(118,10)(5,20);(127,10)(5,20);(136,10)(5,20);(145,10)(5,20);(154,10)(5,20);(163,10)(5,20)" Duration="120000" WaveForm="0" Freq="20" Amp="50" />
     </Command>
@@ -6063,9 +6063,7 @@
       <RelayItem ItemID="33" RelayCode="(28,10)(5,20);(37,10)(5,20);(46,10)(5,20);(55,10)(5,20);(64,10)(5,20);(73,10)(5,20);(82,10)(5,20);(91,10)(5,20);(100,10)(5,20);(109,10)(5,20);(118,10)(5,20);(127,10)(5,20);(136,10)(5,20);(145,10)(5,20);(154,10)(5,20);(163,10)(5,20)" Duration="1000" WaveForm="0" Freq="20" Amp="55" />
     </Command>
     <Command ID="2026" Name="混匀计时 48s（同步结束）" PreTask="2025,SS" Component="Delay" Action="CMD_DELAY" Params="" Timeout="48" Path="" />
-  </Flow>
-  <Flow ID="2027" Name="R10 纯化1第1次洗脱：溶解液 5.00µL → 产物离片 · 孵育第240s轻晃" Repeats="1" Timeout="120" SyncEndingCmdList="2031,2030">
-    <Command ID="2028" Name="磁铁保持下降 · 洗脱孵育等待 71s" PreTask="-1,UnTask" Component="HighVoltage" Action="CMD_SCRIPTCYCLE" Params="SCRIPTCYCLE_FALSE" Timeout="71" Path="" ScriptContent="0">
+    <Command ID="2028" Name="磁铁保持下降 · 洗脱孵育等待 71s" PreTask="2026,FS" Component="HighVoltage" Action="CMD_SCRIPTCYCLE" Params="SCRIPTCYCLE_FALSE" Timeout="71" Path="" ScriptContent="0">
       <RelayItem ItemID="1" RelayCode="(28,10)(5,20);(37,10)(5,20);(46,10)(5,20);(55,10)(5,20);(64,10)(5,20);(73,10)(5,20);(82,10)(5,20);(91,10)(5,20);(100,10)(5,20);(109,10)(5,20);(118,10)(5,20);(127,10)(5,20);(136,10)(5,20);(145,10)(5,20);(154,10)(5,20);(163,10)(5,20)" Duration="71000" WaveForm="0" Freq="20" Amp="50" />
     </Command>
     <Command ID="2029" Name="液滴左端定位 · 随后启动混匀（全部液滴带电）" PreTask="2028,FS" Component="HighVoltage" Action="CMD_SCRIPTCYCLE" Params="SCRIPTCYCLE_FALSE" Timeout="1" Path="" ScriptContent="0">
@@ -6107,12 +6105,13 @@
       <RelayItem ItemID="33" RelayCode="(28,10)(5,20);(37,10)(5,20);(46,10)(5,20);(55,10)(5,20);(64,10)(5,20);(73,10)(5,20);(82,10)(5,20);(91,10)(5,20);(100,10)(5,20);(109,10)(5,20);(118,10)(5,20);(127,10)(5,20);(136,10)(5,20);(145,10)(5,20);(154,10)(5,20);(163,10)(5,20)" Duration="1000" WaveForm="0" Freq="20" Amp="55" />
     </Command>
     <Command ID="2031" Name="混匀计时 48s（同步结束）" PreTask="2030,SS" Component="Delay" Action="CMD_DELAY" Params="" Timeout="48" Path="" />
-  </Flow>
-  <Flow ID="2032" Name="R11 纯化1第1次洗脱：溶解液 5.00µL → 产物离片 · S孔×16 待手工吸液（保持全部液滴上电）" Repeats="1" Timeout="162">
-    <Command ID="2033" Name="第1次：洗脱孵育剩余等待 11s" PreTask="-1,UnTask" Component="HighVoltage" Action="CMD_SCRIPTCYCLE" Params="SCRIPTCYCLE_FALSE" Timeout="11" Path="" ScriptContent="0">
+    <Command ID="2033" Name="第1次：洗脱孵育剩余等待 11s" PreTask="2031,FS" Component="HighVoltage" Action="CMD_SCRIPTCYCLE" Params="SCRIPTCYCLE_FALSE" Timeout="11" Path="" ScriptContent="0">
       <RelayItem ItemID="1" RelayCode="(28,10)(5,20);(37,10)(5,20);(46,10)(5,20);(55,10)(5,20);(64,10)(5,20);(73,10)(5,20);(82,10)(5,20);(91,10)(5,20);(100,10)(5,20);(109,10)(5,20);(118,10)(5,20);(127,10)(5,20);(136,10)(5,20);(145,10)(5,20);(154,10)(5,20);(163,10)(5,20)" Duration="11000" WaveForm="0" Freq="20" Amp="50" />
     </Command>
-    <Command ID="2034" Name="第1次：固定形状逐格移回磁铁侧，再升磁铁" PreTask="2033,FS" Component="HighVoltage" Action="CMD_SCRIPTCYCLE" Params="SCRIPTCYCLE_FALSE" Timeout="16" Path="" ScriptContent="0">
+  </Flow>
+
+  <Flow ID="2032" Name="R11 纯化1第1次洗脱：溶解液 5.00µL → 产物离片 · S孔×16 待手工吸液（保持全部液滴上电）" Repeats="1" Timeout="151">
+    <Command ID="2034" Name="第1次：固定形状逐格移回磁铁侧，再升磁铁" PreTask="-1,UnTask" Component="HighVoltage" Action="CMD_SCRIPTCYCLE" Params="SCRIPTCYCLE_FALSE" Timeout="16" Path="" ScriptContent="0">
       <RelayItem ItemID="1" RelayCode="(28,11)(5,20);(37,11)(5,20);(46,11)(5,20);(55,11)(5,20);(64,11)(5,20);(73,11)(5,20);(82,11)(5,20);(91,11)(5,20);(100,11)(5,20);(109,11)(5,20);(118,11)(5,20);(127,11)(5,20);(136,11)(5,20);(145,11)(5,20);(154,11)(5,20);(163,11)(5,20)" Duration="1000" WaveForm="0" Freq="20" Amp="55" />
       <RelayItem ItemID="2" RelayCode="(28,12)(5,20);(37,12)(5,20);(46,12)(5,20);(55,12)(5,20);(64,12)(5,20);(73,12)(5,20);(82,12)(5,20);(91,12)(5,20);(100,12)(5,20);(109,12)(5,20);(118,12)(5,20);(127,12)(5,20);(136,12)(5,20);(145,12)(5,20);(154,12)(5,20);(163,12)(5,20)" Duration="1000" WaveForm="0" Freq="20" Amp="55" />
       <RelayItem ItemID="3" RelayCode="(28,13)(5,20);(37,13)(5,20);(46,13)(5,20);(55,13)(5,20);(64,13)(5,20);(73,13)(5,20);(82,13)(5,20);(91,13)(5,20);(100,13)(5,20);(109,13)(5,20);(118,13)(5,20);(127,13)(5,20);(136,13)(5,20);(145,13)(5,20);(154,13)(5,20);(163,13)(5,20)" Duration="1000" WaveForm="0" Freq="20" Amp="55" />
@@ -6216,7 +6215,7 @@
     </Command>
     <Command ID="2044" Name="混匀计时 288s（同步结束）" PreTask="2043,SS" Component="Delay" Action="CMD_DELAY" Params="" Timeout="288" Path="" />
   </Flow>
-  <Flow ID="2045" Name="R14 纯化1第2次洗脱：溶解液 5.00µL → 产物离片 · 孵育第120s轻晃" Repeats="1" Timeout="169" SyncEndingCmdList="2049,2048">
+  <Flow ID="2045" Name="R14 纯化1第2次洗脱：溶解液 5.00µL → 产物离片 · 洗脱孵育300s（第120/240s轻晃）" Repeats="1" Timeout="300" SyncEndingCmdList="2049,2048;2054,2053">
     <Command ID="2046" Name="磁铁保持下降 · 洗脱孵育等待 120s" PreTask="-1,UnTask" Component="HighVoltage" Action="CMD_SCRIPTCYCLE" Params="SCRIPTCYCLE_FALSE" Timeout="120" Path="" ScriptContent="0">
       <RelayItem ItemID="1" RelayCode="(28,10)(5,20);(37,10)(5,20);(46,10)(5,20);(55,10)(5,20);(64,10)(5,20);(73,10)(5,20);(82,10)(5,20);(91,10)(5,20);(100,10)(5,20);(109,10)(5,20);(118,10)(5,20);(127,10)(5,20);(136,10)(5,20);(145,10)(5,20);(154,10)(5,20);(163,10)(5,20)" Duration="120000" WaveForm="0" Freq="20" Amp="50" />
     </Command>
@@ -6259,9 +6258,7 @@
       <RelayItem ItemID="33" RelayCode="(28,10)(5,20);(37,10)(5,20);(46,10)(5,20);(55,10)(5,20);(64,10)(5,20);(73,10)(5,20);(82,10)(5,20);(91,10)(5,20);(100,10)(5,20);(109,10)(5,20);(118,10)(5,20);(127,10)(5,20);(136,10)(5,20);(145,10)(5,20);(154,10)(5,20);(163,10)(5,20)" Duration="1000" WaveForm="0" Freq="20" Amp="55" />
     </Command>
     <Command ID="2049" Name="混匀计时 48s（同步结束）" PreTask="2048,SS" Component="Delay" Action="CMD_DELAY" Params="" Timeout="48" Path="" />
-  </Flow>
-  <Flow ID="2050" Name="R15 纯化1第2次洗脱：溶解液 5.00µL → 产物离片 · 孵育第240s轻晃" Repeats="1" Timeout="120" SyncEndingCmdList="2054,2053">
-    <Command ID="2051" Name="磁铁保持下降 · 洗脱孵育等待 71s" PreTask="-1,UnTask" Component="HighVoltage" Action="CMD_SCRIPTCYCLE" Params="SCRIPTCYCLE_FALSE" Timeout="71" Path="" ScriptContent="0">
+    <Command ID="2051" Name="磁铁保持下降 · 洗脱孵育等待 71s" PreTask="2049,FS" Component="HighVoltage" Action="CMD_SCRIPTCYCLE" Params="SCRIPTCYCLE_FALSE" Timeout="71" Path="" ScriptContent="0">
       <RelayItem ItemID="1" RelayCode="(28,10)(5,20);(37,10)(5,20);(46,10)(5,20);(55,10)(5,20);(64,10)(5,20);(73,10)(5,20);(82,10)(5,20);(91,10)(5,20);(100,10)(5,20);(109,10)(5,20);(118,10)(5,20);(127,10)(5,20);(136,10)(5,20);(145,10)(5,20);(154,10)(5,20);(163,10)(5,20)" Duration="71000" WaveForm="0" Freq="20" Amp="50" />
     </Command>
     <Command ID="2052" Name="液滴左端定位 · 随后启动混匀（全部液滴带电）" PreTask="2051,FS" Component="HighVoltage" Action="CMD_SCRIPTCYCLE" Params="SCRIPTCYCLE_FALSE" Timeout="1" Path="" ScriptContent="0">
@@ -6303,12 +6300,13 @@
       <RelayItem ItemID="33" RelayCode="(28,10)(5,20);(37,10)(5,20);(46,10)(5,20);(55,10)(5,20);(64,10)(5,20);(73,10)(5,20);(82,10)(5,20);(91,10)(5,20);(100,10)(5,20);(109,10)(5,20);(118,10)(5,20);(127,10)(5,20);(136,10)(5,20);(145,10)(5,20);(154,10)(5,20);(163,10)(5,20)" Duration="1000" WaveForm="0" Freq="20" Amp="55" />
     </Command>
     <Command ID="2054" Name="混匀计时 48s（同步结束）" PreTask="2053,SS" Component="Delay" Action="CMD_DELAY" Params="" Timeout="48" Path="" />
-  </Flow>
-  <Flow ID="2055" Name="R16 纯化1第2次洗脱：溶解液 5.00µL → 产物离片 · S孔×16 待手工吸液（保持全部液滴上电）" Repeats="1" Timeout="162">
-    <Command ID="2056" Name="第2次：洗脱孵育剩余等待 11s" PreTask="-1,UnTask" Component="HighVoltage" Action="CMD_SCRIPTCYCLE" Params="SCRIPTCYCLE_FALSE" Timeout="11" Path="" ScriptContent="0">
+    <Command ID="2056" Name="第2次：洗脱孵育剩余等待 11s" PreTask="2054,FS" Component="HighVoltage" Action="CMD_SCRIPTCYCLE" Params="SCRIPTCYCLE_FALSE" Timeout="11" Path="" ScriptContent="0">
       <RelayItem ItemID="1" RelayCode="(28,10)(5,20);(37,10)(5,20);(46,10)(5,20);(55,10)(5,20);(64,10)(5,20);(73,10)(5,20);(82,10)(5,20);(91,10)(5,20);(100,10)(5,20);(109,10)(5,20);(118,10)(5,20);(127,10)(5,20);(136,10)(5,20);(145,10)(5,20);(154,10)(5,20);(163,10)(5,20)" Duration="11000" WaveForm="0" Freq="20" Amp="50" />
     </Command>
-    <Command ID="2057" Name="第2次：固定形状逐格移回磁铁侧，再升磁铁" PreTask="2056,FS" Component="HighVoltage" Action="CMD_SCRIPTCYCLE" Params="SCRIPTCYCLE_FALSE" Timeout="16" Path="" ScriptContent="0">
+  </Flow>
+
+  <Flow ID="2055" Name="R16 纯化1第2次洗脱：溶解液 5.00µL → 产物离片 · S孔×16 待手工吸液（保持全部液滴上电）" Repeats="1" Timeout="151">
+    <Command ID="2057" Name="第2次：固定形状逐格移回磁铁侧，再升磁铁" PreTask="-1,UnTask" Component="HighVoltage" Action="CMD_SCRIPTCYCLE" Params="SCRIPTCYCLE_FALSE" Timeout="16" Path="" ScriptContent="0">
       <RelayItem ItemID="1" RelayCode="(28,11)(5,20);(37,11)(5,20);(46,11)(5,20);(55,11)(5,20);(64,11)(5,20);(73,11)(5,20);(82,11)(5,20);(91,11)(5,20);(100,11)(5,20);(109,11)(5,20);(118,11)(5,20);(127,11)(5,20);(136,11)(5,20);(145,11)(5,20);(154,11)(5,20);(163,11)(5,20)" Duration="1000" WaveForm="0" Freq="20" Amp="55" />
       <RelayItem ItemID="2" RelayCode="(28,12)(5,20);(37,12)(5,20);(46,12)(5,20);(55,12)(5,20);(64,12)(5,20);(73,12)(5,20);(82,12)(5,20);(91,12)(5,20);(100,12)(5,20);(109,12)(5,20);(118,12)(5,20);(127,12)(5,20);(136,12)(5,20);(145,12)(5,20);(154,12)(5,20);(163,12)(5,20)" Duration="1000" WaveForm="0" Freq="20" Amp="55" />
       <RelayItem ItemID="3" RelayCode="(28,13)(5,20);(37,13)(5,20);(46,13)(5,20);(55,13)(5,20);(64,13)(5,20);(73,13)(5,20);(82,13)(5,20);(91,13)(5,20);(100,13)(5,20);(109,13)(5,20);(118,13)(5,20);(127,13)(5,20);(136,13)(5,20);(145,13)(5,20);(154,13)(5,20);(163,13)(5,20)" Duration="1000" WaveForm="0" Freq="20" Amp="55" />

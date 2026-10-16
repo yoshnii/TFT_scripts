@@ -315,12 +315,17 @@ class Protocol:
         if seg=='R1':
             # POCS 2.2.2.4：5min洗脱期间每2min轻晃。往返时间计入300s，不能另加300s。
             elapsed=0.0;periodic=[]
+            first_incubation=len(self.segs.get(seg,[]))
             for at in (120,240):
                 wait = self.hold(f'磁铁保持下降 · 洗脱孵育等待 {at-elapsed:g}s', at-elapsed)
                 elapsed += self.mix(seg, title + f' · 孵育第{at}s轻晃', cycles=2, initial=[wait])
                 assert elapsed<=incubation,'轻晃动作超过洗脱孵育窗口'
                 periodic.append(dict(start_seconds=at,cycles=2,end_seconds=elapsed))
-            cmds.append(self.hold(f'第{round_no}次：洗脱孵育剩余等待 {incubation-elapsed:g}s', incubation-elapsed))
+            tail=self.hold(f'第{round_no}次：洗脱孵育剩余等待 {incubation-elapsed:g}s', incubation-elapsed)
+            from elution_sections import combine_incubation
+            blocks=self.segs[seg][first_incubation:]
+            self.segs[seg][first_incubation:]=[combine_incubation(
+                blocks,tail,title+' · 洗脱孵育300s（第120/240s轻晃）')]
         else:
             periodic=[];cmds.append(self.hold(f'第{round_no}次：室温洗脱孵育 {incubation}s · 全液滴保持上电', incubation))
         self.elution_events.append(dict(stage=seg,round=round_no,initial_mix_cycles=resus_cycles,

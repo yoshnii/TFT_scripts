@@ -22,8 +22,11 @@ def chain(cmds):
     return cmds
 
 class Flow:
-    def __init__(self, name, cmds, repeats=1, sync=None, chain_commands=True):
-        self.name, self.cmds, self.repeats, self.id, self.sync = name, list(cmds), repeats, None, sync
+    def __init__(self, name, cmds, repeats=1, sync=None, chain_commands=True, sync_groups=None):
+        assert not (sync and sync_groups), '只使用一种共同结束组表示'
+        self.sync_groups = [list(g) for g in sync_groups] if sync_groups else ([list(sync)] if sync else [])
+        self.name, self.cmds, self.repeats, self.id = name, list(cmds), repeats, None
+        self.sync = [c for group in self.sync_groups for c in group] if self.sync_groups else None
         if chain_commands: chain(self.cmds)
     @property
     def timeout(self):
@@ -47,7 +50,8 @@ class Flow:
         return max((end(c) for c in self.cmds), default=0)
     def xml(self):
         inner = "\n".join("    " + c.xml() for c in self.cmds)
-        se = f' SyncEndingCmdList="{",".join(str(c.id) for c in self.sync)}"' if self.sync else ""
+        groups = ';'.join(','.join(str(c.id) for c in group) for group in self.sync_groups)
+        se = f' SyncEndingCmdList="{groups}"' if groups else ""
         return f'  <Flow ID="{self.id}" Name="{escape(self.name)}" Repeats="{self.repeats}" Timeout="{self.timeout}"{se}>\n{inner}\n  </Flow>'
     def layout(self, i):
         return "\n".join([f' <Flow Position="35,{14 + 104.406*i:g}" ID="{self.id}" Name="{escape(self.name)}" Type="0" Expandgroup="">']

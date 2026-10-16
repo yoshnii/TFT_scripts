@@ -96,25 +96,24 @@
   <Command Position="0,60" SequenceTypeId="0" ID="2020" Name="往复混匀 · 单轮闭合循环（全部液滴带电）" Type="2" ScriptHead=""/>
   <Command Position="0,90" ID="2021" Name="混匀计时 288s（同步结束）" Type="2"/>
  </Flow>
- <Flow Position="35,2102.12" ID="2022" Name="R09 纯化1第1次洗脱：溶解液 5.00µL → 产物离片 · 孵育第120s轻晃" Type="0" Expandgroup="">
-  <Command Position="0,0" SequenceTypeId="0" ID="2023" Name="磁铁保持下降 · 洗脱孵育等待 120s" Type="2" ScriptHead=""/>
-  <Command Position="0,30" SequenceTypeId="0" ID="2024" Name="液滴左端定位 · 随后启动混匀（全部液滴带电）" Type="2" ScriptHead=""/>
-  <Command Position="0,60" SequenceTypeId="0" ID="2025" Name="往复混匀 · 单轮闭合循环（全部液滴带电）" Type="2" ScriptHead=""/>
-  <Command Position="0,90" ID="2026" Name="混匀计时 48s（同步结束）" Type="2"/>
- </Flow>
- <Flow Position="35,2206.53" ID="2027" Name="R10 纯化1第1次洗脱：溶解液 5.00µL → 产物离片 · 孵育第240s轻晃" Type="0" Expandgroup="">
-  <Command Position="0,0" SequenceTypeId="0" ID="2028" Name="磁铁保持下降 · 洗脱孵育等待 71s" Type="2" ScriptHead=""/>
-  <Command Position="0,30" SequenceTypeId="0" ID="2029" Name="液滴左端定位 · 随后启动混匀（全部液滴带电）" Type="2" ScriptHead=""/>
-  <Command Position="0,60" SequenceTypeId="0" ID="2030" Name="往复混匀 · 单轮闭合循环（全部液滴带电）" Type="2" ScriptHead=""/>
-  <Command Position="0,90" ID="2031" Name="混匀计时 48s（同步结束）" Type="2"/>
- </Flow>
- <Flow Position="35,2310.93" ID="2032" Name="R11 纯化1第1次洗脱：溶解液 5.00µL → 产物离片 · S孔×16 待手工吸液（保持全部液滴上电）" Type="0" Expandgroup="">
-  <Command Position="0,0" SequenceTypeId="0" ID="2033" Name="第1次：洗脱孵育剩余等待 11s" Type="2" ScriptHead=""/>
-  <Command Position="0,30" SequenceTypeId="0" ID="2034" Name="第1次：固定形状逐格移回磁铁侧，再升磁铁" Type="2" ScriptHead=""/>
-  <Command Position="0,60" SequenceTypeId="0" ID="2035" Name="第1次：磁铁升起 120s · 全液滴持续通电" Type="2" ScriptHead=""/>
-  <Command Position="0,90" SequenceTypeId="0" ID="2036" Name="第1次：产物 5.00µL 与磁珠团分离" Type="2" ScriptHead=""/>
-  <Command Position="0,120" SequenceTypeId="0" ID="2037" Name="第1次产物移至 S 孔下，等待手工吸出 · 【手工吸液・组结束】S孔×16 80.000µL · 吸出后运行下一组" Type="2" ScriptHead=""/>
- </Flow>
+  <Flow Position="35,2102.12" ID="2022" Name="R09 纯化1第1次洗脱：溶解液 5.00µL → 产物离片 · 洗脱孵育300s（第120/240s轻晃）" Type="0" Expandgroup="">
+    <Command Position="0,0" SequenceTypeId="0" ID="2023" Name="磁铁保持下降 · 洗脱孵育等待 120s" Type="2" ScriptHead="" />
+    <Command Position="0,30" SequenceTypeId="0" ID="2024" Name="液滴左端定位 · 随后启动混匀（全部液滴带电）" Type="2" ScriptHead="" />
+    <Command Position="0,60" SequenceTypeId="0" ID="2025" Name="往复混匀 · 单轮闭合循环（全部液滴带电）" Type="2" ScriptHead="" />
+    <Command Position="0,90" ID="2026" Name="混匀计时 48s（同步结束）" Type="2" />
+    <Command Position="0,120" SequenceTypeId="0" ID="2028" Name="磁铁保持下降 · 洗脱孵育等待 71s" Type="2" ScriptHead="" />
+    <Command Position="0,150" SequenceTypeId="0" ID="2029" Name="液滴左端定位 · 随后启动混匀（全部液滴带电）" Type="2" ScriptHead="" />
+    <Command Position="0,180" SequenceTypeId="0" ID="2030" Name="往复混匀 · 单轮闭合循环（全部液滴带电）" Type="2" ScriptHead="" />
+    <Command Position="0,210" ID="2031" Name="混匀计时 48s（同步结束）" Type="2" />
+    <Command Position="0,240" SequenceTypeId="0" ID="2033" Name="第1次：洗脱孵育剩余等待 11s" Type="2" ScriptHead="" />
+  </Flow>
+
+  <Flow Position="35,2310.93" ID="2032" Name="R11 纯化1第1次洗脱：溶解液 5.00µL → 产物离片 · S孔×16 待手工吸液（保持全部液滴上电）" Type="0" Expandgroup="">
+    <Command Position="0,0" SequenceTypeId="0" ID="2034" Name="第1次：固定形状逐格移回磁铁侧，再升磁铁" Type="2" ScriptHead="" />
+    <Command Position="0,30" SequenceTypeId="0" ID="2035" Name="第1次：磁铁升起 120s · 全液滴持续通电" Type="2" ScriptHead="" />
+    <Command Position="0,60" SequenceTypeId="0" ID="2036" Name="第1次：产物 5.00µL 与磁珠团分离" Type="2" ScriptHead="" />
+    <Command Position="0,90" SequenceTypeId="0" ID="2037" Name="第1次产物移至 S 孔下，等待手工吸出 · 【手工吸液・组结束】S孔×16 80.000µL · 吸出后运行下一组" Type="2" ScriptHead="" />
+  </Flow>
  <Flow Position="35,2415.34" ID="2038" Name="R12 纯化1第2次洗脱：溶解液 5.00µL → 产物离片 · S孔承接 · 加液承接（上电后手工加液）" Type="0" Expandgroup="">
   <Command Position="0,0" SequenceTypeId="0" ID="2039" Name="【手工加液・流程组结束】S孔×16 G15 5.00µL · A1-A16（每道5.00µL） · 第1/1批 · 加好后运行下一流程组" Type="2" ScriptHead=""/>
  </Flow>
@@ -124,25 +123,24 @@
   <Command Position="0,60" SequenceTypeId="0" ID="2043" Name="往复混匀 · 单轮闭合循环（全部液滴带电）" Type="2" ScriptHead=""/>
   <Command Position="0,90" ID="2044" Name="混匀计时 288s（同步结束）" Type="2"/>
  </Flow>
- <Flow Position="35,2624.15" ID="2045" Name="R14 纯化1第2次洗脱：溶解液 5.00µL → 产物离片 · 孵育第120s轻晃" Type="0" Expandgroup="">
-  <Command Position="0,0" SequenceTypeId="0" ID="2046" Name="磁铁保持下降 · 洗脱孵育等待 120s" Type="2" ScriptHead=""/>
-  <Command Position="0,30" SequenceTypeId="0" ID="2047" Name="液滴左端定位 · 随后启动混匀（全部液滴带电）" Type="2" ScriptHead=""/>
-  <Command Position="0,60" SequenceTypeId="0" ID="2048" Name="往复混匀 · 单轮闭合循环（全部液滴带电）" Type="2" ScriptHead=""/>
-  <Command Position="0,90" ID="2049" Name="混匀计时 48s（同步结束）" Type="2"/>
- </Flow>
- <Flow Position="35,2728.56" ID="2050" Name="R15 纯化1第2次洗脱：溶解液 5.00µL → 产物离片 · 孵育第240s轻晃" Type="0" Expandgroup="">
-  <Command Position="0,0" SequenceTypeId="0" ID="2051" Name="磁铁保持下降 · 洗脱孵育等待 71s" Type="2" ScriptHead=""/>
-  <Command Position="0,30" SequenceTypeId="0" ID="2052" Name="液滴左端定位 · 随后启动混匀（全部液滴带电）" Type="2" ScriptHead=""/>
-  <Command Position="0,60" SequenceTypeId="0" ID="2053" Name="往复混匀 · 单轮闭合循环（全部液滴带电）" Type="2" ScriptHead=""/>
-  <Command Position="0,90" ID="2054" Name="混匀计时 48s（同步结束）" Type="2"/>
- </Flow>
- <Flow Position="35,2832.96" ID="2055" Name="R16 纯化1第2次洗脱：溶解液 5.00µL → 产物离片 · S孔×16 待手工吸液（保持全部液滴上电）" Type="0" Expandgroup="">
-  <Command Position="0,0" SequenceTypeId="0" ID="2056" Name="第2次：洗脱孵育剩余等待 11s" Type="2" ScriptHead=""/>
-  <Command Position="0,30" SequenceTypeId="0" ID="2057" Name="第2次：固定形状逐格移回磁铁侧，再升磁铁" Type="2" ScriptHead=""/>
-  <Command Position="0,60" SequenceTypeId="0" ID="2058" Name="第2次：磁铁升起 120s · 全液滴持续通电" Type="2" ScriptHead=""/>
-  <Command Position="0,90" SequenceTypeId="0" ID="2059" Name="第2次：产物 5.00µL 与磁珠团分离" Type="2" ScriptHead=""/>
-  <Command Position="0,120" SequenceTypeId="0" ID="2060" Name="第2次产物移至 S 孔下，等待手工吸出 · 【手工吸液・组结束】S孔×16 80.000µL · 吸出后运行下一组" Type="2" ScriptHead=""/>
- </Flow>
+  <Flow Position="35,2624.15" ID="2045" Name="R14 纯化1第2次洗脱：溶解液 5.00µL → 产物离片 · 洗脱孵育300s（第120/240s轻晃）" Type="0" Expandgroup="">
+    <Command Position="0,0" SequenceTypeId="0" ID="2046" Name="磁铁保持下降 · 洗脱孵育等待 120s" Type="2" ScriptHead="" />
+    <Command Position="0,30" SequenceTypeId="0" ID="2047" Name="液滴左端定位 · 随后启动混匀（全部液滴带电）" Type="2" ScriptHead="" />
+    <Command Position="0,60" SequenceTypeId="0" ID="2048" Name="往复混匀 · 单轮闭合循环（全部液滴带电）" Type="2" ScriptHead="" />
+    <Command Position="0,90" ID="2049" Name="混匀计时 48s（同步结束）" Type="2" />
+    <Command Position="0,120" SequenceTypeId="0" ID="2051" Name="磁铁保持下降 · 洗脱孵育等待 71s" Type="2" ScriptHead="" />
+    <Command Position="0,150" SequenceTypeId="0" ID="2052" Name="液滴左端定位 · 随后启动混匀（全部液滴带电）" Type="2" ScriptHead="" />
+    <Command Position="0,180" SequenceTypeId="0" ID="2053" Name="往复混匀 · 单轮闭合循环（全部液滴带电）" Type="2" ScriptHead="" />
+    <Command Position="0,210" ID="2054" Name="混匀计时 48s（同步结束）" Type="2" />
+    <Command Position="0,240" SequenceTypeId="0" ID="2056" Name="第2次：洗脱孵育剩余等待 11s" Type="2" ScriptHead="" />
+  </Flow>
+
+  <Flow Position="35,2832.96" ID="2055" Name="R16 纯化1第2次洗脱：溶解液 5.00µL → 产物离片 · S孔×16 待手工吸液（保持全部液滴上电）" Type="0" Expandgroup="">
+    <Command Position="0,0" SequenceTypeId="0" ID="2057" Name="第2次：固定形状逐格移回磁铁侧，再升磁铁" Type="2" ScriptHead="" />
+    <Command Position="0,30" SequenceTypeId="0" ID="2058" Name="第2次：磁铁升起 120s · 全液滴持续通电" Type="2" ScriptHead="" />
+    <Command Position="0,60" SequenceTypeId="0" ID="2059" Name="第2次：产物 5.00µL 与磁珠团分离" Type="2" ScriptHead="" />
+    <Command Position="0,90" SequenceTypeId="0" ID="2060" Name="第2次产物移至 S 孔下，等待手工吸出 · 【手工吸液・组结束】S孔×16 80.000µL · 吸出后运行下一组" Type="2" ScriptHead="" />
+  </Flow>
  <Flow Position="35,2937.37" ID="2061" Name="R17 纯化1第2次洗脱：溶解液 5.00µL → 产物离片 · 排珠载液承接（额外加入，非洗脱回收） · 加液承接（上电后手工加液）" Type="0" Expandgroup="">
   <Command Position="0,0" SequenceTypeId="0" ID="2062" Name="【手工加液・流程组结束】S孔×16 G15 排珠载液（非回收产物） 3.00µL · A1-A16（每道3.00µL） · 第1/1批 · 加好后运行下一流程组" Type="2" ScriptHead=""/>
  </Flow>
@@ -313,13 +311,11 @@
  <Arrow EndID="2015" StartID="51000"/>
  <Arrow EndID="2017" StartID="2015"/>
  <Arrow EndID="2022" StartID="2017"/>
- <Arrow EndID="2027" StartID="2022"/>
- <Arrow EndID="2032" StartID="2027"/>
+ <Arrow EndID="2032" StartID="2022"/>
  <Arrow EndID="2038" StartID="2032"/>
  <Arrow EndID="2040" StartID="2038"/>
  <Arrow EndID="2045" StartID="2040"/>
- <Arrow EndID="2050" StartID="2045"/>
- <Arrow EndID="2055" StartID="2050"/>
+ <Arrow EndID="2055" StartID="2045"/>
  <Arrow EndID="2061" StartID="2055"/>
  <Arrow EndID="2063" StartID="2061"/>
  <Arrow EndID="2068" StartID="2063"/>

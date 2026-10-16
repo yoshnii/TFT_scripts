@@ -1,0 +1,110 @@
+{
+  "status": "passed",
+  "scope": "R1 elution incubation section grouping only",
+  "old_script_sha256": "b791e17a16a7b9abd428569a6789461d3364eb26628c58a27ce211898e382844",
+  "script_sha256": "9d8d45f4c2b0bea000183b810c9f415bd4ecc354ade2798537d5ed0f911a3b89",
+  "cases": [
+    {
+      "merged_flow_id": 2022,
+      "removed_flow_id": 2027,
+      "following_flow_id": 2032,
+      "merged_name": "R09 纯化1第1次洗脱：溶解液 5.00µL → 产物离片 · 洗脱孵育300s（第120/240s轻晃）",
+      "incubation_seconds": 300,
+      "old_local_seconds": 451,
+      "new_local_seconds": 451,
+      "command_ids": [
+        "2023",
+        "2024",
+        "2025",
+        "2026",
+        "2028",
+        "2029",
+        "2030",
+        "2031",
+        "2033",
+        "2034",
+        "2035",
+        "2036",
+        "2037"
+      ],
+      "command_starts_seconds": {
+        "2023": 0,
+        "2024": 120,
+        "2025": 121,
+        "2026": 121,
+        "2028": 169,
+        "2029": 240,
+        "2030": 241,
+        "2031": 241,
+        "2033": 289,
+        "2034": 300,
+        "2035": 316,
+        "2036": 436,
+        "2037": 450
+      },
+      "all_electrode_frames_and_durations_identical": true,
+      "loop_parameters_unchanged": true,
+      "original_48s_timer_and_33s_trace_issue_not_changed": true,
+      "sync_groups": [
+        "2026,2025",
+        "2031,2030"
+      ]
+    },
+    {
+      "merged_flow_id": 2045,
+      "removed_flow_id": 2050,
+      "following_flow_id": 2055,
+      "merged_name": "R14 纯化1第2次洗脱：溶解液 5.00µL → 产物离片 · 洗脱孵育300s（第120/240s轻晃）",
+      "incubation_seconds": 300,
+      "old_local_seconds": 451,
+      "new_local_seconds": 451,
+      "command_ids": [
+        "2046",
+        "2047",
+        "2048",
+        "2049",
+        "2051",
+        "2052",
+        "2053",
+        "2054",
+        "2056",
+        "2057",
+        "2058",
+        "2059",
+        "2060"
+      ],
+      "command_starts_seconds": {
+        "2046": 0,
+        "2047": 120,
+        "2048": 121,
+        "2049": 121,
+        "2051": 169,
+        "2052": 240,
+        "2053": 241,
+        "2054": 241,
+        "2056": 289,
+        "2057": 300,
+        "2058": 316,
+        "2059": 436,
+        "2060": 450
+      },
+      "all_electrode_frames_and_durations_identical": true,
+      "loop_parameters_unchanged": true,
+      "original_48s_timer_and_33s_trace_issue_not_changed": true,
+      "sync_groups": [
+        "2049,2048",
+        "2054,2053"
+      ]
+    }
+  ],
+  "removed_section_names": [
+    "R10 纯化1第1次洗脱：溶解液 5.00µL → 产物离片 · 孵育第240s轻晃",
+    "R15 纯化1第2次洗脱：溶解液 5.00µL → 产物离片 · 孵育第240s轻晃"
+  ],
+  "unrelated_sections_identical": true,
+  "other_labels_not_renumbered": true,
+  "shared_end_group_reference": "PF_L1_1209.elab Flow3: 6,7;8,4",
+  "manual_boundaries_volumes_magnet_temperature_and_main_timeout_unchanged": true,
+  "full_workflow_rerun": false,
+  "wet_run_verified": false
+}
