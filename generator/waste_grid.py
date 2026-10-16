@@ -301,6 +301,9 @@ def _send_pipeline(S,pieces,gx,blobs,plan,jobs):
     小块不变形、通道内间距≥3；已汇集长方块不得沿长轴搬运。"""
     import rigid as R
     import compact_collect
+    import fixed_barcode_collect
+    if fixed_barcode_collect.accepts(pieces,plan):
+        return fixed_barcode_collect.send(S,pieces,gx,blobs,plan)
     if compact_collect.accepts(pieces,plan):
         return compact_collect.send(S,pieces,gx,blobs,plan,jobs)
     pool=_pool(S)

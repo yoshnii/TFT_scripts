@@ -24,6 +24,10 @@ def violations(previous,current):
             if not (abs(dx)<a[2] and abs(dy)<a[3]) or not (dx or dy):continue
             if (a[2]>a[3] and dx) or (a[3]>a[2] and dy):
                 bad.append(dict(before=a,after=b,reason='long_axis_transport'))
+            elif (a[3]>a[2] and dx) or (a[2]>a[3] and dy):
+                # A long vertical edge moving horizontally (and vice versa):
+                # the whole long edge is leading the motion, also forbidden.
+                bad.append(dict(before=a,after=b,reason='long_edge_facing_transport'))
             elif abs(dx)+abs(dy)>1:
                 bad.append(dict(before=a,after=b,reason='multi_cell_translation'))
     return bad

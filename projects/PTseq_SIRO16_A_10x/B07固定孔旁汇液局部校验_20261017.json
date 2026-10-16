@@ -1,0 +1,239 @@
+{
+  "status": "passed",
+  "scope": [
+    "B07",
+    "B06 last frame",
+    "B08 first frame"
+  ],
+  "base_script_sha256": "199965223eae490106ef652eb1b3c5bf7598dce891264ce51379c9c8ffff600d",
+  "script_sha256": "e16b34567ae81080ee23cd43f7b3cb8b8aa88f4318b7b41cb9656c9b004bb99b",
+  "unchanged_split_3019": true,
+  "all_other_sections_unchanged": true,
+  "actual_packet_ul": 0.6,
+  "packet_shape": [
+    3,
+    4
+  ],
+  "final_rectangle": [
+    48,
+    172,
+    12,
+    16
+  ],
+  "aspiration_volume_ul": 9.6,
+  "temporary_steps_only_at_fixed_F1": true,
+  "fixed_resident_cells_unchanged": true,
+  "stats": {
+    "frames": 554,
+    "native_packet_moves": 2992,
+    "stationary_collection_checks": 253
+  },
+  "collection_events": [
+    {
+      "packet": 1,
+      "frame": 301,
+      "actual_volume_ul": 0.6,
+      "cells": 12,
+      "fixed_box": [
+        48,
+        172,
+        12,
+        16
+      ]
+    },
+    {
+      "packet": 2,
+      "frame": 325,
+      "actual_volume_ul": 1.2,
+      "cells": 24,
+      "fixed_box": [
+        48,
+        172,
+        12,
+        16
+      ]
+    },
+    {
+      "packet": 3,
+      "frame": 346,
+      "actual_volume_ul": 1.8,
+      "cells": 36,
+      "fixed_box": [
+        48,
+        172,
+        12,
+        16
+      ]
+    },
+    {
+      "packet": 4,
+      "frame": 364,
+      "actual_volume_ul": 2.4,
+      "cells": 48,
+      "fixed_box": [
+        48,
+        172,
+        12,
+        16
+      ]
+    },
+    {
+      "packet": 5,
+      "frame": 387,
+      "actual_volume_ul": 3.0,
+      "cells": 60,
+      "fixed_box": [
+        48,
+        172,
+        12,
+        16
+      ]
+    },
+    {
+      "packet": 6,
+      "frame": 407,
+      "actual_volume_ul": 3.6,
+      "cells": 72,
+      "fixed_box": [
+        48,
+        172,
+        12,
+        16
+      ]
+    },
+    {
+      "packet": 7,
+      "frame": 424,
+      "actual_volume_ul": 4.2,
+      "cells": 84,
+      "fixed_box": [
+        48,
+        172,
+        12,
+        16
+      ]
+    },
+    {
+      "packet": 8,
+      "frame": 438,
+      "actual_volume_ul": 4.8,
+      "cells": 96,
+      "fixed_box": [
+        48,
+        172,
+        12,
+        16
+      ]
+    },
+    {
+      "packet": 9,
+      "frame": 465,
+      "actual_volume_ul": 5.4,
+      "cells": 108,
+      "fixed_box": [
+        48,
+        172,
+        12,
+        16
+      ]
+    },
+    {
+      "packet": 10,
+      "frame": 481,
+      "actual_volume_ul": 6.0,
+      "cells": 120,
+      "fixed_box": [
+        48,
+        172,
+        12,
+        16
+      ]
+    },
+    {
+      "packet": 11,
+      "frame": 494,
+      "actual_volume_ul": 6.6,
+      "cells": 132,
+      "fixed_box": [
+        48,
+        172,
+        12,
+        16
+      ]
+    },
+    {
+      "packet": 12,
+      "frame": 504,
+      "actual_volume_ul": 7.2,
+      "cells": 144,
+      "fixed_box": [
+        48,
+        172,
+        12,
+        16
+      ]
+    },
+    {
+      "packet": 13,
+      "frame": 521,
+      "actual_volume_ul": 7.8,
+      "cells": 156,
+      "fixed_box": [
+        48,
+        172,
+        12,
+        16
+      ]
+    },
+    {
+      "packet": 14,
+      "frame": 533,
+      "actual_volume_ul": 8.4,
+      "cells": 168,
+      "fixed_box": [
+        48,
+        172,
+        12,
+        16
+      ]
+    },
+    {
+      "packet": 15,
+      "frame": 542,
+      "actual_volume_ul": 9.0,
+      "cells": 180,
+      "fixed_box": [
+        48,
+        172,
+        12,
+        16
+      ]
+    },
+    {
+      "packet": 16,
+      "frame": 551,
+      "actual_volume_ul": 9.6,
+      "cells": 192,
+      "fixed_box": [
+        48,
+        172,
+        12,
+        16
+      ]
+    }
+  ],
+  "bottom_motion_audit": {
+    "energized_frames": 557,
+    "violations": [],
+    "named_collection_blocks_excluded": false,
+    "wet_liquid_verified": false
+  },
+  "boundary_binary_audit": {
+    "energized_frames": 559,
+    "geometric_splitting_transitions": 16,
+    "non_equal_binary_transitions": [],
+    "physical_liquid_verified": false
+  },
+  "full_workflow_rerun": false,
+  "wet_run_verified": false
+}
