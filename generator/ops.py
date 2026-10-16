@@ -88,11 +88,18 @@ def park_half(S, lanes, side, tag='L', allow_590_cross=False):
     assert_half(S, lanes, side, tag, allow_590_cross)
 
 # ── 加样孔 (S / B) ──────────────────────────────────────────────────
-def load_holes(S, lanes, which, vol, tag, manual=False):
+def load_holes(S, lanes, which, vol, tag, manual=False, receiving_shape=None):
     """所有道: 孔下方按体积算好的方框先通电, 等待分注 (液体一次落在方框上) → 该方框就是液滴, 命名 tag+lane。"""
     for ln in lanes:
         rect=(geom.s_block if which == "S" else geom.b_block)(ln.c,ln.r,vol)
+        if receiving_shape is not None:
+            assert which=='S' and tag=='L' and abs(vol-1.30)<1e-8,'B01 only'
+            w,h=receiving_shape
+            rect=(ln.X0+geom.S_DX-w//2,geom.physical_zone(ln.c,ln.r)[1]+geom.LOAD_GAP,w,h)
         d=S.add(Drop(f"{tag}{ln.id}",rect,vol));d.receiving=True
+        if receiving_shape is not None:
+            d.electrode_area=w*h;d.margin_budget=w*h-geom.cells(vol)
+            d.native_authorized_padding=True;d.b01_authorized_padding=True
     if manual: S.step(geom.HOLD_MS, geom.VOLT, changed=[f"{tag}{ln.id}" for ln in lanes])
     else: hold_all(S, T_LOAD, geom.VOLT)
 

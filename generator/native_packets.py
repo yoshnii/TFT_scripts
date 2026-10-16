@@ -33,6 +33,7 @@ def partition(S, parents, count=2, axis='x', gap=3, names=None):
             assert d.margin_budget>=0
             d.native_authorized_padding=getattr(p,'native_authorized_padding',False)
             d.native_fractional_volume=getattr(p,'native_fractional_volume',False)
+            d.compact_mother_clearance=getattr(p,'compact_mother_clearance',False)
             d.allow=tuple(getattr(p,'allow',()))
             children.append(d)
         assert abs(sum(d.vol for d in children)-p.vol)<1e-8
@@ -70,9 +71,9 @@ def _configuration(reagent):
     # repeated leaves per reaction. No extra dispensing tips/batches are added.
     # G4 only: approved +4 carrier cells per 1.6/.8/.4µL child.
     return {'G4':(2,8,.4,3,4,1),'AMP':(2,16,1.,4,5,2),
-            'G14':(4,20,.5,3,4,5),'G8':(1,16,.7,3,5,1),
-            'LIG':(2,16,.7,3,5,2),'EDTA':(1,16,.2,2,2,1),
-            'G16':(2,16,.85,3,6,2)}[reagent]
+            'G14':(4,20,.5,3,4,5),'G8':(1,16,.7,4,4,1),
+            'LIG':(2,16,.7,4,4,2),'EDTA':(1,16,.2,2,2,1),
+            'G16':(2,16,.85,4,5,2)}[reagent]
 
 
 def quarter_cdna(S,lanes,tag,away_tag):
@@ -87,8 +88,12 @@ def quarter_cdna(S,lanes,tag,away_tag):
     ops.move_rects(S,{f'{away_tag}{ln.id}':ln.X0+27 for ln in lanes})
     # The second cut ends its retained half at X0+1, with no left-edge rebound.
     ops.move_rects(S,{f'{tag}{ln.id}':ln.X0+5 for ln in lanes})
+    S.approved_mother_shapes=getattr(S,'approved_mother_shapes',[])
     for ln in lanes:
         d=S.get(f'{tag}{ln.id}')
+        S.approved_mother_shapes.append(dict(reagent='A06',name=d.name,frame=S.nsteps,
+            actual_ul=d.vol,before=list(d.rect),after=[d.rect[0],ln.Y0,6,4],
+            before_cells=len(d.target_cells()),after_cells=24,hold_ms=geom.LONG_MS))
         d.electrode_area=24;d.margin_budget=4;d.native_authorized_padding=True
         d.rect=(d.rect[0],ln.Y0,6,4)
     S.step(geom.LONG_MS,changed=[f'{tag}{ln.id}' for ln in lanes])
@@ -115,10 +120,12 @@ def deliver(S,reagent,vol,cols,tag,on_before_load=None,on_load=None,controlled=F
     if on_before_load:on_before_load()
     roots=[];fields=[];left=geom.SAFE_X;spacing=3
     for k in range(1,ports+1):
-        capacity=72 if reagent=='G4' else w*h*n
+        capacity=72 if reagent=='G4' else 240 if reagent in ('G8','LIG') else w*h*n
         actual=round(pv*n,10)
         rw,rh=R.compact_receiving_shape(capacity)
         if reagent=='G4':rw,rh=12,6  # Direct manual receiving frame; no 8×8 stage.
+        elif reagent in ('G8','LIG'):rw,rh=20,12
+        elif reagent=='G16':rw,rh=20,16
         d=S.add(Drop(f'D{reagent}E{k}',(geom.HOLE_X[k]-rw//2,geom.E_TANG_Y,rw,rh),actual))
         d.electrode_area=capacity;d.margin_budget=capacity-geom.cells(actual)
         d.native_authorized_padding=d.margin_budget>0;d.receiving=True
@@ -143,22 +150,31 @@ def deliver(S,reagent,vol,cols,tag,on_before_load=None,on_load=None,controlled=F
     S.pipeline_events.append(dict(kind='start',reagent=reagent,per_lane_ul=vol,initial_volumes=initial,step=S.nsteps))
     # Only mothers are reshaped. Layout accounts for gaps before splitting.
     for f in fields:
+        if reagent in ('G8','LIG','G16'):continue
         W,H=(12,6) if reagent=='G4' else (30,8) if reagent=='G14' else (f['nx']*w,2*h)
         d=f['root'];cy=d.rect[1]+(d.rect[3]-H)//2
         R.reshape(S,d,(geom.HOLE_X[f['port']]-W//2,cy,W,H))
     R.run(S,[(f['root'],R.go(f['root'],[('y',7),('x',f['root'].rect[0] if reagent=='G4'
                                        else f['left']+27 if reagent=='G14'
-                                       else f['left']+(f['nx']-1)*spacing)])) for f in fields])
-    if reagent=='G4':
+                                       else f['left']+(f['nx']-1)*spacing)]))
+             for f in fields if reagent not in ('G8','LIG','G16')])
+    if reagent in ('G8','LIG','G16'):
+        from compact_cascade import generate
+        generate(S,fields,reagent)
+    elif reagent=='G4':
         # Mother reshapes are parallel and add four cells, never remove area.
         # Descendants stay native 3×4 until the existing chemical fusion.
         def expand_mothers(nodes,width,height):
+            S.approved_mother_shapes=getattr(S,'approved_mother_shapes',[])
             for d in nodes:
                 x,y,ow,oh=d.rect
                 assert width*height==ow*oh+4
                 assert R.rect_ok(S,d.name,(x,y,width,height))
             for d in nodes:
                 x,y,_,_=d.rect
+                S.approved_mother_shapes.append(dict(reagent='G4',name=d.name,frame=S.nsteps,
+                    actual_ul=d.vol,before=list(d.rect),after=[x,y,width,height],
+                    before_cells=len(d.target_cells()),after_cells=width*height,hold_ms=geom.LONG_MS))
                 d.electrode_area=width*height
                 d.margin_budget=d.electrode_area-geom.cells(d.vol)
                 d.native_authorized_padding=True
@@ -215,6 +231,9 @@ def deliver(S,reagent,vol,cols,tag,on_before_load=None,on_load=None,controlled=F
             assert d.rect[2:]==(w,h) and abs(d.vol-pv)<1e-8
             S.remove(d.name);d.name=f'{tag}E{f["port"]}_{row}_{i}';S.add(d)
             d.port=f['port'];d.row=row;d.part='';d.native_packet=True;d.native_leaf_shape=(w,h)
+            S.native_leaf_events=getattr(S,'native_leaf_events',[])
+            S.native_leaf_events.append(dict(reagent=reagent,name=d.name,row=row,
+                actual_ul=d.vol,shape=[w,h],cells=w*h,extra_cells=w*h-geom.cells(d.vol)))
             packets.append((d,ops.Lane(c,row)))
     S.step(geom.HOLD_MS,changed=[])
     locks={};gx=geom.gap_x(geom.reagent_gap(c))

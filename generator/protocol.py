@@ -73,8 +73,8 @@ class Protocol:
         assert c and len(c.relays) == 1, "承接等待必须为独立的一条静态电极状态"
         c.manual_load = dict(info)
         return c
-    def load_samples(self, seg, title, which, vol, tag, reagent):
-        ops.load_holes(self.S, self.ALL, which, vol, tag, manual=True)
+    def load_samples(self, seg, title, which, vol, tag, reagent, receiving_shape=None):
+        ops.load_holes(self.S, self.ALL, which, vol, tag, manual=True,receiving_shape=receiving_shape)
         info = dict(hole=f"{which}孔×{len(self.ALL)}", reagent=reagent, volume_ul=vol,
                     per_lane_ul=vol, lanes=f"A1-A16（每道{vol:.2f}µL）", batch=1, batches=1)
         self.flow(seg, title, [self.loading_cmd(info)])
@@ -503,7 +503,7 @@ class Protocol:
         self.elute_offchip("R1", "R05 纯化1第1次洗脱：溶解液 5.00µL → 产物离片", "G15", 5.00, 5.00, 1, final=False)
         self.elute_offchip("R1", "R06 纯化1第2次洗脱：溶解液 5.00µL → 产物离片", "G15", 5.00, 5.00, 2, final=True)
         # 两次洗脱产物下片 Qubit/手工均一化；以 1.30µL/道回片开始段 B。
-        self.load_samples("B", "B01 均一化后产物 1.30µL 回片 (S孔距一格承接)", "S", 1.30, "L", "均一化产物")
+        self.load_samples("B", "B01 均一化后产物 1.30µL 回片 (S孔距一格承接)", "S", 1.30, "L", "均一化产物",receiving_shape=(6,5))
         self.add_reagent("B", "B02 加 Rapid End Repair ReadyMix 0.70µL", "G8", 0.70)
         self.mix("B", "B03 往复混匀")
         self.thermal("B", "B04 末端修复加A 37℃4min→4℃", [(37, 240)], lid=105)

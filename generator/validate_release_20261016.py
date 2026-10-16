@@ -17,7 +17,7 @@ from scene import Scene
 
 def validate(out):
     original=Scene._record;previous={};receivers={};loaded=0.
-    stats=dict(frames=0,translation_frames=0,reshape_frames=0,native_packet_frames=0)
+    stats=dict(frames=0,translation_frames=0,reshape_frames=0,native_packet_frames=0,approved_padding_expansions=0)
     def record(S,dur=geom.STEP_MS,*a,**kw):
         nonlocal loaded,previous
         original(S,dur,*a,**kw)
@@ -35,7 +35,17 @@ def validate(out):
                 assert not(x<tx+18 and tx<x+w and y<172 and 23<y+h),('跨邻列TEC',d.name,rc)
             old=previous.get(id(d))
             if old and old[0] is d and abs(old[1]-d.vol)<1e-9:
-                assert len(cells)==len(old[2]),('纯形变改变面积',d.name,old[3],rc)
+                if len(cells)!=len(old[2]):
+                    policies={('G4',1.6,36,40),('G4',.8,20,24),('A06',1.,20,24),
+                              ('G8',1.4,30,32),('LIG',1.4,30,32)}
+                    matched=[e for e in getattr(S,'approved_mother_shapes',[])
+                             if e['frame']==S.nsteps-1 and e['name']==d.name]
+                    assert len(matched)==1,('未授权电极面积变化',d.name,len(old[2]),len(cells))
+                    e=matched[0]
+                    assert (e['reagent'],d.vol,len(old[2]),len(cells)) in policies
+                    assert e['before']==list(old[3]) and e['after']==list(rc)
+                    assert dur>=4000 and not getattr(d,'native_packet',False)
+                    stats['approved_padding_expansions']+=1
                 if cells!=old[2]:
                     before=old[3];dx,dy=x-before[0],y-before[1]
                     if rc[2:]==before[2:]:
@@ -100,6 +110,25 @@ def validate(out):
     finishes=[e for e in S.pipeline_events if e['kind']=='finish']
     assert {e['reagent'] for e in finishes}==set(expected)
     for e in finishes:assert all(abs(v-before[e['reagent']]-expected[e['reagent']])<1e-8 for v in e['final_volumes'].values())
+    leaf_specs={'G4':(16,.4,[3,4],4),'AMP':(32,1.,[4,5],0),'G14':(80,.5,[3,4],2),
+                'G8':(16,.7,[4,4],2),'LIG':(32,.7,[4,4],2),'EDTA':(16,.2,[2,2],0),
+                'G16':(32,.85,[4,5],3)}
+    for reagent,(count,vol,shape,extra) in leaf_specs.items():
+        leaves=[e for e in S.native_leaf_events if e['reagent']==reagent]
+        assert len(leaves)==count
+        assert all(e['actual_ul']==vol and e['shape']==shape and e['extra_cells']==extra for e in leaves)
+    b01=byid[original_flow('B01').id]
+    b01_codes=next(c for c in b01 if c.get('Component')=='HighVoltage')[0].get('RelayCode')
+    assert b01_codes.count('(5,6)')==16,'B01 must receive 1.30µL in full 6×5 rectangles'
+    approved_paths={
+        'G8':{240:[10,12],120:[6,10],60:[6,5],32:[4,4]},
+        'LIG':{240:[10,12],120:[6,10],60:[6,5],32:[4,4]},
+        'G16':{320:[10,16],160:[10,8],80:[5,8],40:[4,5]}}
+    for e in S.split_events:
+        for reagent,path in approved_paths.items():
+            if e['parent'].startswith('D'+reagent+'E'):
+                assert e['area'] in path and path[e['area']] is not None
+                assert e['positions'][0][0][2:]==path[e['area']]
     loads=result['rows'];assert len(loads)==16
     positions={f.id:i for i,f in enumerate(flows)}
     for row in loads:
@@ -143,6 +172,8 @@ def validate(out):
                  packet_shape=[3,5],volume_quantization_exception=True),
         waste_schedules=S.waste_schedule_events,whole_row_morphs=getattr(S,'waste_morph_events',[]),
         native_padding=S.native_padding_events,thermal=thermal,
+        approved_mother_shapes=S.approved_mother_shapes,native_leaf_specs=leaf_specs,
+        native_leaf_events=S.native_leaf_events,b01=dict(actual_ul=1.3,shape=[6,5],cells=30,extra_cells=4),
         generator_sha256={p.name:hashlib.sha256(p.read_bytes()).hexdigest()
             for p in Path(__file__).parent.glob('*.py') if not p.name.startswith('test_')},
         magnet_sequence=P.magnet_events,elutions=P.elution_events,
