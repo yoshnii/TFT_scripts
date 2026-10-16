@@ -1,0 +1,53 @@
+{
+  "scope": "A06 plus necessary A07/A08 handoff; unchanged A05/A09",
+  "full_workflow_checked": false,
+  "visual_check": false,
+  "frames_checked": 1334,
+  "old_script_sha256": "da6a53ba3b22f0d3212a79f76899e8ed7c30d089203c857e148033f9ce4865a8",
+  "script_sha256": "ce51b91cf72ef3fcc41647b9ee2fc0030f12d4d2c1e091f3a64f72ae4b53cdb9",
+  "actual_per_lane_input_ul": 2.0,
+  "retained_per_lane_ul": 0.5,
+  "waste_per_lane_ul": 1.5,
+  "retained_shape": [
+    3,
+    4
+  ],
+  "retained_extra_cells": 2,
+  "waste_merged_shape": [
+    8,
+    4
+  ],
+  "waste_packet_shape": [
+    4,
+    4
+  ],
+  "waste_packet_ul": 0.75,
+  "waste_packet_extra_cells": 1,
+  "equal_split_events": 48,
+  "no_waste_packet_reshape": true,
+  "split_gap_increment_max": 1,
+  "retained_no_edge_rebound": true,
+  "waste_split_in_place_x": 34,
+  "actual_aspirated_ul": 24.0,
+  "aspiration_rectangles": [
+    [
+      154,
+      172,
+      16,
+      16
+    ],
+    [
+      46,
+      172,
+      16,
+      16
+    ]
+  ],
+  "actual_post_AMP_per_lane_ul": 2.5,
+  "changed_flow_ids": [
+    1019,
+    1022,
+    50001
+  ],
+  "unrelated_flows_unchanged": true
+}

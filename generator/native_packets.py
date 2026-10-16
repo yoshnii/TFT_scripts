@@ -76,31 +76,33 @@ def _configuration(reagent):
 
 
 def quarter_cdna(S,lanes,tag,away_tag):
-    """2µL→1+1→0.5+0.5；废液在出口自然合成5×6，再整滴定形6×5。"""
+    """A06: 2→1+1→0.5+0.5；3×4保留，5×4+3×4自然组成8×4废液。"""
     import rigid as R
     lanes=list(lanes);ops.settle_loaded(S)
     ops.move_rects(S,{f'{tag}{ln.id}':max(S.get(f'{tag}{ln.id}').rect[0],ln.X0+4) for ln in lanes})
-    R.reshape_many(S,[(S.get(f'{tag}{ln.id}'),(S.get(f'{tag}{ln.id}').rect[0],ln.Y0+1,10,4)) for ln in lanes])
+    R.reshape_many(S,[(S.get(f'{tag}{ln.id}'),(S.get(f'{tag}{ln.id}').rect[0],ln.Y0,10,4)) for ln in lanes])
     partition(S,[S.get(f'{tag}{ln.id}') for ln in lanes],2,'x',4,
               [(f'{tag}{ln.id}',f'{away_tag}{ln.id}') for ln in lanes])
-    ops.move_rects(S,{f'{away_tag}{ln.id}':ln.X0+31 for ln in lanes})
-    partition(S,[S.get(f'{tag}{ln.id}') for ln in lanes],2,'y',1,
+    # Leave four cells at the outlet; merge and cut there without edge staging.
+    ops.move_rects(S,{f'{away_tag}{ln.id}':ln.X0+27 for ln in lanes})
+    # The second cut ends its retained half at X0+1, with no left-edge rebound.
+    ops.move_rects(S,{f'{tag}{ln.id}':ln.X0+5 for ln in lanes})
+    for ln in lanes:
+        d=S.get(f'{tag}{ln.id}')
+        d.electrode_area=24;d.margin_budget=4;d.native_authorized_padding=True
+        d.rect=(d.rect[0],ln.Y0,6,4)
+    S.step(geom.LONG_MS,changed=[f'{tag}{ln.id}' for ln in lanes])
+    partition(S,[S.get(f'{tag}{ln.id}') for ln in lanes],2,'x',4,
               [(f'{tag}{ln.id}',f'{away_tag}extra{ln.id}') for ln in lanes])
-    pairs=[(f'{tag}{ln.id}',f'{away_tag}extra{ln.id}') for ln in lanes]
-    pairs.extend((f'{away_tag}{ln.id}',f'{away_tag}extra{ln.id}') for ln in lanes)
-    ops.move_rects(S,{f'{away_tag}extra{ln.id}':ln.X0+26 for ln in lanes},touching=pairs)
-    # 保持5×2小框，只移动到5×4废液上方，随后自然上下组成5×6。
-    for step in range(4):
-        for ln in lanes:
-            d=S.get(f'{away_tag}extra{ln.id}');x,y,w,h=d.rect;d.rect=(x,y-1,w,h)
-        S.step(geom.STEP_MS,touching=pairs)
-    ops.move_rects(S,{f'{away_tag}extra{ln.id}':ln.X0+31 for ln in lanes},touching=pairs)
+    pairs=[(f'{away_tag}{ln.id}',f'{away_tag}extra{ln.id}') for ln in lanes]
+    ops.move_rects(S,{f'{away_tag}extra{ln.id}':ln.X0+24 for ln in lanes},touching=pairs)
     for ln in lanes:
         d=S.get(f'{away_tag}{ln.id}');g=S.get(f'{away_tag}extra{ln.id}')
-        cells=d.target_cells()|g.target_cells();assert len(cells)==30
-        d.vol=1.5;d.electrode_area=30;d.rect=(ln.X0+31,ln.Y0-1,5,6);d.set_cells(cells);S.remove(g.name)
+        cells=d.target_cells()|g.target_cells();assert len(cells)==32
+        d.vol=1.5;d.electrode_area=32;d.margin_budget=2;d.native_authorized_padding=True
+        d.rect=(ln.X0+24,ln.Y0,8,4);d.set_cells(cells);S.remove(g.name)
+        S.get(f'{tag}{ln.id}').a06_authorized_padding=True
     S.step(geom.HOLD_MS)
-    R.reshape_many(S,[(S.get(f'{away_tag}{ln.id}'),(ln.X0+30,ln.Y0,6,5)) for ln in lanes])
 
 
 def deliver(S,reagent,vol,cols,tag,on_before_load=None,on_load=None,controlled=False):
@@ -247,6 +249,11 @@ def deliver(S,reagent,vol,cols,tag,on_before_load=None,on_load=None,controlled=F
     if reagent=='G4':
         # Preserve the released A03 endpoint and its one-cell transition into A04.
         ops.move_rects(S,{ln.name:ln.X0+26 for ln in lanes})
+    elif reagent=='AMP' and all(getattr(S.get(ln.name),'a06_authorized_padding',False) for ln in lanes):
+        # A06 compact retained aliquot changes only this incoming boundary.
+        # Restore the released A08 endpoint before the unchanged A09 mix.
+        ops.move_rects(S,{ln.name:ln.X0+23 for ln in lanes})
+        for ln in lanes:delattr(S.get(ln.name),'a06_authorized_padding')
     final={r:S.get(ops.Lane(c,r).name).vol for r in range(1,17)}
     assert all(abs(final[r]-initial[r]-vol)<1e-8 for r in final)
     S.pipeline_events.append(dict(kind='finish',reagent=reagent,final_volumes=final,step=S.nsteps))

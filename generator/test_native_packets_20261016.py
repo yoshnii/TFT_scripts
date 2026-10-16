@@ -36,9 +36,10 @@ class NativePacketTests(unittest.TestCase):
         p.S.step();ops.split_all(p.S,p.ALL,.5,'A')
         for ln in p.ALL:
             self.assertEqual(p.S.get(ln.name).vol,.5)
+            self.assertEqual(p.S.get(ln.name).rect,(ln.X0+1,ln.Y0,3,4))
             away=p.S.get('A'+ln.id)
             self.assertEqual(away.vol,1.5)
-            self.assertEqual(away.rect,(ln.X0+30,ln.Y0,6,5))
+            self.assertEqual(away.rect,(ln.X0+24,ln.Y0,8,4))
         self.assertEqual(len(p.S.split_events),32)
         self.assertTrue(all(e['volumes'][0]==e['volumes'][1] for e in p.S.split_events))
 

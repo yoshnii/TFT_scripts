@@ -175,8 +175,10 @@ def _make_row(S,job,r):
 def _row_path(S,row,job,r):
     import rigid as R
     spec=job['rows'][r]
-    if (job['under_exit'] and spec.get('row_h',spec['h'])<spec['h']
-            and spec['dock_y']<TRANSPORT_Y+spec['h'] and r+1<len(job['rows'])):
+    compact_exit=job.get('a06_compact',False)
+    if (job['under_exit'] and (compact_exit or spec.get('row_h',spec['h'])<spec['h'])
+            and spec['dock_y']<TRANSPORT_Y+spec['h']+(geom.MIN_GAP if compact_exit else 0)
+            and r+1<len(job['rows'])):
         # F1末两排：先把已齐的整排停在出口左侧，再放后排通过；
         # 不让5格高子滴穿过已升至Y176的4格高汇液排。
         yield from R.go(row,[('x',geom.gap_x(1)-geom.PREFERRED_GAP-row.rect[2])])
@@ -268,12 +270,20 @@ def _job(S,spec,blobs,gx):
     rows=[];y=DOCK_BOTTOM;base=[];k=0
     for row in spec['rows']:
         widths,h,*row_h=row;row_h=row_h[0] if row_h else h
-        r=_row_spec(spec['W'],widths,h,spec['port'],gx,spec.get('native',False),row_h);y-=row_h;r['row_h']=row_h;r['dock_y']=y;rows.append(r);base.append(k);k+=len(widths)
+        r=_row_spec(spec['W'],widths,h,spec['port'],gx,spec.get('native',False),row_h)
+        if spec.get('a06_compact',False):
+            sw=sum(widths)+(len(widths)-1)*geom.CUT_GAP
+            fx=geom.HOLE_X[spec['port']]-spec['W']//2
+            left=(fx+spec['W']+geom.PREFERRED_GAP if fx<gx+geom.CH_W+geom.PREFERRED_GAP
+                  else fx-sw-geom.MIN_GAP)
+            r['stage_x']=[left+s*(widths[0]+geom.CUT_GAP) for s in range(len(widths))]
+            r['contract_x']=[left+s*widths[0] for s in range(len(widths))]
+        y-=row_h;r['row_h']=row_h;r['dock_y']=y;rows.append(r);base.append(k);k+=len(widths)
     job=dict(port=spec['port'],W=spec['W'],rows=rows,blobs=blobs,slot_base=base,
              final_x=geom.HOLE_X[spec['port']]-spec['W']//2,
              arrived={r:[] for r in range(len(rows))},ready={},contracted={r:0 for r in range(len(rows))},
              merge_ready={},docked=[0],lookahead=set(),
-             balanced=spec.get('balanced',False),
+             balanced=spec.get('balanced',False),a06_compact=spec.get('a06_compact',False),
              event=dict(port=spec['port'],scheduled_drops=k,start_frame=S.nsteps,entries=[],row_merges=[]))
     job['under_exit']=job['final_x']<gx+geom.CH_W+geom.PREFERRED_GAP
     S.waste_parallel_events=getattr(S,'waste_parallel_events',[]);S.waste_parallel_events.append(job['event'])

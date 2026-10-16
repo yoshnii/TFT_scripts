@@ -18,13 +18,14 @@ def schedule(round_count,w,h,kind):
         assert ports<=4 and nround*16==ports*per_port
         specs={};assign=[]
         # 固定同高小滴自然排成完整行列，第一批先远孔后近孔。
-        columns=8 if kind=='A05' else 4
+        columns=8 if kind=='A05' and (w,h)!=(4,4) else 4
         row_h=4 if kind in ('C04','cleanup') else h
         W=w*columns if row_h==h else w*columns*h//row_h
         rows=per_port//columns
         for k in port_ids:
             key=(stop,k);specs[key]=dict(port=k,W=W,
                 rows=[([w]*columns,h,row_h)]*rows,native=True)
+            if kind=='A05' and (w,h)==(4,4):specs[key]['a06_compact']=True
             assign.extend((key,i//columns,i%columns) for i in range(per_port))
         for r in range(nround):
             chunk=assign[r*16:(r+1)*16];keys=list(dict.fromkeys(k for k,row,col in chunk))
@@ -42,6 +43,7 @@ def bites(S,items,blobs,final=True,pellets=None,collect_three=False,collect_a05=
     n=len(items[0][1].target_cells());assert all(len(d.target_cells())==n for ln,d in items)
     if n==100:kind='R04';round_count=5;w,h=4,5
     elif n==120:kind='C04';round_count=8;w,h=3,5
+    elif n==32 and collect_a05:kind='A05';round_count=2;w,h=4,4
     elif n in (30,60):kind='A05' if n==30 else 'cleanup';round_count=n//15;w,h=3,5
     elif n==12:kind='barcode';round_count=1;w,h=3,4
     else:raise ValueError(f'未审核的等体积排废计划：{n}格')
@@ -49,8 +51,9 @@ def bites(S,items,blobs,final=True,pellets=None,collect_three=False,collect_a05=
     if single_stop:assert sum(p['flush'] for p in plans)==1,'整步废液无法安全一次装入F1–F4'
     if n>w*h:
         # 仅整块母液按最终竖向叶子的行高定形；不让整高母液横穿S孔。
-        R.reshape_many(S,[(d,(d.rect[0],ln.Y0,n//5,5)) for ln,d in items
-                          if d.rect[2:]!=(n//5,5)])
+        height=4 if n==32 and collect_a05 else 5
+        R.reshape_many(S,[(d,(d.rect[0],ln.Y0,n//height,height)) for ln,d in items
+                          if d.rect[2:]!=(n//height,height)])
     stacks={ln.id:[d] for ln,d in items};jobs={}
     S.waste_schedule_events=getattr(S,'waste_schedule_events',[])
     S.waste_schedule_events.append(dict(kind=kind,packet_areas=[w*h]*round_count,
@@ -71,7 +74,8 @@ def bites(S,items,blobs,final=True,pellets=None,collect_three=False,collect_a05=
     for index in range(round_count):
         while len(stacks[items[0][0].id][-1].target_cells())>w*h:
             active=[(ln,stacks[ln.id][-1]) for ln,d in items]
-            targets={d.name:ln.X0+36-d.rect[2] for ln,d in active}
+            targets={d.name:(d.rect[0] if kind=='A05' and n==32 else ln.X0+36-d.rect[2])
+                     for ln,d in active}
             assert all(targets[d.name]>=d.rect[0] for ln,d in active),'不得将出口母滴退回左侧切割站'
             R.run(S,[(d,R.go(d,[('x',targets[d.name])])) for ln,d in active])
             groups=partition(S,[d for ln,d in active],2,'x',geom.CUT_GAP)
@@ -105,7 +109,8 @@ def bites(S,items,blobs,final=True,pellets=None,collect_three=False,collect_a05=
 def egress_pieces(S,items,blob_state,final=True,collect_a05=False,single_stop=False):
     items=list(items)
     assert all(d.vol>0 and not getattr(d,'magnet_only',False) for ln,d in items),'磁珠排废必须先加入真实载液'
-    if not final or len(items)!=16 or any(len(d.target_cells()) not in (12,30,60,100,120) for ln,d in items):
+    accepted=(12,30,32,60,100,120) if collect_a05 else (12,30,60,100,120)
+    if not final or len(items)!=16 or any(len(d.target_cells()) not in accepted for ln,d in items):
         # 本轮只替换正式单列方案；保留独立归一化等旧试验的接口，不扩大改动范围。
         import waste_grid
         return waste_grid.egress_pieces(S,items,blob_state,final,collect_a05,single_stop)

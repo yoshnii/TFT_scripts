@@ -235,7 +235,8 @@ def merge_all(S,lanes,guest_tag,host_tag='L'):
         total=round(h.vol+g.vol,10);w,H=geom.lane_shape(total);x0,y0=geom.physical_zone(ln.c,ln.r)
         target_area=geom.electrode_cells(total)
         retired=len(cells)-target_area
-        assert retired>=0 and (not retired or getattr(g,'native_authorized_padding',False)),('未授权取消承接余量',g.name,retired)
+        assert retired>=0 and (not retired or getattr(g,'native_authorized_padding',False)
+                              or getattr(h,'a06_authorized_padding',False)),('未授权取消承接余量',g.name,retired)
         candidates=[]
         for x in range(x0,x0+geom.LANE_L-w+1):
             for y in range(y0,y0+geom.PHYSICAL_LANE_H-H+1):
