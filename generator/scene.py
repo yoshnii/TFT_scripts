@@ -182,11 +182,7 @@ class Scene:
             if isinstance(d,Worm) or not d.rects():continue
             cells=d.target_cells()
             assert contour.connected(cells),('液滴轮廓不连通',d.name)
-            from fixed_barcode_collect import FixedBarcodeCollection
-            if isinstance(d, FixedBarcodeCollection):
-                d.validate_fixed_collection()
-            else:
-                assert len(contour.rectangles(cells))==1,('液滴不是完整矩形',d.name,d.rect,d.vol)
+            assert len(contour.rectangles(cells))==1,('液滴不是完整矩形',d.name,d.rect,d.vol)
             expected=getattr(d,'electrode_area',None) or geom.electrode_cells(d.vol)
             if d.vol>0:assert len(cells)==expected,('电极面积与液量不一致',d.name,d.vol,len(cells))
             if d.vol>0:assert 0<=len(cells)-geom.cells(d.vol)<=getattr(d,'margin_budget',0),('未授权承接余量',d.name,d.vol,len(cells))

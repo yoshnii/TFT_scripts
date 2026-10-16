@@ -13,7 +13,7 @@ def rectangles(relay):
     return result
 
 
-def violations(previous,current):
+def violations(previous,current,allow_long_axis=False):
     bad=[]
     for a in previous:
         if a[1]<172 or a[2]*a[3]<=16 or max(a[2:])/min(a[2:])<=1.5:continue
@@ -23,7 +23,12 @@ def violations(previous,current):
             # An overlap links a moving rectangle between consecutive frames.
             if not (abs(dx)<a[2] and abs(dy)<a[3]) or not (dx or dy):continue
             if (a[2]>a[3] and dx) or (a[3]>a[2] and dy):
-                bad.append(dict(before=a,after=b,reason='long_axis_transport'))
+                if not allow_long_axis:
+                    bad.append(dict(before=a,after=b,reason='long_axis_transport'))
+                elif (a[2]>a[3] and dy) or (a[3]>a[2] and dx):
+                    bad.append(dict(before=a,after=b,reason='long_edge_facing_transport'))
+                elif abs(dx)+abs(dy)>1:
+                    bad.append(dict(before=a,after=b,reason='multi_cell_translation'))
             elif (a[3]>a[2] and dx) or (a[2]>a[3] and dy):
                 # A long vertical edge moving horizontally (and vice versa):
                 # the whole long edge is leading the motion, also forbidden.
@@ -33,7 +38,7 @@ def violations(previous,current):
     return bad
 
 
-def audit(root,labels):
+def audit(root,labels,allow_long_axis_labels=()):
     frames=0;failures=[]
     for flow in root:
         if flow.get('Name').split()[0] not in labels:continue
@@ -43,7 +48,8 @@ def audit(root,labels):
             for row,relay in enumerate(command,1):
                 assert float(relay.get('Amp','0'))>0,'本次排废不得全场断电'
                 current=rectangles(relay);frames+=1
-                for failure in violations(previous,current):
+                for failure in violations(previous,current,
+                        allow_long_axis=flow.get('Name').split()[0] in allow_long_axis_labels):
                     failures.append(dict(section=flow.get('Name').split()[0],
                                          command=command.get('ID'),row=row,**failure))
                 groups=components([(int(x),int(y),int(w),int(h))

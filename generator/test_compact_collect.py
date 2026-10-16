@@ -25,16 +25,13 @@ class BottomMotionTests(unittest.TestCase):
     def test_stationary_collection_is_not_movement(self):
         self.assertFalse(violations([(46,172,16,16)],[(46,172,16,16)]))
 
-    def test_fixed_barcode_exception_cannot_move_or_leave_approved_box(self):
-        from fixed_barcode_collect import FixedBarcodeCollection
-        d=FixedBarcodeCollection('BLOB1',(48,184,3,4),.6)
-        d.collected_cells=frozenset()
-        d.validate_fixed_collection()
-        d.rect=(49,184,3,4)
-        with self.assertRaises(AssertionError):d.validate_fixed_collection()
-        d=FixedBarcodeCollection('BLOB1',(47,184,3,4),.6)
-        d.collected_cells=frozenset()
-        with self.assertRaises(AssertionError):d.validate_fixed_collection()
+    def test_B07_short_edge_leading_exception_is_explicit_and_one_cell_only(self):
+        self.assertFalse(violations([(80,172,16,6)],[(79,172,16,6)],allow_long_axis=True))
+        self.assertTrue(violations([(80,172,16,6)],[(80,173,16,6)],allow_long_axis=True))
+        self.assertTrue(violations([(80,172,6,16)],[(81,172,6,16)],allow_long_axis=True))
+        self.assertFalse(violations([(80,172,6,16)],[(80,173,6,16)],allow_long_axis=True))
+        self.assertTrue(violations([(80,172,16,6)],[(78,172,16,6)],allow_long_axis=True))
+        self.assertTrue(violations([(80,172,16,6)],[(79,172,16,6)]))
 
     def test_stepped_exception_is_not_granted_to_ordinary_droplets(self):
         from scene import Scene,Drop

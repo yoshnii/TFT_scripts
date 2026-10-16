@@ -45,8 +45,10 @@ def update(folder):
     p.S.step()
     p.S.flush()
     original = p.S._record
-    stats = dict(frames=0, native_packet_moves=0, stationary_collection_checks=0)
+    stats = dict(frames=0, native_packet_moves=0, stationary_collection_checks=0,
+                 long_axis_only_moves=0,rectangle_frames=0)
     previous = {}
+    previous_objects = {}
 
     def record(*args, **kwargs):
         original(*args, **kwargs)
@@ -55,6 +57,20 @@ def update(folder):
             assert p.S.get(name).target_cells() == cells
         for d in p.S.drops.values():
             assert not (d.rect[0] < 68 and d.rect[0] + d.rect[2] > 50 and d.rect[1] < 172)
+            assert len(d.target_cells())==d.rect[2]*d.rect[3]
+            stats['rectangle_frames']+=1
+            old=previous_objects.get(id(d))
+            if old and old[0] is d and old[1]==d.vol and old[2][2:]==d.rect[2:]:
+                dx,dy=d.rect[0]-old[2][0],d.rect[1]-old[2][1]
+                assert abs(dx)+abs(dy)<=1,'跳格移动'
+                if (dx or dy) and d.rect[2]*d.rect[3]>16:
+                    w,h=d.rect[2:]
+                    assert not (w>h and dy or h>w and dx),'长边整面迎向移动'
+                    stats['long_axis_only_moves']+=1
+            elif old and old[0] is d and old[1]==d.vol and old[2]!=d.rect:
+                duration=args[0] if args else kwargs.get('dur',geom.STEP_MS)
+                assert duration>=4000,'形变未保持4秒'
+            previous_objects[id(d)]=(d,d.vol,d.rect)
             if getattr(d, 'native_packet', False):
                 assert d.rect[2:] == (3, 4) and abs(d.vol - .6) < 1e-8
                 old = previous.get(d.name, d.rect)
@@ -106,7 +122,7 @@ def update(folder):
             assert ET.tostring(a[0]) == ET.tostring(b[0])
         else:
             assert ET.tostring(a) == ET.tostring(b), a.get('Name')
-    motion = audit_bottom(after, {'B07'})
+    motion = audit_bottom(after, {'B07'}, allow_long_axis_labels={'B07'})
     assert not motion['violations'], motion
     context = ET.Element('Script')
     flows = list(after)
@@ -124,16 +140,17 @@ def update(folder):
     assert not binary['non_equal_binary_transitions'], binary
     gate = command.manual_aspiration
     assert gate['rects'] == [[48, 172, 12, 16]] and gate['volume_ul'] == 9.6
-    assert len(p.S.fixed_barcode_events) == 16
+    assert len(p.S.barcode_batch_events) == 2
     assert not getattr(p.S, 'waste_morph_events', [])
     proof = dict(status='passed', scope=['B07', 'B06 last frame', 'B08 first frame'],
         base_script_sha256=hashlib.sha256(path.read_bytes()).hexdigest(),
         script_sha256=hashlib.sha256(text.encode()).hexdigest(),
         unchanged_split_3019=True, all_other_sections_unchanged=True,
         actual_packet_ul=.6, packet_shape=[3,4], final_rectangle=[48,172,12,16],
-        aspiration_volume_ul=9.6, temporary_steps_only_at_fixed_F1=True,
+        aspiration_volume_ul=9.6, all_frames_complete_rectangles=True,
+        only_B07_long_axis_transport_authorized=True,short_edge_leads=True,
         fixed_resident_cells_unchanged=True, stats=stats,
-        collection_events=p.S.fixed_barcode_events, bottom_motion_audit=motion,
+        collection_events=p.S.barcode_batch_events, bottom_motion_audit=motion,
         boundary_binary_audit=binary, full_workflow_rerun=False, wet_run_verified=False)
     csvpath = folder / '手工吸液顺序.csv'
     with csvpath.open(encoding='utf-8-sig', newline='') as fh:

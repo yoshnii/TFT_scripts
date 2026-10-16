@@ -1,4 +1,4 @@
-"""B07 only: collect unchanged 3x4 packets at a stationary F1 footprint."""
+"""B07 only: two 12x8 batches travel short-edge-first and dock at F1."""
 import contour
 import geom
 import rigid as R
@@ -7,14 +7,32 @@ from scene import Drop
 BOX = (48, 172, 12, 16)
 
 
-class FixedBarcodeCollection(Drop):
-    def validate_fixed_collection(self):
-        cells = self.target_cells()
-        assert self.name == 'BLOB1' and self.vol > 0
-        assert cells <= contour.fill(BOX, 192)
-        assert self.collected_cells <= cells, 'Previously collected liquid lost power or moved'
-        assert self.rect == contour.bounds(cells)
-        self.collected_cells = cells
+def join(S, drops, name):
+    cells = frozenset().union(*(d.target_cells() for d in drops))
+    box = contour.bounds(cells)
+    assert len(cells) == sum(len(d.target_cells()) for d in drops) == box[2]*box[3]
+    volume = round(sum(d.vol for d in drops), 10)
+    for d in drops:
+        S.remove(d.name)
+    d = S.add(Drop(name, box, volume))
+    d.electrode_area = len(cells)
+    d.waste_grid_packet = d.waste_pipeline_clearance = True
+    d.set_cells(cells)
+    return d
+
+
+def join_pairs(S, drops, prefix):
+    """Only the right-hand rectangle moves, along its horizontal long axis."""
+    pairs = list(zip(drops[::2], drops[1::2]))
+    for left, right in pairs:
+        assert left.rect[1:] == right.rect[1:]
+        assert right.rect[2] >= right.rect[3] or right.rect[2:] == (3,4)
+        right.allow = (left.name,)
+    R.run(S, [(right, R.go(right, [('x', left.rect[0]+left.rect[2])]))
+              for left, right in pairs])
+    combined = [join(S, pair, f'{prefix}_{i}') for i, pair in enumerate(pairs)]
+    S.step(geom.HOLD_MS)
+    return combined
 
 
 def accepts(pieces, plan):
@@ -48,7 +66,7 @@ def send(S, pieces, gx, blobs, plan):
 
     jobs = []
     for ticket, (_, d) in enumerate(pending):
-        x, y = 68 + 7 * (7 - ticket % 8), 180 if ticket < 8 else 172
+        x, y = 80 + 7 * (15-ticket), 172
         d.S = S
         d.native_packet = d.waste_grid_packet = d.waste_pipeline_clearance = True
         d.allow = ()
@@ -56,46 +74,39 @@ def send(S, pieces, gx, blobs, plan):
         jobs.append((d, stage(d, ticket, x, y)))
     R.run(S, jobs, rule=R._door_rule(gx))
 
-    host_state = {'host': None, 'turn': 0}
     S.waste_grid_events = getattr(S, 'waste_grid_events', [])
-    S.fixed_barcode_events = []
-    # Clear the upper staging row first so lower-row packets can use the spine.
-    staged.sort(key=lambda d: (d.rect[1], d.rect[0]))
-    # Build each row left-to-right: an arriving packet never touches a filled
-    # right-hand slot and then pulls away before reaching its own slot.
-    slots = [(x, y) for y in (184, 180, 176, 172) for x in (48, 51, 54, 57)]
-    def collect(d, index, x, y):
-        # Small packets advance together; only the final docking order is serial.
-        yield from R.go(d, [('x', 63)])
-        while index >= 8 and host_state['turn'] < 8:
-            yield 'wait'
-        yield from R.go(d, [('y', 172)])
-        while host_state['turn'] != index:
-            yield 'wait'
-        host = host_state['host']
-        d.allow = ('BLOB1',) if host else ()
-        yield from R.go(d, [('x', x), ('y', y)])
-        cells = d.target_cells() | (host.target_cells() if host else frozenset())
-        assert len(cells) == 12 * (index + 1) and contour.connected(cells)
-        S.remove(d.name)
-        if host is None:
-            host = S.add(FixedBarcodeCollection('BLOB1', contour.bounds(cells), .6))
-            host.collected_cells = frozenset()
-        host.vol = round((index + 1) * .6, 10)
-        host.rect = contour.bounds(cells)
-        host.electrode_area = len(cells)
-        host.margin_budget = 0
-        host.set_cells(cells)
-        host.tile_count = index + 1
-        host.tile_shape, host.tile_area = (3, 4), 12
-        host_state['host'] = host
-        host_state['turn'] += 1
-        S.fixed_barcode_events.append(dict(packet=index + 1, frame=S.nsteps,
-            actual_volume_ul=host.vol, cells=len(cells), fixed_box=list(BOX)))
-        S.waste_grid_events.append(dict(port=1, tile_shape=[3, 4], slot=index,
-            merged_without_reshape=True, stationary_collection=True))
-    R.run(S, [(d, collect(d, i, x, y)) for i, (d, (x, y)) in enumerate(zip(staged, slots))])
-    host = host_state['host']
+    S.barcode_batch_events = []
+    staged.sort(key=lambda d: d.rect[0])
+    host = None
+    for batch in range(2):
+        four_pairs = join_pairs(S, staged[batch*8:(batch+1)*8], f'B07_PAIR{batch}')
+        quarters = join_pairs(S, four_pairs, f'B07_QUARTER{batch}')
+        assert all(d.rect[2:] == (12,4) for d in quarters)
+        R.reshape_many(S, [(d, (*d.rect[:2],8,6)) for d in quarters], dur=4000)
+        half = join_pairs(S, quarters, f'B07_HALF{batch}')[0]
+        assert half.rect[2:] == (16,6) and half.vol == 4.8
+        R.reshape(S, half, (*half.rect[:2],12,8), dur=4000)
+        dock_x = 48 + 6*batch
+        half.allow = ('BLOB1',) if host else ()
+        R.run(S, [(half,R.go(half,[('x',dock_x)]))])
+        # Already at the final location: reshape here, never move the 6x16 bar.
+        touch = [(half.name,host.name)] if host else ()
+        R.reshape(S, half, (dock_x,172,6,16), dur=4000, touching=touch)
+        if host:
+            host = join(S,[host,half],'BLOB1')
+        else:
+            S.remove(half.name)
+            half.name='BLOB1'
+            host=S.add(half)
+            host.allow=()
+        host.tile_count=8*(batch+1)
+        host.tile_shape,host.tile_area=(3,4),12
+        S.step(geom.HOLD_MS)
+        S.barcode_batch_events.append(dict(batch=batch+1,frame=S.nsteps,
+            actual_volume_ul=4.8,transport_shape=[12,8],dock_column=[dock_x,172,6,16],
+            collected_rect=list(host.rect),collected_volume_ul=host.vol))
+    S.waste_grid_events.extend(dict(port=1,tile_shape=[3,4],slot=i,
+        batch=i//8+1,long_axis_only_transport=True) for i in range(16))
     assert host.rect == BOX and host.target_cells() == contour.fill(BOX, 192)
     blobs[1] = host
     return [d for _, d in pending]
