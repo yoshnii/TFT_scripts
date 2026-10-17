@@ -1,0 +1,63 @@
+{
+  "status": "passed",
+  "scope": [
+    "A10/A11/A12",
+    "A09 last frame",
+    "R01 first frame"
+  ],
+  "base_script_sha256": "bcdaf6af31978c6d4f2319f565ebba271442cb15f939e9f4d999b7534c831ef1",
+  "script_sha256": "0fccbddadf2616d44be23d372485cf4867a644e1b41e50badc1594a53cb0a187",
+  "merged_flow_id": 1030,
+  "removed_flow_ids": [
+    1035,
+    1043
+  ],
+  "removed_command_ids": [
+    1034,
+    1044,
+    1049
+  ],
+  "native_block": {
+    "Cycle": 30,
+    "Enable": true,
+    "IDList": [
+      1036,
+      1037,
+      1038,
+      1039,
+      1040,
+      1041
+    ],
+    "Name": "PCR三段温控"
+  },
+  "outer_repeats": 1,
+  "temperature_trace_commands": 186,
+  "temperatures_and_hold_times_identical": true,
+  "expanded_planned_PCR_rounds": 30,
+  "final_4C_hold_seconds": 30,
+  "pulse_frame_ms": [
+    1000,
+    1000
+  ],
+  "pulse_frame_volts": [
+    0,
+    50
+  ],
+  "pulse_covers": "pre-denaturation, all PCR rounds, final extension, 4C hold",
+  "pulse_outside_PCR_block": true,
+  "shared_end_ids": [
+    1048,
+    1042
+  ],
+  "old_nominal_seconds": 9905,
+  "new_nominal_seconds": 9904,
+  "one_second_removed": "旧A12开头恢复持续上电帧不再需要；保温时长未减少",
+  "all_other_sections_identical": true,
+  "manual_boundaries_unchanged": true,
+  "unrelated_layout_coordinates_identical": true,
+  "other_labels_not_renumbered": true,
+  "reference": "Ptseq_WY251017-PTseq-final/GR_WY251017/main.elab Flow1132; UnBrokenBlockList",
+  "device_execution_verified": false,
+  "temperature_reached_verified": false,
+  "full_workflow_rerun": false
+}

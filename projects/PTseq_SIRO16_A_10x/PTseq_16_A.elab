@@ -1926,7 +1926,7 @@
     </Command>
     <Command ID="1029" Name="混匀计时 312s（同步结束）" PreTask="1028,SS" Component="Delay" Action="CMD_DELAY" Params="" Timeout="312" Path="" />
   </Flow>
-  <Flow ID="1030" Name="A10 预变性 95℃3min [热盖105℃]" Repeats="1" Timeout="244" SyncEndingCmdList="1033,1034">
+  <Flow ID="1030" Name="A10 预变性95℃3min→PCR三段×30→终延伸72℃1min→4℃30s [热盖105℃]" Repeats="1" Timeout="9904" SyncEndingCmdList="1048,1042" UnBrokenBlockList="[{&quot;Cycle&quot;:30,&quot;Enable&quot;:true,&quot;IDList&quot;:[1036,1037,1038,1039,1040,1041],&quot;Name&quot;:&quot;PCR三段温控&quot;}]">
     <Command ID="1031" Name="液滴停 TEC 区" PreTask="-1,UnTask" Component="HighVoltage" Action="CMD_SCRIPTCYCLE" Params="SCRIPTCYCLE_FALSE" Timeout="4" Path="" ScriptContent="0">
       <RelayItem ItemID="1" RelayCode="(28,11)(5,10);(37,11)(5,10);(46,11)(5,10);(55,11)(5,10);(64,11)(5,10);(73,11)(5,10);(82,11)(5,10);(91,11)(5,10);(100,11)(5,10);(109,11)(5,10);(118,11)(5,10);(127,11)(5,10);(136,11)(5,10);(145,11)(5,10);(154,11)(5,10);(163,11)(5,10)" Duration="1000" WaveForm="0" Freq="20" Amp="55" />
       <RelayItem ItemID="2" RelayCode="(28,12)(5,10);(37,12)(5,10);(46,12)(5,10);(55,12)(5,10);(64,12)(5,10);(73,12)(5,10);(82,12)(5,10);(91,12)(5,10);(100,12)(5,10);(109,12)(5,10);(118,12)(5,10);(127,12)(5,10);(136,12)(5,10);(145,12)(5,10);(154,12)(5,10);(163,12)(5,10)" Duration="1000" WaveForm="0" Freq="20" Amp="55" />
@@ -1935,34 +1935,23 @@
     </Command>
     <Command ID="1032" Name="Heater1_95℃" PreTask="1031,FS" Component="Heater1" Action="CMD_TEMP_ON" Params="95,1" Timeout="60" Path="" />
     <Command ID="1033" Name="保温 95℃ 180s" PreTask="1032,FS" Component="Delay" Action="CMD_DELAY" Params="" Timeout="180" Path="" />
-    <Command ID="1034" Name="液滴持续通电保持（循环至温控结束）" PreTask="1032,SS" Component="HighVoltage" Action="CMD_SCRIPTCYCLE" Params="SCRIPTCYCLE_TRUE" Timeout="4" Path="" ScriptContent="0">
-      <RelayItem ItemID="1" RelayCode="(28,14)(5,10);(37,14)(5,10);(46,14)(5,10);(55,14)(5,10);(64,14)(5,10);(73,14)(5,10);(82,14)(5,10);(91,14)(5,10);(100,14)(5,10);(109,14)(5,10);(118,14)(5,10);(127,14)(5,10);(136,14)(5,10);(145,14)(5,10);(154,14)(5,10);(163,14)(5,10)" Duration="4000" WaveForm="0" Freq="20" Amp="50" />
-    </Command>
-  </Flow>
-  <Flow ID="1035" Name="A11 循环 95℃30s/60℃60s/72℃45s ×30 [热盖105℃]" Repeats="30" Timeout="315" SyncEndingCmdList="1041,1042">
-    <Command ID="1036" Name="Heater1_95℃" PreTask="-1,UnTask" Component="Heater1" Action="CMD_TEMP_ON" Params="95,1" Timeout="60" Path="" />
+    <Command ID="1036" Name="Heater1_95℃" PreTask="1033,FS" Component="Heater1" Action="CMD_TEMP_ON" Params="95,1" Timeout="60" Path="" />
     <Command ID="1037" Name="保温 95℃ 30s" PreTask="1036,FS" Component="Delay" Action="CMD_DELAY" Params="" Timeout="30" Path="" />
     <Command ID="1038" Name="Heater1_60℃" PreTask="1037,FS" Component="Heater1" Action="CMD_TEMP_ON" Params="60,1" Timeout="60" Path="" />
     <Command ID="1039" Name="保温 60℃ 60s" PreTask="1038,FS" Component="Delay" Action="CMD_DELAY" Params="" Timeout="60" Path="" />
     <Command ID="1040" Name="Heater1_72℃" PreTask="1039,FS" Component="Heater1" Action="CMD_TEMP_ON" Params="72,1" Timeout="60" Path="" />
     <Command ID="1041" Name="保温 72℃ 45s" PreTask="1040,FS" Component="Delay" Action="CMD_DELAY" Params="" Timeout="45" Path="" />
-    <Command ID="1042" Name="PCR例外：OFF1000ms/ON1000ms（循环至温控结束；周期末帧上电）" PreTask="1036,SS" Component="HighVoltage" Action="CMD_SCRIPTCYCLE" Params="SCRIPTCYCLE_TRUE" Timeout="2" Path="" ScriptContent="0">
+    <Command ID="1045" Name="Heater1_72℃" PreTask="1041,FS" Component="Heater1" Action="CMD_TEMP_ON" Params="72,1" Timeout="60" Path="" />
+    <Command ID="1046" Name="保温 72℃ 60s" PreTask="1045,FS" Component="Delay" Action="CMD_DELAY" Params="" Timeout="60" Path="" />
+    <Command ID="1047" Name="Heater1_4℃" PreTask="1046,FS" Component="Heater1" Action="CMD_TEMP_ON" Params="4,1" Timeout="60" Path="" />
+    <Command ID="1048" Name="保温 4℃ 30s" PreTask="1047,FS" Component="Delay" Action="CMD_DELAY" Params="" Timeout="30" Path="" />
+    <Command ID="1042" Name="全段温控：OFF1000ms/ON1000ms（循环至4℃保持结束；周期末帧上电）" PreTask="1032,SS" Component="HighVoltage" Action="CMD_SCRIPTCYCLE" Params="SCRIPTCYCLE_TRUE" Timeout="2" Path="" ScriptContent="0">
       <RelayItem ItemID="1" RelayCode="(28,14)(5,10);(37,14)(5,10);(46,14)(5,10);(55,14)(5,10);(64,14)(5,10);(73,14)(5,10);(82,14)(5,10);(91,14)(5,10);(100,14)(5,10);(109,14)(5,10);(118,14)(5,10);(127,14)(5,10);(136,14)(5,10);(145,14)(5,10);(154,14)(5,10);(163,14)(5,10)" Duration="1000" WaveForm="0" Freq="20" Amp="0" />
       <RelayItem ItemID="2" RelayCode="(28,14)(5,10);(37,14)(5,10);(46,14)(5,10);(55,14)(5,10);(64,14)(5,10);(73,14)(5,10);(82,14)(5,10);(91,14)(5,10);(100,14)(5,10);(109,14)(5,10);(118,14)(5,10);(127,14)(5,10);(136,14)(5,10);(145,14)(5,10);(154,14)(5,10);(163,14)(5,10)" Duration="1000" WaveForm="0" Freq="20" Amp="50" />
     </Command>
   </Flow>
-  <Flow ID="1043" Name="A12 终延伸 72℃1min→4℃ [热盖105℃]" Repeats="1" Timeout="211" SyncEndingCmdList="1048,1049">
-    <Command ID="1044" Name="PCR脉冲组后恢复全液滴持续上电" PreTask="-1,UnTask" Component="HighVoltage" Action="CMD_SCRIPTCYCLE" Params="SCRIPTCYCLE_FALSE" Timeout="1" Path="" ScriptContent="0">
-      <RelayItem ItemID="1" RelayCode="(28,14)(5,10);(37,14)(5,10);(46,14)(5,10);(55,14)(5,10);(64,14)(5,10);(73,14)(5,10);(82,14)(5,10);(91,14)(5,10);(100,14)(5,10);(109,14)(5,10);(118,14)(5,10);(127,14)(5,10);(136,14)(5,10);(145,14)(5,10);(154,14)(5,10);(163,14)(5,10)" Duration="1000" WaveForm="0" Freq="20" Amp="50" />
-    </Command>
-    <Command ID="1045" Name="Heater1_72℃" PreTask="1044,FS" Component="Heater1" Action="CMD_TEMP_ON" Params="72,1" Timeout="60" Path="" />
-    <Command ID="1046" Name="保温 72℃ 60s" PreTask="1045,FS" Component="Delay" Action="CMD_DELAY" Params="" Timeout="60" Path="" />
-    <Command ID="1047" Name="Heater1_4℃" PreTask="1046,FS" Component="Heater1" Action="CMD_TEMP_ON" Params="4,1" Timeout="60" Path="" />
-    <Command ID="1048" Name="保温 4℃ 30s" PreTask="1047,FS" Component="Delay" Action="CMD_DELAY" Params="" Timeout="30" Path="" />
-    <Command ID="1049" Name="液滴持续通电保持（循环至温控结束）" PreTask="1045,SS" Component="HighVoltage" Action="CMD_SCRIPTCYCLE" Params="SCRIPTCYCLE_TRUE" Timeout="4" Path="" ScriptContent="0">
-      <RelayItem ItemID="1" RelayCode="(28,14)(5,10);(37,14)(5,10);(46,14)(5,10);(55,14)(5,10);(64,14)(5,10);(73,14)(5,10);(82,14)(5,10);(91,14)(5,10);(100,14)(5,10);(109,14)(5,10);(118,14)(5,10);(127,14)(5,10);(136,14)(5,10);(145,14)(5,10);(154,14)(5,10);(163,14)(5,10)" Duration="4000" WaveForm="0" Freq="20" Amp="50" />
-    </Command>
-  </Flow>
+
+
   <Flow ID="2000" Name="R01 加 G14 磁珠 2.50µL (1:1) · 加液承接（上电后手工加液）" Repeats="1" Timeout="24">
     <Command ID="2001" Name="常驻液滴让开进液端" PreTask="-1,UnTask" Component="HighVoltage" Action="CMD_SCRIPTCYCLE" Params="SCRIPTCYCLE_FALSE" Timeout="23" Path="" ScriptContent="0">
       <RelayItem ItemID="1" RelayCode="(28,15)(5,10);(37,15)(5,10);(46,15)(5,10);(55,15)(5,10);(64,15)(5,10);(73,15)(5,10);(82,15)(5,10);(91,15)(5,10);(100,15)(5,10);(109,15)(5,10);(118,15)(5,10);(127,15)(5,10);(136,15)(5,10);(145,15)(5,10);(154,15)(5,10);(163,15)(5,10)" Duration="1000" WaveForm="0" Freq="20" Amp="55" />

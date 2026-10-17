@@ -6,7 +6,7 @@ import math
 import geom, ops, rigid
 from ops import Lane, lanes_all
 from scene import Scene, Drop, Worm, Relay
-from model import Cmd, Flow
+from model import Cmd, Flow, CommandBlock
 import ops as _ops
 
 ODD, EVEN = (1, 3, 5), (2, 4, 6)
@@ -209,6 +209,52 @@ class Protocol:
             # 周期末帧ON只改善整轮结束的边界；Sync能否整轮停止仍未验证。
             # 现有A10的首指令恢复供电；手工单跑A09再启动A10的间隔不能宣称持续上电。
             self._restore_after_pulse = True
+
+    def pcr_thermal_block(self, seg, title, cycles=30, lid=105):
+        """One section: preheat once, native three-temperature block, final hold once.
+
+        The independent two-frame OFF/ON electrode cycle spans the whole thermal
+        sequence. Native block termination and device temperatures need wet-run
+        verification; nominal time is not measured time-to-temperature.
+        """
+        S = self.S
+        ops.park_all(S,self.ALL,'tec_center')
+        position = self.cmd('液滴停 TEC 区')
+        ops.assert_half(S,self.ALL,'left')
+        cmds = [position] if position else []
+        first_heaters, cycle_commands, final_ends = [], [], []
+        for col in self.cols:
+            previous = None
+            for phase, program in (('pre',[(95,180)]),
+                                   ('cycle',[(95,30),(60,60),(72,45)]),
+                                   ('post',[(72,60),(4,30)])):
+                for temp, seconds in program:
+                    heater = Cmd(f'Heater{col}_{temp}℃',f'Heater{col}','CMD_TEMP_ON',60,f'{temp},1')
+                    if previous:
+                        heater.pre = (previous,'FS')
+                    elif first_heaters:
+                        heater.pre = (first_heaters[0],'SS')
+                    elif position:
+                        heater.pre = (position,'FS')
+                    delay = Cmd(f'保温 {temp}℃ {seconds}s','Delay','CMD_DELAY',seconds)
+                    delay.pre = (heater,'FS')
+                    if phase == 'pre':first_heaters.append(heater)
+                    if phase == 'cycle':cycle_commands.extend([heater,delay])
+                    cmds.extend([heater,delay]);previous=delay
+            final_ends.append(previous)
+        block = CommandBlock('PCR三段温控',cycle_commands,cycles)
+        S.step(geom.HOLD_MS,geom.HOLD_VOLT,changed=[])
+        pulse = self.cmd('全段温控：OFF1000ms/ON1000ms（循环至4℃保持结束；周期末帧上电）')
+        assert pulse
+        codes = list(pulse.relays[-1].codes)
+        pulse.relays = [Relay(codes,1000,0),Relay(list(codes),1000,geom.HOLD_VOLT)]
+        pulse.timeout,pulse.params,pulse.pre = 2,'SCRIPTCYCLE_TRUE',(first_heaters[0],'SS')
+        cmds.append(pulse)
+        flow = Flow(title+f' [热盖{lid}℃]',cmds,repeats=1,
+                    sync=final_ends+[pulse],chain_commands=False,blocks=[block])
+        self.segs.setdefault(seg,[]).append(flow)
+        self._restore_after_pulse=False
+        return flow
     def egress_phases(self, seg_cmds, tag, label, touching=()):
         """tag+lane 液滴 → 蠕虫 → 排废。偶数列先 (其分离块贴着左侧空隙), 奇数列后。"""
         S = self.S
@@ -498,9 +544,7 @@ class Protocol:
         self.split_waste("A", "A05 劈裂 留25%(0.50µL) 弃1.50µL", 0.50, "cDNA 弃液 1.50µL")
         self.add_reagent("A", "A06 加靶向扩增反应液 2.00µL(台面预混)", "AMP", 2.00)
         self.mix("A", "A07 往复混匀")
-        self.thermal("A", "A08 预变性 95℃3min", [(95, 180)], lid=105, final_4c=False)
-        self.thermal("A", "A09 循环 95℃30s/60℃60s/72℃45s ×30", [(95, 30), (60, 60), (72, 45)], repeats=30, lid=105, final_4c=False, park=False, pulse=True)
-        self.thermal("A", "A10 终延伸 72℃1min→4℃", [(72, 60)], lid=105, park=False)
+        self.pcr_thermal_block("A", "A08 预变性→PCR三段×30→终延伸→4℃")
         # 刷新点 1
         self.add_reagent("R1", "R01 加 G14 磁珠 2.50µL (1:1)", "G14", 2.50)
         self.bead_capture("R1", "R02-R03 混匀结合5min → 移至磁铁 → 磁吸", mix_cycles=BEAD_BIND_MIX['R1'], mix_span=19)

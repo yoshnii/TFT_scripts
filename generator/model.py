@@ -1,5 +1,6 @@
 """指令 / 流程 / 文件 序列化 (v3: Relay 来自 scene)。"""
 from xml.sax.saxutils import escape
+import json
 import geom
 
 class Cmd:
@@ -21,11 +22,40 @@ def chain(cmds):
     for c in cmds: c.pre = None if prev is None else (prev, "FS"); prev = c
     return cmds
 
+class CommandBlock:
+    """Native UnBrokenBlockList entry; Cycle is the total block iterations."""
+    def __init__(self, name, cmds, cycles):
+        self.name, self.cmds, self.cycles = name, list(cmds), int(cycles)
+        assert self.cmds and self.cycles >= 1
+
+    @property
+    def timeout(self):
+        ends, active, members = {}, set(), set(self.cmds)
+        def end(c):
+            if c in ends: return ends[c]
+            assert c not in active, '块内依赖不得成环'
+            active.add(c)
+            start = 0
+            if c.pre and c.pre[0] in members:
+                prev, relation = c.pre
+                start = end(prev) - (prev.timeout if relation == 'SS' else 0)
+            active.remove(c)
+            ends[c] = start + c.timeout
+            return ends[c]
+        return max(map(end, self.cmds))
+
+    def native(self):
+        assert all(c.id is not None for c in self.cmds)
+        return dict(Cycle=self.cycles, Enable=True,
+                    IDList=[c.id for c in self.cmds], Name=self.name)
+
+
 class Flow:
-    def __init__(self, name, cmds, repeats=1, sync=None, chain_commands=True, sync_groups=None):
+    def __init__(self, name, cmds, repeats=1, sync=None, chain_commands=True, sync_groups=None, blocks=()):
         assert not (sync and sync_groups), '只使用一种共同结束组表示'
         self.sync_groups = [list(g) for g in sync_groups] if sync_groups else ([list(sync)] if sync else [])
         self.name, self.cmds, self.repeats, self.id = name, list(cmds), repeats, None
+        self.blocks = list(blocks)
         self.sync = [c for group in self.sync_groups for c in group] if self.sync_groups else None
         if chain_commands: chain(self.cmds)
     @property
@@ -35,6 +65,12 @@ class Flow:
         TRUE 循环的实际停止边界由执行器决定，此处不模拟硬件整轮结束。
         """
         ends, active, members = {}, set(), set(self.cmds)
+        block_of = {}
+        for block in self.blocks:
+            assert set(block.cmds) <= members
+            for c in block.cmds:
+                assert c not in block_of, '本生成器只写非嵌套、不重叠的局部块'
+                block_of[c] = block
         def end(c):
             if c in ends: return ends[c]
             assert c not in active, '指令依赖不得成环'
@@ -44,14 +80,23 @@ class Flow:
                 previous, relation = c.pre
                 assert relation in ('FS', 'SS'), relation
                 start = end(previous) - (previous.timeout if relation == 'SS' else 0)
+                previous_block = block_of.get(previous)
+                if previous_block and previous_block is not block_of.get(c):
+                    assert relation == 'FS', '块外后续指令须等待整个块完成'
+                    start += (previous_block.cycles-1)*previous_block.timeout
             ends[c] = start + c.timeout
             active.remove(c)
             return ends[c]
-        return max((end(c) for c in self.cmds), default=0)
+        return max((end(c) + ((block_of[c].cycles-1)*block_of[c].timeout
+                             if c in block_of else 0) for c in self.cmds), default=0)
     def xml(self):
         inner = "\n".join("    " + c.xml() for c in self.cmds)
         groups = ';'.join(','.join(str(c.id) for c in group) for group in self.sync_groups)
         se = f' SyncEndingCmdList="{groups}"' if groups else ""
+        if self.blocks:
+            encoded = escape(json.dumps([b.native() for b in self.blocks],
+                                       ensure_ascii=False,separators=(',',':')), {'"':'&quot;'})
+            se += f' UnBrokenBlockList="{encoded}"'
         return f'  <Flow ID="{self.id}" Name="{escape(self.name)}" Repeats="{self.repeats}" Timeout="{self.timeout}"{se}>\n{inner}\n  </Flow>'
     def layout(self, i):
         return "\n".join([f' <Flow Position="35,{14 + 104.406*i:g}" ID="{self.id}" Name="{escape(self.name)}" Type="0" Expandgroup="">']

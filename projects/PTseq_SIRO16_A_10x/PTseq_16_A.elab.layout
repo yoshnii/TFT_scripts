@@ -40,29 +40,24 @@
   <Command Position="0,30" SequenceTypeId="0" ID="1028" Name="往复混匀 · 单轮闭合循环（全部液滴带电）" Type="2" ScriptHead=""/>
   <Command Position="0,60" ID="1029" Name="混匀计时 312s（同步结束）" Type="2"/>
  </Flow>
- <Flow Position="35,953.654" ID="1030" Name="A10 预变性 95℃3min [热盖105℃]" Type="0" Expandgroup="">
-  <Command Position="0,0" SequenceTypeId="0" ID="1031" Name="液滴停 TEC 区" Type="2" ScriptHead=""/>
-  <Command Position="0,30" ID="1032" Name="Heater1_95℃" Type="2"/>
-  <Command Position="0,60" ID="1033" Name="保温 95℃ 180s" Type="2"/>
-  <Command Position="0,90" SequenceTypeId="0" ID="1034" Name="液滴持续通电保持（循环至温控结束）" Type="2" ScriptHead=""/>
- </Flow>
- <Flow Position="35,1058.06" ID="1035" Name="A11 循环 95℃30s/60℃60s/72℃45s ×30 [热盖105℃]" Type="0" Expandgroup="">
-  <Command Position="0,0" ID="1036" Name="Heater1_95℃" Type="2"/>
-  <Command Position="0,30" ID="1037" Name="保温 95℃ 30s" Type="2"/>
-  <Command Position="0,60" ID="1038" Name="Heater1_60℃" Type="2"/>
-  <Command Position="0,90" ID="1039" Name="保温 60℃ 60s" Type="2"/>
-  <Command Position="0,120" ID="1040" Name="Heater1_72℃" Type="2"/>
-  <Command Position="0,150" ID="1041" Name="保温 72℃ 45s" Type="2"/>
-  <Command Position="0,180" SequenceTypeId="0" ID="1042" Name="PCR例外：OFF1000ms/ON1000ms（循环至温控结束；周期末帧上电）" Type="2" ScriptHead=""/>
- </Flow>
- <Flow Position="35,1162.47" ID="1043" Name="A12 终延伸 72℃1min→4℃ [热盖105℃]" Type="0" Expandgroup="">
-  <Command Position="0,0" SequenceTypeId="0" ID="1044" Name="PCR脉冲组后恢复全液滴持续上电" Type="2" ScriptHead=""/>
-  <Command Position="0,30" ID="1045" Name="Heater1_72℃" Type="2"/>
-  <Command Position="0,60" ID="1046" Name="保温 72℃ 60s" Type="2"/>
-  <Command Position="0,90" ID="1047" Name="Heater1_4℃" Type="2"/>
-  <Command Position="0,120" ID="1048" Name="保温 4℃ 30s" Type="2"/>
-  <Command Position="0,150" SequenceTypeId="0" ID="1049" Name="液滴持续通电保持（循环至温控结束）" Type="2" ScriptHead=""/>
- </Flow>
+  <Flow Position="35,953.654" ID="1030" Name="A10 预变性95℃3min→PCR三段×30→终延伸72℃1min→4℃30s [热盖105℃]" Type="0" Expandgroup="">
+    <Command Position="0,0" SequenceTypeId="0" ID="1031" Name="液滴停 TEC 区" Type="2" ScriptHead="" />
+    <Command Position="0,30" ID="1032" Name="Heater1_95℃" Type="2" />
+    <Command Position="0,60" ID="1033" Name="保温 95℃ 180s" Type="2" />
+    <Command Position="0,90" ID="1036" Name="Heater1_95℃" Type="2" />
+    <Command Position="0,120" ID="1037" Name="保温 95℃ 30s" Type="2" />
+    <Command Position="0,150" ID="1038" Name="Heater1_60℃" Type="2" />
+    <Command Position="0,180" ID="1039" Name="保温 60℃ 60s" Type="2" />
+    <Command Position="0,210" ID="1040" Name="Heater1_72℃" Type="2" />
+    <Command Position="0,240" ID="1041" Name="保温 72℃ 45s" Type="2" />
+    <Command Position="0,270" ID="1045" Name="Heater1_72℃" Type="2" />
+    <Command Position="0,300" ID="1046" Name="保温 72℃ 60s" Type="2" />
+    <Command Position="0,330" ID="1047" Name="Heater1_4℃" Type="2" />
+    <Command Position="0,360" ID="1048" Name="保温 4℃ 30s" Type="2" />
+    <Command Position="0,390" SequenceTypeId="0" ID="1042" Name="全段温控：OFF1000ms/ON1000ms（循环至4℃保持结束；周期末帧上电）" Type="2" ScriptHead="" />
+  </Flow>
+
+
  <Flow Position="35,1266.87" ID="2000" Name="R01 加 G14 磁珠 2.50µL (1:1) · 加液承接（上电后手工加液）" Type="0" Expandgroup="">
   <Command Position="0,0" SequenceTypeId="0" ID="2001" Name="常驻液滴让开进液端" Type="2" ScriptHead=""/>
   <Command Position="0,30" SequenceTypeId="0" ID="2002" Name="【手工加液・流程组结束】E1/E2/E3/E4 G14 40.00µL · A1-A16 · 第1/1批 · 加好后运行下一流程组" Type="2" ScriptHead=""/>
@@ -300,9 +295,7 @@
  <Arrow EndID="50001" StartID="1022"/>
  <Arrow EndID="1026" StartID="50001"/>
  <Arrow EndID="1030" StartID="1026"/>
- <Arrow EndID="1035" StartID="1030"/>
- <Arrow EndID="1043" StartID="1035"/>
- <Arrow EndID="2000" StartID="1043"/>
+ <Arrow EndID="2000" StartID="1030"/>
  <Arrow EndID="50002" StartID="2000"/>
  <Arrow EndID="2004" StartID="50002"/>
  <Arrow EndID="2009" StartID="2004"/>
