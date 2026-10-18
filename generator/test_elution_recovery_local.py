@@ -20,7 +20,7 @@ from update_elution_recovery_local import transform, TARGETS
 
 ROOT = Path(__file__).resolve().parents[1]
 PROJECT = 'projects/PTseq_SIRO16_A_10x/'
-BASE = '054e483'
+BASE = 'ccadf3f'
 
 
 def source(name):
@@ -33,41 +33,46 @@ def cells(rc):
 
 class ElutionRecoveryTests(unittest.TestCase):
     def test_both_rectangles_only_withdraw_one_grid_edges(self):
-        for vol, count in ((5., 20), (3., 12)):
+        for vol, count in ((5., 23), (3., 13)):
             for ln in lanes_all((1,)):
                 first = geom.s_block(ln.c, ln.r, vol)
                 path = withdrawal_path(first, ln.X0+geom.S_DX)
                 self.assertEqual(len(path), count)
                 hx = ln.X0+geom.S_DX
-                self.assertEqual(path[-5:-1], [(hx-dx, first[1], 6, 4) for dx in range(4)])
+                self.assertEqual(path[-2], (hx-3, first[1]-4, 6, 4))
                 self.assertIsNone(path[-1])
                 for a, b in zip(path, path[1:]):
                     self.assertLessEqual(len(cells(b)), len(cells(a)))
                     if b:
                         if a[2:] == b[2:]:
-                            self.assertEqual((b[0]-a[0], b[1]-a[1]), (-1, 0))
-                            self.assertEqual(b[2:], (6, 4))
+                            self.assertIn((b[0]-a[0], b[1]-a[1]), ((-1,0),(0,-1)))
                         else:self.assertTrue(cells(b) < cells(a))
-                        self.assertTrue(geom.reaction_holes_ok(b, 1))
-                        self.assertFalse(geom.between_lanes(b))
                         self.assertGreaterEqual(b[0], ln.X0)
                         self.assertLessEqual(b[0]+b[2], ln.X0+36)
-                        self.assertGreaterEqual(b[1], first[1])
+                        self.assertGreaterEqual(b[1], first[1]-4)
                         self.assertLessEqual(b[1]+b[3], first[1]+5)
                         for i in range(2):
                             self.assertLessEqual(abs(a[i]-b[i]), 1)
                             self.assertLessEqual(abs((a[i]+a[i+2])-(b[i]+b[i+2])), 1)
+                dock=6 if vol==5. else 4
+                hole=(hx-1,first[1]-3,2,2)
+                for x,y,w,h in path[dock:-1]:
+                    self.assertLessEqual(x,hole[0]);self.assertGreaterEqual(x+w,hole[0]+2)
+                    self.assertLessEqual(y,hole[1]);self.assertGreaterEqual(y+h,hole[1]+2)
+                    self.assertTrue(all(geom.well_gap((x,y,w,h),q)>=1
+                                        for q in geom.REACTION_WELLS if q!=hole))
 
     def test_all_wells_parallel_and_unrelated_electrodes_always_retained(self):
         lanes = lanes_all((1,));rects = [geom.s_block(ln.c, ln.r, 5.) for ln in lanes]
         retained = ['(28,60)(4,4)']
         relays = withdrawal_relays(rects, [ln.X0+geom.S_DX for ln in lanes], retained)
-        self.assertEqual(len(relays), 20)
+        self.assertEqual(len(relays), 23)
         self.assertEqual(relays[-1].codes, retained)
         for r in relays:
-            self.assertEqual(r.dur, 1000);self.assertEqual(r.amp, 55)
+            self.assertIn(r.dur, (1000,3000));self.assertEqual(r.amp, 55)
             self.assertIn(retained[0], r.codes)
             self.assertIn(len(r.codes), (1, 17))
+        self.assertEqual(sum(r.dur for r in relays),55000)
 
     def test_generator_records_full_external_aspiration_once(self):
         for vol in (5., 3.):
@@ -99,7 +104,7 @@ class ElutionRecoveryTests(unittest.TestCase):
             for f in flows:
                 self.assertEqual(f.cmds[-1].relays[-1].codes, [])
                 self.assertTrue(f.cmds[-1].manual_aspiration['progressive_recovery'])
-                self.assertEqual(len(f.cmds[-1].relays), 20 if vol == 5. else 12)
+                self.assertEqual(len(f.cmds[-1].relays), 23 if vol == 5. else 13)
             self.assertEqual([i['volume_ul'] for _, i in p.S.manual_aspirations], [vol*16, vol*16])
 
     def test_native_patch_preserves_every_other_command_and_adjacent_sections(self):
@@ -125,9 +130,9 @@ class ElutionRecoveryTests(unittest.TestCase):
                                  old_row['本次总液体µL（16道合计；排珠载液不计文库）'])
                 self.assertEqual(row['待吸液电极'], '')
             else:self.assertEqual(old_row, row)
-        self.assertEqual(report['total_nominal_change_seconds'], 8)
+        self.assertEqual(report['total_nominal_change_seconds'], 104)
         self.assertEqual(int(E.fromstring(mt)[0].get('Timeout')),
-                         int(E.fromstring(main)[0].get('Timeout'))+8)
+                         int(E.fromstring(main)[0].get('Timeout'))+104)
         E.fromstring(lt)
 
     def test_released_endpoints_match_the_checked_withdrawal_plan(self):
@@ -142,7 +147,7 @@ class ElutionRecoveryTests(unittest.TestCase):
                                        [ln.X0+geom.S_DX for ln in lanes])
             self.assertEqual([r.attrib for r in command],
                              [E.fromstring(r.xml(i)).attrib for i, r in enumerate(relays, 1)])
-            self.assertEqual(command.get('Timeout'), str(len(relays)))
+            self.assertEqual(command.get('Timeout'), str(sum(r.dur for r in relays)//1000))
             self.assertEqual(command.get('Params'), 'SCRIPTCYCLE_FALSE')
 
 

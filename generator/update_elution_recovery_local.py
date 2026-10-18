@@ -36,7 +36,7 @@ def transform(text, layout_text, main_text, mapping, rows):
         old = original[str(fid)]
         assert old.get('Name').split()[0] == label
         gate = old[-1]
-        assert gate.get('ID') == str(cid) and len(gate) in (1, 12, 16)
+        assert gate.get('ID') == str(cid) and len(gate) in (1, 12, 16, 20)
         assert ('等待手工吸出' in gate.get('Name') or '运行期间配合手工吸液' in gate.get('Name'))
         assert gate[0].get('Duration') == '1000'
         assert gate.get('Params') == 'SCRIPTCYCLE_FALSE'
@@ -78,14 +78,14 @@ def transform(text, layout_text, main_text, mapping, rows):
         cases.append(dict(section=label, flow_id=fid, command_id=cid,
                           actual_per_well_ul=volume, actual_total_ul=volume*16,
                           initial_rect=list(expected[0]), first_well_path=path,
-                          frame_ms=1000, frames=len(path), duration_seconds=command.timeout,
+                          frame_ms=[r.dur for r in command.relays], frames=len(path), duration_seconds=command.timeout,
                           previous_seconds=int(gate.get('Timeout')), changed_seconds=extra,
                           previous_section=previous.get('Name').split()[0],
                           next_section=following.get('Name').split()[0],
                           magnet_remains_up=True, final_recovery_electrodes=[],
-                          withdrawal_stage_nested=True, second_stage_shape=[6, 4],
-                          second_stage_dx=[-1, -1, -1], final_active_shape=[6, 4],
-                          hole_clearance_grids=1,
+                          withdrawal_stage_nested=True, full_target_hole_coverage=True,
+                          dock_rect=list(path[6 if volume==5. else 4]), final_active_shape=[6, 4],
+                          target_hole_clearance_exception=True, other_hole_clearance_grids=1,
                           operator_action='运行回收指令期间配合吸液，末帧回收电极已撤除'))
     after = E.fromstring(text)
     assert [f.get('ID') for f in after] == [f.get('ID') for f in before]
@@ -123,7 +123,7 @@ def transform(text, layout_text, main_text, mapping, rows):
                   unrelated_sections_byte_identical=True, all_existing_command_ids_preserved=True,
                   preceding_moves_and_magnetic_capture_unchanged=True,
                   incubation_temperature_and_volumes_unchanged=True,
-                  original_one_grid_hole_clearance_preserved=True,
+                  target_hole_overlap_authorized=True, other_holes_still_avoided=True,
                   full_workflow_rerun=False, hardware_aspiration_verified=False,
                   notice='按外部吸液设计的撤电包络；电极面积减少不代表软件测得液量减少')
     return text, layout_text, main_text, mapping, rows, report

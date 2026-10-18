@@ -8,34 +8,37 @@ import math
 
 import geom
 from model import Cmd
-from scene import Relay
+from scene import Relay, _gap
 
 
 def withdrawal_path(rect, hole_x):
-    """Approved two-stage aspiration: edge withdrawal, then a rigid 6x4 push.
+    """Cover S first, then withdraw edges towards a stationary 6x4 port mask.
 
-    Keep the upper edge and one-grid hole clearance. Withdraw the bottom row,
-    then the right edge to hole_x+6, then the left edge to hole_x. Move the
-    resulting 6x4 block left three single-cell steps to center it under S.
-    None is the final electrode-off frame, not aspiration sensor feedback.
+    Only aspiration may overlap its own hole and enter its port-side band.
+    Shift a 20x5 carrier left two cells before raising it to avoid the B hole.
+    None is electrode-off, not aspiration sensor feedback.
     """
     x, y, w, h = map(int, rect)
     assert h == 5 and w in (12, 20) and x <= hole_x and x+w >= hole_x+6
     result = [(x, y, w, h)]
+    if w == 20:
+        for _ in range(2):
+            x -= 1
+            result.append((x, y, w, h))
+    for _ in range(4):
+        y -= 1
+        result.append((x, y, w, h))
     while h > 4:
         h -= 1
         result.append((x, y, w, h))
-    while x+w > hole_x+6:
-        w -= 1
-        result.append((x, y, w, h))
-    while x < hole_x:
+    while x < hole_x-3:
         x += 1
         w -= 1
         result.append((x, y, w, h))
-    assert (x, w, h) == (hole_x, 6, 4)
-    for _ in range(3):
-        x -= 1
+    while x+w > hole_x+3:
+        w -= 1
         result.append((x, y, w, h))
+    assert (x, w, h) == (hole_x-3, 6, 4)
     result.append(None)
     return result
 
@@ -47,8 +50,26 @@ def withdrawal_relays(rects, hole_xs, retained_codes=(), duration_ms=geom.STEP_M
     paths = [withdrawal_path(rc, hx) for rc, hx in zip(rects, hole_xs)]
     assert len({len(path) for path in paths}) == 1, '本回收批次的轨迹长度必须一致'
     retained_codes = list(retained_codes)
+    dock = 6 if rects[0][2] == 20 else 4
+    from waste_recovery import boxes
+    retained = [rc for code in retained_codes for rc in boxes(code)]
+    for rect, hx, path in zip(rects, hole_xs, paths):
+        target_hole = (hx-1, rect[1]-3, 2, 2)
+        for i, rc in enumerate(path[:-1]):
+            x,y,w,h = rc
+            assert hx-13 <= x < x+w <= hx+23 and rect[1]-4 <= y < y+h <= rect[1]+5
+            assert all(geom.well_gap(rc,hole) >= 1 for hole in geom.REACTION_WELLS
+                       if hole != target_hole), ('收尾不得接触其他孔',rc)
+            if i >= dock:
+                X,Y,W,H = target_hole
+                assert x <= X and x+w >= X+W and y <= Y and y+h >= Y+H
+    for frame in zip(*paths):
+        active = [rc for rc in frame if rc is not None]
+        for j, rc in enumerate(active):
+            assert all(_gap(rc,other) >= geom.MIN_GAP for other in active[j+1:]+retained)
     return [Relay(retained_codes+[geom.emit(rc) for rc in frame if rc is not None],
-                  duration_ms, amp) for frame in zip(*paths)]
+                  3000 if dock <= i < len(paths[0])-1 else duration_ms, amp)
+            for i, frame in enumerate(zip(*paths))]
 
 
 def recovery_command(scene, lanes, product_vol, round_no):
@@ -71,7 +92,7 @@ def recovery_command(scene, lanes, product_vol, round_no):
                 end_frame=len(relays), final_recovery_electrodes=[],
                 operator_action='运行本指令期间配合手工吸液，末帧回收电极撤除')
     command = Cmd(f'第{round_no}次产物S孔回收 · 运行期间配合手工吸液：'
-                  '逐侧撤电至6×4→保持6×4左移三格至S孔下→末帧撤电（磁铁保持升起）',
+                  '原形逐格覆盖S孔→逐侧撤电至孔上6×4→末帧撤电（磁铁保持升起）',
                   'HighVoltage', 'CMD_SCRIPTCYCLE',
                   math.ceil(sum(r.dur for r in relays)/1000),
                   'SCRIPTCYCLE_FALSE', relays)

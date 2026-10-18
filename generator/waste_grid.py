@@ -99,9 +99,18 @@ def flush(S,blobs):
         W,H=d.rect[2:]
         assert area(d)==W*H and max(W,H)/min(W,H)<=2.5 and d.rect[1]+H==DOCK_BOTTOM
     S.step(geom.HOLD_MS,changed=[])
+    # Only approved released shapes use the overlapping-hole aspiration tail.
+    # Keep other experimental layouts and their routing behavior unchanged.
+    progressive = all(d.rect[2:] in ((16,16),(12,16)) for k,d in items)
+    if progressive:
+        from waste_recovery import append_waste_tail
+        final_rects = append_waste_tail(S,items)
+    else:final_rects = [d.rect for k,d in items]
     info=dict(hole='/'.join(f'F{k}' for k,d in items),volume_ul=round(sum(d.vol for k,d in items),3),
               port_volumes={f'F{k}':d.vol for k,d in items},drop_names=[d.name for k,d in items],
-              rects=[list(d.rect) for k,d in items],kind='原形小矩形自然拼接汇液',rounding_gap_cells=.5)
+              rects=[list(rc) for rc in final_rects],kind='原形小矩形自然拼接汇液',
+              hole_overlap_recovery=progressive,
+              operator_action='覆盖F孔后配合手工吸液、逐侧撤电；终框保持，吸净后运行下一组')
     S.manual_aspirations.append((S.relays[-1],info))
     for k,d in items:S.remove(d.name);blobs[k]=None
     S.step(geom.HOLD_MS,changed=[])
