@@ -6,7 +6,7 @@
     "C09",
     "C12"
   ],
-  "source_sha256": "03d59e8e59330ac50b4e571487ba09a5f98994131e72f9c666340c76bc0cb817",
+  "source_sha256": "0a50dd192296c52a856e0f04248b116c935c1438656a47be21099fd35f14912b",
   "reference": "ASI96: 260828_5and8 Flow2389 Cmd2390/2391; 260902_96sampleV2_1 Flow2329 Cmd2330..2341",
   "cases": [
     {
@@ -37,93 +37,130 @@
         [
           13,
           28,
-          20,
-          3
+          19,
+          4
+        ],
+        [
+          13,
+          28,
+          18,
+          4
+        ],
+        [
+          13,
+          28,
+          17,
+          4
+        ],
+        [
+          13,
+          28,
+          16,
+          4
         ],
         [
           14,
           28,
-          18,
-          3
+          15,
+          4
         ],
         [
           15,
           28,
-          16,
-          3
+          14,
+          4
         ],
         [
           16,
           28,
-          14,
-          3
+          13,
+          4
         ],
         [
           17,
           28,
           12,
-          3
+          4
         ],
         [
           18,
           28,
-          10,
-          3
+          11,
+          4
         ],
         [
           19,
           28,
+          10,
+          4
+        ],
+        [
+          20,
+          28,
+          9,
+          4
+        ],
+        [
+          21,
+          28,
           8,
-          3
+          4
+        ],
+        [
+          22,
+          28,
+          7,
+          4
+        ],
+        [
+          23,
+          28,
+          6,
+          4
+        ],
+        [
+          22,
+          28,
+          6,
+          4
+        ],
+        [
+          21,
+          28,
+          6,
+          4
         ],
         [
           20,
           28,
           6,
-          3
-        ],
-        [
-          21,
-          28,
-          4,
-          3
-        ],
-        [
-          22,
-          28,
-          2,
-          3
-        ],
-        [
-          22,
-          28,
-          2,
-          2
-        ],
-        [
-          22,
-          28,
-          2,
-          1
-        ],
-        [
-          23,
-          28,
-          1,
-          1
+          4
         ],
         null
       ],
       "frame_ms": 1000,
-      "frames": 16,
-      "duration_seconds": 16,
-      "previous_seconds": 1,
-      "changed_seconds": 15,
+      "frames": 20,
+      "duration_seconds": 20,
+      "previous_seconds": 16,
+      "changed_seconds": 4,
       "previous_section": "R09",
       "next_section": "R12",
       "magnet_remains_up": true,
       "final_recovery_electrodes": [],
-      "rectangles_nested": true,
+      "withdrawal_stage_nested": true,
+      "second_stage_shape": [
+        6,
+        4
+      ],
+      "second_stage_dx": [
+        -1,
+        -1,
+        -1
+      ],
+      "final_active_shape": [
+        6,
+        4
+      ],
       "hole_clearance_grids": 1,
       "operator_action": "运行回收指令期间配合吸液，末帧回收电极已撤除"
     },
@@ -155,93 +192,130 @@
         [
           13,
           28,
-          20,
-          3
+          19,
+          4
+        ],
+        [
+          13,
+          28,
+          18,
+          4
+        ],
+        [
+          13,
+          28,
+          17,
+          4
+        ],
+        [
+          13,
+          28,
+          16,
+          4
         ],
         [
           14,
           28,
-          18,
-          3
+          15,
+          4
         ],
         [
           15,
           28,
-          16,
-          3
+          14,
+          4
         ],
         [
           16,
           28,
-          14,
-          3
+          13,
+          4
         ],
         [
           17,
           28,
           12,
-          3
+          4
         ],
         [
           18,
           28,
-          10,
-          3
+          11,
+          4
         ],
         [
           19,
           28,
+          10,
+          4
+        ],
+        [
+          20,
+          28,
+          9,
+          4
+        ],
+        [
+          21,
+          28,
           8,
-          3
+          4
+        ],
+        [
+          22,
+          28,
+          7,
+          4
+        ],
+        [
+          23,
+          28,
+          6,
+          4
+        ],
+        [
+          22,
+          28,
+          6,
+          4
+        ],
+        [
+          21,
+          28,
+          6,
+          4
         ],
         [
           20,
           28,
           6,
-          3
-        ],
-        [
-          21,
-          28,
-          4,
-          3
-        ],
-        [
-          22,
-          28,
-          2,
-          3
-        ],
-        [
-          22,
-          28,
-          2,
-          2
-        ],
-        [
-          22,
-          28,
-          2,
-          1
-        ],
-        [
-          23,
-          28,
-          1,
-          1
+          4
         ],
         null
       ],
       "frame_ms": 1000,
-      "frames": 16,
-      "duration_seconds": 16,
-      "previous_seconds": 1,
-      "changed_seconds": 15,
+      "frames": 20,
+      "duration_seconds": 20,
+      "previous_seconds": 16,
+      "changed_seconds": 4,
       "previous_section": "R14",
       "next_section": "R17",
       "magnet_remains_up": true,
       "final_recovery_electrodes": [],
-      "rectangles_nested": true,
+      "withdrawal_stage_nested": true,
+      "second_stage_shape": [
+        6,
+        4
+      ],
+      "second_stage_dx": [
+        -1,
+        -1,
+        -1
+      ],
+      "final_active_shape": [
+        6,
+        4
+      ],
       "hole_clearance_grids": 1,
       "operator_action": "运行回收指令期间配合吸液，末帧回收电极已撤除"
     },
@@ -271,71 +345,84 @@
           4
         ],
         [
-          17,
-          28,
-          12,
-          3
-        ],
-        [
           18,
           28,
-          10,
-          3
+          11,
+          4
         ],
         [
           19,
           28,
+          10,
+          4
+        ],
+        [
+          20,
+          28,
+          9,
+          4
+        ],
+        [
+          21,
+          28,
           8,
-          3
+          4
+        ],
+        [
+          22,
+          28,
+          7,
+          4
+        ],
+        [
+          23,
+          28,
+          6,
+          4
+        ],
+        [
+          22,
+          28,
+          6,
+          4
+        ],
+        [
+          21,
+          28,
+          6,
+          4
         ],
         [
           20,
           28,
           6,
-          3
-        ],
-        [
-          21,
-          28,
-          4,
-          3
-        ],
-        [
-          22,
-          28,
-          2,
-          3
-        ],
-        [
-          22,
-          28,
-          2,
-          2
-        ],
-        [
-          22,
-          28,
-          2,
-          1
-        ],
-        [
-          23,
-          28,
-          1,
-          1
+          4
         ],
         null
       ],
       "frame_ms": 1000,
       "frames": 12,
       "duration_seconds": 12,
-      "previous_seconds": 1,
-      "changed_seconds": 11,
+      "previous_seconds": 12,
+      "changed_seconds": 0,
       "previous_section": "C08",
       "next_section": "C10",
       "magnet_remains_up": true,
       "final_recovery_electrodes": [],
-      "rectangles_nested": true,
+      "withdrawal_stage_nested": true,
+      "second_stage_shape": [
+        6,
+        4
+      ],
+      "second_stage_dx": [
+        -1,
+        -1,
+        -1
+      ],
+      "final_active_shape": [
+        6,
+        4
+      ],
       "hole_clearance_grids": 1,
       "operator_action": "运行回收指令期间配合吸液，末帧回收电极已撤除"
     },
@@ -365,89 +452,95 @@
           4
         ],
         [
-          17,
-          28,
-          12,
-          3
-        ],
-        [
           18,
           28,
-          10,
-          3
+          11,
+          4
         ],
         [
           19,
           28,
+          10,
+          4
+        ],
+        [
+          20,
+          28,
+          9,
+          4
+        ],
+        [
+          21,
+          28,
           8,
-          3
+          4
+        ],
+        [
+          22,
+          28,
+          7,
+          4
+        ],
+        [
+          23,
+          28,
+          6,
+          4
+        ],
+        [
+          22,
+          28,
+          6,
+          4
+        ],
+        [
+          21,
+          28,
+          6,
+          4
         ],
         [
           20,
           28,
           6,
-          3
-        ],
-        [
-          21,
-          28,
-          4,
-          3
-        ],
-        [
-          22,
-          28,
-          2,
-          3
-        ],
-        [
-          22,
-          28,
-          2,
-          2
-        ],
-        [
-          22,
-          28,
-          2,
-          1
-        ],
-        [
-          23,
-          28,
-          1,
-          1
+          4
         ],
         null
       ],
       "frame_ms": 1000,
       "frames": 12,
       "duration_seconds": 12,
-      "previous_seconds": 1,
-      "changed_seconds": 11,
+      "previous_seconds": 12,
+      "changed_seconds": 0,
       "previous_section": "C11",
       "next_section": "C13",
       "magnet_remains_up": true,
       "final_recovery_electrodes": [],
-      "rectangles_nested": true,
+      "withdrawal_stage_nested": true,
+      "second_stage_shape": [
+        6,
+        4
+      ],
+      "second_stage_dx": [
+        -1,
+        -1,
+        -1
+      ],
+      "final_active_shape": [
+        6,
+        4
+      ],
       "hole_clearance_grids": 1,
       "operator_action": "运行回收指令期间配合吸液，末帧回收电极已撤除"
     }
   ],
-  "total_nominal_change_seconds": 52,
+  "total_nominal_change_seconds": 8,
   "unrelated_sections_byte_identical": true,
   "all_existing_command_ids_preserved": true,
   "preceding_moves_and_magnetic_capture_unchanged": true,
   "incubation_temperature_and_volumes_unchanged": true,
   "original_one_grid_hole_clearance_preserved": true,
   "full_workflow_rerun": false,
-  "focused_unit_tests_passed": 8,
-  "local_elabcheck": {
-    "sections_including_immediate_neighbors": 12,
-    "errors": 0,
-    "warnings": 1,
-    "warning": "原有12帧50V保持电压，不是本次新增；新回收轨迹为55V"
-  },
   "hardware_aspiration_verified": false,
   "notice": "按外部吸液设计的撤电包络；电极面积减少不代表软件测得液量减少"
 }

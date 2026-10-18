@@ -12,31 +12,29 @@ from scene import Relay
 
 
 def withdrawal_path(rect, hole_x):
-    """Nested complete rectangles; each edge retreats at most one cell/frame.
+    """Approved two-stage aspiration: edge withdrawal, then a rigid 6x4 push.
 
-    Keep the original upper edge and one-grid hole clearance. First remove
-    bottom rows down to three, then retract both sides towards the S hole.
-    The final None means collection is complete and this envelope is off.
+    Keep the upper edge and one-grid hole clearance. Withdraw the bottom row,
+    then the right edge to hole_x+6, then the left edge to hole_x. Move the
+    resulting 6x4 block left three single-cell steps to center it under S.
+    None is the final electrode-off frame, not aspiration sensor feedback.
     """
     x, y, w, h = map(int, rect)
-    assert w > 0 and h > 0 and x <= hole_x < x+w
+    assert h == 5 and w in (12, 20) and x <= hole_x and x+w >= hole_x+6
     result = [(x, y, w, h)]
-    while h > 3:
+    while h > 4:
         h -= 1
         result.append((x, y, w, h))
-    while w > 2:
-        left = int(x < hole_x)
-        right = int(x+w-1 > hole_x)
-        assert left or right
-        x += left
-        w -= left+right
+    while x+w > hole_x+6:
+        w -= 1
         result.append((x, y, w, h))
-    while h > 1:
-        h -= 1
+    while x < hole_x:
+        x += 1
+        w -= 1
         result.append((x, y, w, h))
-    if w > 1:
-        x = hole_x
-        w = 1
+    assert (x, w, h) == (hole_x, 6, 4)
+    for _ in range(3):
+        x -= 1
         result.append((x, y, w, h))
     result.append(None)
     return result
@@ -73,7 +71,7 @@ def recovery_command(scene, lanes, product_vol, round_no):
                 end_frame=len(relays), final_recovery_electrodes=[],
                 operator_action='运行本指令期间配合手工吸液，末帧回收电极撤除')
     command = Cmd(f'第{round_no}次产物S孔回收 · 运行期间配合手工吸液：'
-                  '下侧逐行撤电极→左右收窄→末帧撤除回收电极（磁铁保持升起）',
+                  '逐侧撤电至6×4→保持6×4左移三格至S孔下→末帧撤电（磁铁保持升起）',
                   'HighVoltage', 'CMD_SCRIPTCYCLE',
                   math.ceil(sum(r.dur for r in relays)/1000),
                   'SCRIPTCYCLE_FALSE', relays)

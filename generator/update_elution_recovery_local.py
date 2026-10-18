@@ -36,8 +36,9 @@ def transform(text, layout_text, main_text, mapping, rows):
         old = original[str(fid)]
         assert old.get('Name').split()[0] == label
         gate = old[-1]
-        assert gate.get('ID') == str(cid) and len(gate) == 1
-        assert '等待手工吸出' in gate.get('Name') and gate[0].get('Duration') == '1000'
+        assert gate.get('ID') == str(cid) and len(gate) in (1, 12, 16)
+        assert ('等待手工吸出' in gate.get('Name') or '运行期间配合手工吸液' in gate.get('Name'))
+        assert gate[0].get('Duration') == '1000'
         assert gate.get('Params') == 'SCRIPTCYCLE_FALSE'
         scene = Scene();scene.manual_aspirations = []
         lanes = lanes_all((1,))
@@ -82,7 +83,9 @@ def transform(text, layout_text, main_text, mapping, rows):
                           previous_section=previous.get('Name').split()[0],
                           next_section=following.get('Name').split()[0],
                           magnet_remains_up=True, final_recovery_electrodes=[],
-                          rectangles_nested=True, hole_clearance_grids=1,
+                          withdrawal_stage_nested=True, second_stage_shape=[6, 4],
+                          second_stage_dx=[-1, -1, -1], final_active_shape=[6, 4],
+                          hole_clearance_grids=1,
                           operator_action='运行回收指令期间配合吸液，末帧回收电极已撤除'))
     after = E.fromstring(text)
     assert [f.get('ID') for f in after] == [f.get('ID') for f in before]
@@ -112,7 +115,7 @@ def transform(text, layout_text, main_text, mapping, rows):
     main_before = E.fromstring(main_text)
     old_total = int(main_before[0].get('Timeout'))
     main_text, count = re.subn(r'Timeout="\d+"', f'Timeout="{old_total+delta}"', main_text, count=1)
-    assert count == 1 and delta == 52
+    assert count == 1
     report = dict(status='passed', scope=list(TARGETS),
                   source_sha256=hashlib.sha256(text.encode()).hexdigest(),
                   reference='ASI96: 260828_5and8 Flow2389 Cmd2390/2391; 260902_96sampleV2_1 Flow2329 Cmd2330..2341',
