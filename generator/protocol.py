@@ -383,13 +383,8 @@ class Protocol:
         cmds.append(self.hold(f"第{round_no}次：磁铁升起 {capture}s · 全液滴持续通电", capture))
         rigid.product_off_pellet(S, self.ALL, product_vol, PELLET)
         cmds.append(self.cmd(f"第{round_no}次：产物 {product_vol:.2f}µL 与磁珠团分离"))
-        S.step(geom.HOLD_MS,changed=[])
-        info=dict(hole='S孔×16',volume_ul=round(product_vol*len(self.ALL),2),
-                  per_lane_ul=product_vol,drop_names=[f'P{ln.id}' for ln in self.ALL],
-                  rects=[list(r) for ln in self.ALL for r in S.get(f'P{ln.id}').rects()],kind='逐道洗脱产物')
-        S.manual_aspirations.append((S.relays[-1],info))
-        cmds.append(self.cmd(f"第{round_no}次产物移至 S 孔下，等待手工吸出"))
-        for ln in self.ALL: S.remove(f"P{ln.id}")
+        from elution_recovery import recovery_command
+        cmds.append(recovery_command(S, self.ALL, product_vol, round_no))
         S.step(geom.HOLD_MS, changed=[])
         cmds.append(self.cmd(f"第{round_no}次产物已离片，不预留液相；磁铁留珠"))
         if final:

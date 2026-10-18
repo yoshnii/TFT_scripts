@@ -1,0 +1,453 @@
+{
+  "status": "passed",
+  "scope": [
+    "R11",
+    "R16",
+    "C09",
+    "C12"
+  ],
+  "source_sha256": "03d59e8e59330ac50b4e571487ba09a5f98994131e72f9c666340c76bc0cb817",
+  "reference": "ASI96: 260828_5and8 Flow2389 Cmd2390/2391; 260902_96sampleV2_1 Flow2329 Cmd2330..2341",
+  "cases": [
+    {
+      "section": "R11",
+      "flow_id": 2032,
+      "command_id": 2037,
+      "actual_per_well_ul": 5.0,
+      "actual_total_ul": 80.0,
+      "initial_rect": [
+        13,
+        28,
+        20,
+        5
+      ],
+      "first_well_path": [
+        [
+          13,
+          28,
+          20,
+          5
+        ],
+        [
+          13,
+          28,
+          20,
+          4
+        ],
+        [
+          13,
+          28,
+          20,
+          3
+        ],
+        [
+          14,
+          28,
+          18,
+          3
+        ],
+        [
+          15,
+          28,
+          16,
+          3
+        ],
+        [
+          16,
+          28,
+          14,
+          3
+        ],
+        [
+          17,
+          28,
+          12,
+          3
+        ],
+        [
+          18,
+          28,
+          10,
+          3
+        ],
+        [
+          19,
+          28,
+          8,
+          3
+        ],
+        [
+          20,
+          28,
+          6,
+          3
+        ],
+        [
+          21,
+          28,
+          4,
+          3
+        ],
+        [
+          22,
+          28,
+          2,
+          3
+        ],
+        [
+          22,
+          28,
+          2,
+          2
+        ],
+        [
+          22,
+          28,
+          2,
+          1
+        ],
+        [
+          23,
+          28,
+          1,
+          1
+        ],
+        null
+      ],
+      "frame_ms": 1000,
+      "frames": 16,
+      "duration_seconds": 16,
+      "previous_seconds": 1,
+      "changed_seconds": 15,
+      "previous_section": "R09",
+      "next_section": "R12",
+      "magnet_remains_up": true,
+      "final_recovery_electrodes": [],
+      "rectangles_nested": true,
+      "hole_clearance_grids": 1,
+      "operator_action": "运行回收指令期间配合吸液，末帧回收电极已撤除"
+    },
+    {
+      "section": "R16",
+      "flow_id": 2055,
+      "command_id": 2060,
+      "actual_per_well_ul": 5.0,
+      "actual_total_ul": 80.0,
+      "initial_rect": [
+        13,
+        28,
+        20,
+        5
+      ],
+      "first_well_path": [
+        [
+          13,
+          28,
+          20,
+          5
+        ],
+        [
+          13,
+          28,
+          20,
+          4
+        ],
+        [
+          13,
+          28,
+          20,
+          3
+        ],
+        [
+          14,
+          28,
+          18,
+          3
+        ],
+        [
+          15,
+          28,
+          16,
+          3
+        ],
+        [
+          16,
+          28,
+          14,
+          3
+        ],
+        [
+          17,
+          28,
+          12,
+          3
+        ],
+        [
+          18,
+          28,
+          10,
+          3
+        ],
+        [
+          19,
+          28,
+          8,
+          3
+        ],
+        [
+          20,
+          28,
+          6,
+          3
+        ],
+        [
+          21,
+          28,
+          4,
+          3
+        ],
+        [
+          22,
+          28,
+          2,
+          3
+        ],
+        [
+          22,
+          28,
+          2,
+          2
+        ],
+        [
+          22,
+          28,
+          2,
+          1
+        ],
+        [
+          23,
+          28,
+          1,
+          1
+        ],
+        null
+      ],
+      "frame_ms": 1000,
+      "frames": 16,
+      "duration_seconds": 16,
+      "previous_seconds": 1,
+      "changed_seconds": 15,
+      "previous_section": "R14",
+      "next_section": "R17",
+      "magnet_remains_up": true,
+      "final_recovery_electrodes": [],
+      "rectangles_nested": true,
+      "hole_clearance_grids": 1,
+      "operator_action": "运行回收指令期间配合吸液，末帧回收电极已撤除"
+    },
+    {
+      "section": "C09",
+      "flow_id": 4022,
+      "command_id": 4027,
+      "actual_per_well_ul": 3.0,
+      "actual_total_ul": 48.0,
+      "initial_rect": [
+        17,
+        28,
+        12,
+        5
+      ],
+      "first_well_path": [
+        [
+          17,
+          28,
+          12,
+          5
+        ],
+        [
+          17,
+          28,
+          12,
+          4
+        ],
+        [
+          17,
+          28,
+          12,
+          3
+        ],
+        [
+          18,
+          28,
+          10,
+          3
+        ],
+        [
+          19,
+          28,
+          8,
+          3
+        ],
+        [
+          20,
+          28,
+          6,
+          3
+        ],
+        [
+          21,
+          28,
+          4,
+          3
+        ],
+        [
+          22,
+          28,
+          2,
+          3
+        ],
+        [
+          22,
+          28,
+          2,
+          2
+        ],
+        [
+          22,
+          28,
+          2,
+          1
+        ],
+        [
+          23,
+          28,
+          1,
+          1
+        ],
+        null
+      ],
+      "frame_ms": 1000,
+      "frames": 12,
+      "duration_seconds": 12,
+      "previous_seconds": 1,
+      "changed_seconds": 11,
+      "previous_section": "C08",
+      "next_section": "C10",
+      "magnet_remains_up": true,
+      "final_recovery_electrodes": [],
+      "rectangles_nested": true,
+      "hole_clearance_grids": 1,
+      "operator_action": "运行回收指令期间配合吸液，末帧回收电极已撤除"
+    },
+    {
+      "section": "C12",
+      "flow_id": 4035,
+      "command_id": 4040,
+      "actual_per_well_ul": 3.0,
+      "actual_total_ul": 48.0,
+      "initial_rect": [
+        17,
+        28,
+        12,
+        5
+      ],
+      "first_well_path": [
+        [
+          17,
+          28,
+          12,
+          5
+        ],
+        [
+          17,
+          28,
+          12,
+          4
+        ],
+        [
+          17,
+          28,
+          12,
+          3
+        ],
+        [
+          18,
+          28,
+          10,
+          3
+        ],
+        [
+          19,
+          28,
+          8,
+          3
+        ],
+        [
+          20,
+          28,
+          6,
+          3
+        ],
+        [
+          21,
+          28,
+          4,
+          3
+        ],
+        [
+          22,
+          28,
+          2,
+          3
+        ],
+        [
+          22,
+          28,
+          2,
+          2
+        ],
+        [
+          22,
+          28,
+          2,
+          1
+        ],
+        [
+          23,
+          28,
+          1,
+          1
+        ],
+        null
+      ],
+      "frame_ms": 1000,
+      "frames": 12,
+      "duration_seconds": 12,
+      "previous_seconds": 1,
+      "changed_seconds": 11,
+      "previous_section": "C11",
+      "next_section": "C13",
+      "magnet_remains_up": true,
+      "final_recovery_electrodes": [],
+      "rectangles_nested": true,
+      "hole_clearance_grids": 1,
+      "operator_action": "运行回收指令期间配合吸液，末帧回收电极已撤除"
+    }
+  ],
+  "total_nominal_change_seconds": 52,
+  "unrelated_sections_byte_identical": true,
+  "all_existing_command_ids_preserved": true,
+  "preceding_moves_and_magnetic_capture_unchanged": true,
+  "incubation_temperature_and_volumes_unchanged": true,
+  "original_one_grid_hole_clearance_preserved": true,
+  "full_workflow_rerun": false,
+  "focused_unit_tests_passed": 8,
+  "local_elabcheck": {
+    "sections_including_immediate_neighbors": 12,
+    "errors": 0,
+    "warnings": 1,
+    "warning": "原有12帧50V保持电压，不是本次新增；新回收轨迹为55V"
+  },
+  "hardware_aspiration_verified": false,
+  "notice": "按外部吸液设计的撤电包络；电极面积减少不代表软件测得液量减少"
+}

@@ -38,7 +38,9 @@ def split_aspiration_commands(scripts):
                         carry=relays
                         start=end+1
                         continue
-                    label = (f" · 【手工吸液・组结束】{gate['hole']} {gate['volume_ul']:.3f}µL · 吸出后运行下一组"
+                    label = (f" · 【手工吸液・组结束】{gate['hole']} {gate['volume_ul']:.3f}µL · "
+                             + ('运行期间配合吸液，回收电极已撤除；确认吸净后运行下一组'
+                                if gate.get('progressive_recovery') else '吸出后运行下一组')
                              if gate else ' · 手工吸液已完成后的续行')
                     chunk = Cmd(c.name + label, c.comp, c.action,
                                 max(1, round(sum(r.dur for r in relays)/1000)), c.params, relays)
@@ -100,6 +102,7 @@ def split_sections(scripts):
                 gate = getattr(cmds[-1], 'manual_load', None)
                 asp = getattr(cmds[-1], 'manual_aspiration', None)
                 suffix = ('加液承接（上电后手工加液）' if gate else
+                          f"{asp['hole']} 运行期间手工回收（末帧撤除回收电极）" if asp and asp.get('progressive_recovery') else
                           f"{asp['hole']} 待手工吸液（保持全部液滴上电）" if asp else
                           '吸液完成后的续行' if previous_kind == 'asp' else '加液后分液、移液及融合')
                 batch = (f" · 第{gate['batch']}/{gate['batches']}批" if gate and gate.get('batches',1)>1 else '')
