@@ -29,6 +29,9 @@ def bites(S,items,blobs,kind,pellets=None,single_stop=False):
             assert d.rect[2:]==(4,4) and d.vol==original[ln.id]/count
             d.native_packet=True;d.native_leaf_shape=(4,4)
             pieces.append((ln,d))
+        if kind=='cleanup' and ticket==count-1:
+            from cleanup_sweep import departure_resweep
+            departure_resweep(S,pieces,gx)
         plan=plans[ticket];ticket+=1
         tiles=W._send_pipeline(S,pieces,gx,blobs,plan,jobs)
         if plan['flush']:

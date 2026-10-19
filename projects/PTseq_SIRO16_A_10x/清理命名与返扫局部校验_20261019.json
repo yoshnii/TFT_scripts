@@ -1,0 +1,200 @@
+{
+  "status": "passed",
+  "base_sha256": "a3567580dc059ec55ced07f07e46bd8ffaa08470ada2f9c24a4228d97c2071d4",
+  "source_sha256": "8c2d2deed45fb9575c514c9c6116ffb12a1d4db849aa21a01e92b6cf5899b91a",
+  "scope": [
+    "C13",
+    "C14",
+    "C15",
+    "R17",
+    "R18",
+    "R19"
+  ],
+  "cases": [
+    {
+      "section": "R18",
+      "command": "2065",
+      "extra_seconds": 64,
+      "frame_shape": [
+        12,
+        5
+      ],
+      "cells_per_drop": 60,
+      "actual_per_drop_ul": 3.0,
+      "left_channel_x": [
+        6,
+        10
+      ],
+      "right_channel_x": [
+        46,
+        50
+      ],
+      "origin_and_final_x": [
+        27,
+        10
+      ],
+      "sweep_extremes_x": [
+        6,
+        38
+      ],
+      "no_new_electrodes": true,
+      "events": [
+        {
+          "phase": "carrier_channel_wash",
+          "start_frame": 1,
+          "end_frame": 82,
+          "droplets": 16,
+          "actual_volume_ul": 48.0,
+          "electrode_cells": 960,
+          "shape": [
+            12,
+            5
+          ],
+          "extra_liquid_ul": 0,
+          "extra_electrodes": 0
+        }
+      ]
+    },
+    {
+      "section": "C14",
+      "command": "4045",
+      "extra_seconds": 64,
+      "frame_shape": [
+        12,
+        5
+      ],
+      "cells_per_drop": 60,
+      "actual_per_drop_ul": 3.0,
+      "left_channel_x": [
+        6,
+        10
+      ],
+      "right_channel_x": [
+        46,
+        50
+      ],
+      "origin_and_final_x": [
+        27,
+        10
+      ],
+      "sweep_extremes_x": [
+        6,
+        38
+      ],
+      "no_new_electrodes": true,
+      "events": [
+        {
+          "phase": "carrier_channel_wash",
+          "start_frame": 1,
+          "end_frame": 82,
+          "droplets": 16,
+          "actual_volume_ul": 48.0,
+          "electrode_cells": 960,
+          "shape": [
+            12,
+            5
+          ],
+          "extra_liquid_ul": 0,
+          "extra_electrodes": 0
+        }
+      ]
+    },
+    {
+      "section": "R19",
+      "command": "2069",
+      "extra_seconds": 62,
+      "packet_shape": [
+        4,
+        4
+      ],
+      "packet_ul": 0.75,
+      "packet_cells": 16,
+      "sweep_x": [
+        38,
+        46,
+        6,
+        46
+      ],
+      "bottom_tail_23_unchanged": true,
+      "actual_waste_ul": 48.0,
+      "port_volumes": {
+        "F4": 12.0,
+        "F3": 12.0,
+        "F2": 12.0,
+        "F1": 12.0
+      },
+      "final_rows": 1487,
+      "events": [
+        {
+          "phase": "last_real_packet_resweep",
+          "start_frame": 975,
+          "end_frame": 1063,
+          "droplets": 16,
+          "actual_volume_ul": 12.0,
+          "electrode_cells": 256,
+          "shape": [
+            4,
+            4
+          ],
+          "extra_liquid_ul": 0,
+          "extra_electrodes": 0
+        }
+      ]
+    },
+    {
+      "section": "C15",
+      "command": "4049",
+      "extra_seconds": 62,
+      "packet_shape": [
+        4,
+        4
+      ],
+      "packet_ul": 0.75,
+      "packet_cells": 16,
+      "sweep_x": [
+        38,
+        46,
+        6,
+        46
+      ],
+      "bottom_tail_23_unchanged": true,
+      "actual_waste_ul": 48.0,
+      "port_volumes": {
+        "F4": 12.0,
+        "F3": 12.0,
+        "F2": 12.0,
+        "F1": 12.0
+      },
+      "final_rows": 1487,
+      "events": [
+        {
+          "phase": "last_real_packet_resweep",
+          "start_frame": 975,
+          "end_frame": 1063,
+          "droplets": 16,
+          "actual_volume_ul": 12.0,
+          "electrode_cells": 256,
+          "shape": [
+            4,
+            4
+          ],
+          "extra_liquid_ul": 0,
+          "extra_electrodes": 0
+        }
+      ]
+    }
+  ],
+  "added_nominal_seconds": 252,
+  "existing_mixes_and_incubations_unchanged": true,
+  "true_elution_recovery_unchanged": true,
+  "volumes_and_ratios_unchanged": true,
+  "reference": "ASI96 260828_5and8: Command2418 rows9-17/37-60 and Command2362 repeated sweep masks",
+  "adaptation": "same real carrier and last quarter-drop resweep; no duplicated fictitious droplet",
+  "hardware_cleanliness_verified": false,
+  "local_tests_passed": 10,
+  "local_static_errors": 0,
+  "local_static_warning_types": ["existing large waste electrode masks"],
+  "full_workflow_rerun": false,
+  "visual_check": false,
+  "magnet_condition": "external magnet lowered after real carrier covers beads and before channel wash/resuspension; no new hardware commands"
+}

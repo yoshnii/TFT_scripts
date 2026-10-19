@@ -111,7 +111,7 @@ class Protocol:
         if left: ops.merge_all(S, left, f"T{reagent}"); cmds.append(self.cmd(f"{reagent} 与各道液滴合并"))
         self.flow(seg, title, cmds)
         S.clearance_context=None
-    def mix(self, seg, title, cycles=ops.MIXN, span=None, seconds=None, spec=None, initial=(), complete_rounds=None):
+    def mix(self, seg, title, cycles=ops.MIXN, span=None, seconds=None, spec=None, initial=(), complete_rounds=None, cleanup_channels=False):
         """左端定位后只输出一轮闭合往返，与Delay同时启动并同步结束。
 
         首末电极和Scene终态一致；TRUE+Sync沿用VM结构，不证明执行器只在整轮结束时停机。
@@ -124,10 +124,14 @@ class Protocol:
         if spec is None:
             spec = {ln.name: (ln.X0, ln.X0 + geom.LANE_L - S.get(ln.name).rect[2]) for ln in self.ALL}
         assert spec and all(hi > lo for lo, hi in spec.values()), '混匀须有完整往返行程'
-        ops.move_rects(S, {name: lo for name, (lo, _) in spec.items()})
+        if cleanup_channels:
+            from cleanup_sweep import wash_region
+            wash_region(S,self.ALL)
+        else:ops.move_rects(S, {name: lo for name, (lo, _) in spec.items()})
         S.step(geom.HOLD_MS, changed=[])
         cmds = [c for c in initial if c]
-        position = self.cmd('液滴左端定位 · 随后启动混匀（全部液滴带电）')
+        position = self.cmd('[外部磁控]磁铁下降后：清理载液扫过本反应区两侧过液通道 → 左端定位（面积不变）' if cleanup_channels else
+                            '液滴左端定位 · 随后启动混匀（全部液滴带电）')
         if cmds: position.pre = (cmds[-1], 'FS')
         cmds.append(position)
         S.step(geom.STEP_MS, changed=[])
@@ -396,6 +400,7 @@ class Protocol:
     def cleanup_beads(self,seg,title,reagent):
         """两次产物取走后，必须另加真实载液，降磁铁重悬，随后整滴排废；不是第三次产物洗脱。"""
         S=self.S
+        title=f"{'纯化1' if seg=='R1' else '纯化2'}后清理（两次产物已回收，非第三次洗脱）"
         assert self.magnet_state=='up','排珠加液前磁铁必须保持升起'
         assert all(S.get(ln.name).vol==0 and getattr(S.get(ln.name),'magnet_only',False) for ln in self.ALL)
         ops.load_holes(S,self.ALL,'S',BEAD_CLEANUP_UL,'E',manual=True)
@@ -409,7 +414,7 @@ class Protocol:
         self.magnet('down',f'{seg} 两次产物吸出且额外3.00µL载液覆盖磁珠后，重悬排珠')
         cleanup_cycles = 2 if seg == 'C' else BEAD_ELUTE_MIX
         self.mix(seg, f'{title} · 磁珠清理重悬（额外3.00µL载液）', cleanup_cycles, initial=cmds,
-                 complete_rounds=2 if seg == 'C' else None)
+                 complete_rounds=2 if seg == 'C' else None,cleanup_channels=True)
         cmds = []
         event=dict(stage=seg,per_lane_ul=BEAD_CLEANUP_UL,total_ul=round(len(self.ALL)*BEAD_CLEANUP_UL,2),
                    reagent=reagent,loading_hole='S孔×16',mix_cycles=cleanup_cycles,
@@ -420,7 +425,7 @@ class Protocol:
         # C06为程序最后一步：整步48µL一次装入F1–F4，吸液停靠时反应区内不留液体。
         rigid.egress_pieces(S,[(ln,S.get(ln.name)) for ln in self.ALL],self.blob,final=True,single_stop=seg=='C')
         event['waste_end_frame']=S.nsteps
-        cmds.append(self.cmd('3.00µL载液与磁珠一起排至底边孔，等待手工吸出；不回收文库'))
+        cmds.append(self.cmd('清理：末组4×4真实载液到出口后返扫本反应区再排出；3.00µL载液与磁珠一起排至底边孔，不回收文库'))
         self.flow(seg,f'{title} · 磁珠清理（48µL额外载液排废，非文库）',cmds)
 
 
