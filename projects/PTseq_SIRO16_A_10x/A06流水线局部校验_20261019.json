@@ -1,0 +1,224 @@
+{
+  "status": "passed",
+  "scope": [
+    "A06/1021",
+    "A05 last frame",
+    "A07 first frame"
+  ],
+  "source_sha256": "f55c15e55165ede8d9492a4a0c78a71564a4beab02220e657f89a5252ea8f7a3",
+  "base_sha256": "b011e75614dd0d4eac7465509b52f76d5b11e77fb814c1f3ef57b101ff5cafa5",
+  "before_seconds": 897,
+  "after_seconds": 796,
+  "saved_seconds": 101,
+  "before_command_seconds": 841,
+  "after_command_seconds": 740,
+  "frames_before": 789,
+  "frames_after": 702,
+  "stats": {
+    "moves_8x8": 504,
+    "frames": 684
+  },
+  "ports": [
+    "F3",
+    "F1"
+  ],
+  "port_ul": 12.0,
+  "total_waste_ul": 24.0,
+  "actual_packet_ul": 0.75,
+  "block_ul": 3.0,
+  "block_shape": [
+    8,
+    8
+  ],
+  "port_shape": [
+    16,
+    16
+  ],
+  "original_tail_frames": 23,
+  "other_flows_unchanged": true,
+  "split_1020_unchanged": true,
+  "tail_masks_and_durations_unchanged": true,
+  "stationary_quilt_steps_authorized": true,
+  "hardware_verified": false,
+  "visual_check": "exact native XML contact sheets; transport sampled every ten frames, final pooling and every port-tail frame inspected",
+  "local_static_errors": 0,
+  "local_static_warning_types": ["existing large waste electrode masks", "existing 50V drive frame"],
+  "collection": [
+    {
+      "port": 3,
+      "blocks": [
+        {
+          "frame": 82,
+          "rectangle": [
+            56,
+            175,
+            8,
+            8
+          ],
+          "volume_ul": 3.0
+        },
+        {
+          "frame": 166,
+          "rectangle": [
+            56,
+            175,
+            8,
+            8
+          ],
+          "volume_ul": 3.0
+        },
+        {
+          "frame": 250,
+          "rectangle": [
+            56,
+            175,
+            8,
+            8
+          ],
+          "volume_ul": 3.0
+        },
+        {
+          "frame": 332,
+          "rectangle": [
+            56,
+            175,
+            8,
+            8
+          ],
+          "volume_ul": 3.0
+        }
+      ],
+      "docks": [
+        {
+          "frame": 194,
+          "rectangle": [
+            162,
+            180,
+            8,
+            8
+          ],
+          "index": 0
+        },
+        {
+          "frame": 270,
+          "rectangle": [
+            154,
+            180,
+            8,
+            8
+          ],
+          "index": 1
+        },
+        {
+          "frame": 360,
+          "rectangle": [
+            162,
+            172,
+            8,
+            8
+          ],
+          "index": 2
+        },
+        {
+          "frame": 434,
+          "rectangle": [
+            154,
+            172,
+            8,
+            8
+          ],
+          "index": 3
+        }
+      ],
+      "end_frame": 434
+    },
+    {
+      "port": 1,
+      "blocks": [
+        {
+          "frame": 403,
+          "rectangle": [
+            34,
+            175,
+            8,
+            8
+          ],
+          "volume_ul": 3.0
+        },
+        {
+          "frame": 488,
+          "rectangle": [
+            34,
+            175,
+            8,
+            8
+          ],
+          "volume_ul": 3.0
+        },
+        {
+          "frame": 573,
+          "rectangle": [
+            34,
+            175,
+            8,
+            8
+          ],
+          "volume_ul": 3.0
+        },
+        {
+          "frame": 664,
+          "rectangle": [
+            34,
+            175,
+            8,
+            8
+          ],
+          "volume_ul": 3.0
+        }
+      ],
+      "docks": [
+        {
+          "frame": 429,
+          "rectangle": [
+            54,
+            180,
+            8,
+            8
+          ],
+          "index": 0
+        },
+        {
+          "frame": 506,
+          "rectangle": [
+            46,
+            180,
+            8,
+            8
+          ],
+          "index": 1
+        },
+        {
+          "frame": 597,
+          "rectangle": [
+            54,
+            172,
+            8,
+            8
+          ],
+          "index": 2
+        },
+        {
+          "frame": 680,
+          "rectangle": [
+            46,
+            172,
+            8,
+            8
+          ],
+          "index": 3
+        }
+      ],
+      "end_frame": 680
+    }
+  ]
+}

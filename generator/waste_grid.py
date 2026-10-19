@@ -311,6 +311,9 @@ def _send_pipeline(S,pieces,gx,blobs,plan,jobs):
     import rigid as R
     import compact_collect
     import fixed_barcode_collect
+    if plan.get('a06_square_pipeline',False):
+        import a06_collect
+        return a06_collect.send(S,pieces,gx,blobs,plan,jobs)
     if fixed_barcode_collect.accepts(pieces,plan):
         return fixed_barcode_collect.send(S,pieces,gx,blobs,plan)
     if compact_collect.accepts(pieces,plan):

@@ -94,6 +94,8 @@ def bites(S,items,blobs,final=True,pellets=None,collect_three=False,collect_a05=
             child.native_packet=True;child.native_leaf_shape=(w,h)
             pieces.append((ln,child))
         plan=plans[index]
+        if kind=='A05' and n==32 and collect_a05:
+            plan['a06_square_pipeline']=True
         tiles=W._send_pipeline(S,pieces,gx,blobs,plan,jobs)
         if plan['flush']:
             W._drain(S,lambda:not S.waste_pool.items)
