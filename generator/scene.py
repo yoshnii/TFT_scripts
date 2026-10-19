@@ -208,7 +208,9 @@ class Scene:
                     if n2 == n1:continue
                     assert not _overlap(r1, r2), f"重叠 {n1}{r1} ~ {n2}{r2} @step{self.nsteps}"
                     if frozenset((n1,n2)) in tset:continue
-                    assert _gap(r1, r2) >= geom.MIN_GAP, f"间距<{geom.MIN_GAP} {n1}{r1} ~ {n2}{r2} @step{self.nsteps}"
+                    from transport_spacing import required
+                    gap=required(self,self.drops[n1],r1,self.drops[n2],r2)
+                    assert _gap(r1, r2) >= gap, f"间距<{gap} {n1}{r1} ~ {n2}{r2} @step{self.nsteps}"
         self.relays.append(Relay(codes, dur, amp)); self.nsteps += 1
     def flush(self):
         r, self.relays = self.relays, []; return r

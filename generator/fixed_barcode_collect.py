@@ -66,12 +66,13 @@ def send(S, pieces, gx, blobs, plan):
 
     jobs = []
     for ticket, (_, d) in enumerate(pending):
-        x, y = 80 + 7 * (15-ticket), 172
+        x, y = 80 + (9 if getattr(S,'strict_transport',False) else 7) * (15-ticket), 172
         d.S = S
         d.native_packet = d.waste_grid_packet = d.waste_pipeline_clearance = True
         d.allow = ()
         staged.append(d)
-        jobs.append((d, stage(d, ticket, x, y)))
+        from transport_spacing import queue_exit
+        jobs.append((d, queue_exit(S,d,gx,stage(d,ticket,x,y))))
     R.run(S, jobs, rule=R._door_rule(gx))
 
     S.waste_grid_events = getattr(S, 'waste_grid_events', [])

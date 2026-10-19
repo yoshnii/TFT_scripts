@@ -44,7 +44,10 @@ def rect_ok(S, name, r, allow=frozenset()):
             entry_limited=(getattr(S.get(name),'controlled_entry',False) and r[1]>=23)
             native_queue=getattr(S.get(name),'native_packet',False) and getattr(d2,'native_packet',False)
             compact_mothers=getattr(S.get(name),'compact_mother_clearance',False) and getattr(d2,'compact_mother_clearance',False)
-            clearance = geom.MIN_GAP if row_limited or bottom_limited or waste_queue or waste_dock or entry_limited or native_queue or compact_mothers else geom.PREFERRED_GAP
+            from transport_spacing import required,well
+            own_well=well(r) is not None and well(r)==well(q)
+            clearance = geom.MIN_GAP if own_well or row_limited or bottom_limited or waste_queue or waste_dock or entry_limited or native_queue or compact_mothers else geom.PREFERRED_GAP
+            clearance=max(clearance,required(S,d,r,d2,q))
             if _overlap(r, q) or _gap(r, q) < clearance: return False
     return True
 

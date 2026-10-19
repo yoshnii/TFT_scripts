@@ -40,12 +40,17 @@ def sample_aliquots(S, lanes, blobs):
         pieces=[(ln,by_lane[ln.id][3-batch]) for ln in lanes]
         plan=dict(stop=1,flush=batch==2,ports=[3,1],assign=assignments[16*batch:16*(batch+1)],
                   specs=specs,minimum_ports=2,packed=True)
-        tiles=W._send_pipeline(S,pieces,gx,blobs,plan,jobs)
-        # Use the existing conservative outlet/lookahead queue at both ports.
-        # The last row must be staged before the preceding row docks near Y172;
-        # otherwise passing packets would touch the already collected pool.
-        for job in jobs.values():job['under_exit']=True
-        W._drain(S,lambda:all(S.drops.get(d.name) is not d or d.rect[1]>=W.TRANSPORT_Y for d in tiles))
+        ordered=sorted(pieces,key=lambda item:-item[0].r)
+        # Do not interleave opposing bottom-band row transfers for F3 and F1.
+        # Both pools are still aspirated together; no extra tip or stop.
+        for key in dict.fromkeys(a[0] for a in plan['assign']):
+            chosen=[(piece,a) for piece,a in zip(ordered,plan['assign']) if a[0]==key]
+            sub=dict(plan,assign=[a for piece,a in chosen])
+            tiles=W._send_pipeline(S,[piece for piece,a in chosen],gx,blobs,sub,jobs)
+            for job in jobs.values():job['under_exit']=True
+            W._drain(S,lambda:all(S.drops.get(d.name) is not d or d.rect[1]>=W.TRANSPORT_Y for d in tiles))
+            if chosen[-1][1][1:]==(3,5):
+                W._drain(S,lambda:not S.waste_pool.items)
     W._drain(S,lambda:not S.waste_pool.items)
     W.flush(S,blobs)
     assert all(abs(S.get(ln.name).vol-.4)<1e-8 for ln in lanes)

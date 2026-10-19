@@ -110,7 +110,8 @@ def flush(S,blobs):
               port_volumes={f'F{k}':d.vol for k,d in items},drop_names=[d.name for k,d in items],
               rects=[list(rc) for rc in final_rects],kind='原形小矩形自然拼接汇液',
               hole_overlap_recovery=progressive,
-              operator_action='覆盖F孔后配合手工吸液、逐侧撤电；终框保持，吸净后运行下一组')
+              progressive_recovery=progressive,final_recovery_electrodes=[],
+              operator_action='覆盖F孔后配合手工吸液、逐侧撤电；末帧完全撤除孔口电极，吸净后运行下一组')
     S.manual_aspirations.append((S.relays[-1],info))
     for k,d in items:S.remove(d.name);blobs[k]=None
     S.step(geom.HOLD_MS,changed=[])
@@ -338,7 +339,8 @@ def _send_pipeline(S,pieces,gx,blobs,plan,jobs):
         d.S=S;d.waste_fk=job['port'];d.slot=spec['n']-1-pos;d.tile_area=area(d)
         d.waste_pipeline_clearance=True;assert 0<d.tile_area<=32
         d.entry_ticket=t;d.allow=() if job.get('strict_staging',False) else (f"BLOB{job['port']}",)
-        pool.items.append((d,_tile_path(S,d,job,t,r,pos,gx),R._door_rule(gx)))
+        from transport_spacing import queue_exit
+        pool.items.append((d,queue_exit(S,d,gx,_tile_path(S,d,job,t,r,pos,gx)),R._door_rule(gx)))
         tiles.append(d)
     return tiles
 

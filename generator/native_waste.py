@@ -33,7 +33,7 @@ def schedule(round_count,w,h,kind):
             chunk=assign[r*16:(r+1)*16];keys=list(dict.fromkeys(k for k,row,col in chunk))
             plans.append(dict(stop=stop,flush=r==nround-1,ports=[specs[k]['port'] for k in keys],
                 assign=chunk,specs=specs,minimum_ports=ports,packed=True,
-                compact_gap=3 if kind in ('A05','R04','C04','cleanup') and (w,h)==(4,4) else 4))
+                compact_gap=4))
     return plans
 
 

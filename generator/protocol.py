@@ -31,6 +31,8 @@ class Protocol:
         self.cols = cols; self.ALL = lanes_all(cols)
         self.odd_l = [l for l in self.ALL if l.odd]; self.even_l = [l for l in self.ALL if not l.odd]
         self.rigid = len(self.cols) == 1 and ops.DISPENSE_MODE == "drops"          # 单列: 刚体液珠模型 (rigid.py)
+        self.S.strict_transport=self.rigid
+        self.S.outlet_staging_gap=4 if self.rigid else None  # 用户批准：仅孔旁汇液准备区。
         self.deliver = rigid.deliver_drops if self.rigid else ops.deliver_slug
         self.S.manual_aspirations = [] if self.rigid else None
         self.magnet_state='down'  # 运行前必须由操作者/外部控制器确认；不是电机反馈
@@ -49,7 +51,7 @@ class Protocol:
         events = {id(r): info for r, info in (self.S.manual_aspirations or [])}
         rel = []
         for r in self.S.flush():
-            if not r.codes: continue  # 无液相/无电极时不输出空驱动帧。
+            if not r.codes and id(r) not in events: continue  # 保留真实手工回收的末帧撤电。
             if (rel and id(r) not in events and id(rel[-1]) not in events
                     and r.codes == rel[-1].codes and r.amp == rel[-1].amp):
                 rel[-1].dur += r.dur    # 静态保持压成单帧；手工吸液帧保持原对象与边界。
@@ -400,13 +402,14 @@ class Protocol:
         if final:
             self.flow(seg,title,cmds)
             self.cleanup_beads(seg,title,reagent)
+            if seg=='C':self.final_wash(seg,reagent)
             return
         self.flow(seg, title, cmds)
 
     def cleanup_beads(self,seg,title,reagent):
         """两次产物取走后，必须另加真实载液，降磁铁重悬，随后整滴排废；不是第三次产物洗脱。"""
         S=self.S
-        title=f"{'纯化1' if seg=='R1' else '纯化2'}后清理（两次产物已回收，非第三次洗脱）"
+        title=f"{'R17 纯化1' if seg=='R1' else 'C13 纯化2'}后排珠（非洗脱、非通道清洗）"
         assert self.magnet_state=='up','排珠加液前磁铁必须保持升起'
         assert all(S.get(ln.name).vol==0 and getattr(S.get(ln.name),'magnet_only',False) for ln in self.ALL)
         ops.load_holes(S,self.ALL,'S',BEAD_CLEANUP_UL,'E',manual=True)
@@ -420,7 +423,7 @@ class Protocol:
         self.magnet('down',f'{seg} 两次产物吸出且额外3.00µL载液覆盖磁珠后，重悬排珠')
         cleanup_cycles = 2 if seg == 'C' else BEAD_ELUTE_MIX
         self.mix(seg, f'{title} · 磁珠清理重悬（额外3.00µL载液）', cleanup_cycles, initial=cmds,
-                 complete_rounds=2 if seg == 'C' else None,cleanup_channels=True)
+                 complete_rounds=2 if seg == 'C' else None,cleanup_channels=False)
         cmds = []
         event=dict(stage=seg,per_lane_ul=BEAD_CLEANUP_UL,total_ul=round(len(self.ALL)*BEAD_CLEANUP_UL,2),
                    reagent=reagent,loading_hole='S孔×16',mix_cycles=cleanup_cycles,
@@ -428,11 +431,21 @@ class Protocol:
                    waste_begin_frame=S.nsteps,magnet_state=self.magnet_state)
         self.bead_cleanup_events.append(event)
         assert all(S.get(ln.name).vol==BEAD_CLEANUP_UL for ln in self.ALL)
-        # C06为程序最后一步：整步48µL一次装入F1–F4，吸液停靠时反应区内不留液体。
+        # 整步48µL一次装入F1–F4；最终排珠后另加不含磁珠的新液清洗。
         rigid.egress_pieces(S,[(ln,S.get(ln.name)) for ln in self.ALL],self.blob,final=True,single_stop=seg=='C')
         event['waste_end_frame']=S.nsteps
-        cmds.append(self.cmd('清理：末组4×4真实载液到出口后返扫本反应区再排出；3.00µL载液与磁珠一起排至底边孔，不回收文库'))
+        cmds.append(self.cmd('3.00µL载液重悬后直接携珠排废，不扫洗反应区或通道'))
         self.flow(seg,f'{title} · 磁珠清理（48µL额外载液排废，非文库）',cmds)
+
+    def final_wash(self,seg,reagent):
+        """Only after final bead disposal: add fresh, bead-free liquid for washing."""
+        S=self.S
+        assert seg=='C' and not S.drops and self.magnet_state=='down'
+        self.load_samples(seg,'C16 实验结束清洗：新液3.00µL/道（不含磁珠）','S',3.,'L',f'{reagent} 末尾清洗新液')
+        self.mix(seg,'C17 新液清洗反应区及两侧通道（排珠完成后）',2,
+                 complete_rounds=2,cleanup_channels=True)
+        rigid.egress_pieces(S,[(ln,S.get(ln.name)) for ln in self.ALL],self.blob,final=True,single_stop=True)
+        self.flow(seg,'C18 清洗新液排废、孔旁收尾后撤电',[self.cmd('不含磁珠的清洗液排至F孔，手工吸取后孔口电极全部撤除')])
 
 
     # ── 片上定量 (Q 段): 定量滴从进液侧进、劈成两半、拉成底部两行的液指从压扁的文库下面穿过、出排废空隙 ──

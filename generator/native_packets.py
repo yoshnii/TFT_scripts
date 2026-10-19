@@ -112,6 +112,9 @@ def quarter_cdna(S,lanes,tag,away_tag):
 
 
 def deliver(S,reagent,vol,cols,tag,on_before_load=None,on_load=None,controlled=False):
+    if reagent!='G4' or abs(vol-.1)<1e-8:
+        from top_horizontal import deliver as horizontal_deliver
+        return horizontal_deliver(S,reagent,vol,cols,tag,on_before_load,on_load,controlled)
     import rigid as R
     assert len(cols)==1 and geom.odd(cols[0]),'当前原形子滴路由只用于单奇数列'
     if controlled:assert reagent in ('G8','EDTA'),'只改变已点名的B02/B10配送'

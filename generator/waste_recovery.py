@@ -54,6 +54,7 @@ def waste_relays(rects, hole_xs, retained_codes=()):
                 assert _gap(rc, other) >= geom.MIN_GAP, ('孔旁收尾碰撞', rc, other)
         relays.append(Relay(retained_codes+[geom.emit(rc) for rc in frame],
                             1000 if i < 4 else 3000, geom.VOLT))
+    relays.append(Relay(list(retained_codes),1000,geom.VOLT))
     return relays
 
 
@@ -71,5 +72,4 @@ def append_waste_tail(scene, items):
     assert set(scene.relays[-1].codes) == set(relays[0].codes)
     scene.relays.extend(relays[1:])
     scene.nsteps += len(relays)-1
-    finals = [waste_path(d.rect, geom.HOLE_X[k])[-1] for k, d in items]
-    return finals
+    return []  # 孔口已撤电；其他仍在片液滴的电极由 retained 保留。

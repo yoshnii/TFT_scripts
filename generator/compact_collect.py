@@ -82,11 +82,11 @@ def _release_stage(S,job,index):
 
 def _block_path(S, job, d, index):
     import waste_grid as W
-    w=job['w'];park_x=job['final_x']-2*w-geom.MIN_GAP
-    target_x=park_x if index%2==0 else park_x-2*w-geom.MIN_GAP
+    w=job['w'];clearance=job['gap'];park_x=job['final_x']-2*w-clearance
+    target_x=park_x if index%2==0 else park_x-2*w-clearance
     for action in R.go(d,[('x',target_x)]):
         yield action
-        if d.rect[0]>=job['left']+2*w+job['gap']+geom.MIN_GAP:
+        if d.rect[0]>=job['left']+2*w+job['gap']+clearance:
             _release_stage(S,job,index)
     if index%2 == 0:
         yield from R.go(d,[('y',W.TRANSPORT_Y+4+job['gap'])])
@@ -105,7 +105,7 @@ def _block_path(S, job, d, index):
         assert block.rect[2:] == (4*w,8)
         target=(park_x,W.TRANSPORT_Y,2*w,16)
         W._settled_shape(S,block,target,contour.fill(target,32*w))
-        _release_stage(S,job,index)
+        if job['port']!=1:_release_stage(S,job,index)
         _add(S,block,_half_path(S,job,block,index//2))
     yield ('call',half,geom.LONG_MS,[])
 
@@ -123,6 +123,9 @@ def _half_path(S, job, d, pair):
         host.tile_count=16 if second else 8
         host.tile_shape=(job['w'],4);host.tile_area=job['w']*4
         job['blobs'][fk]=host
+        # F1 is immediately under the vertical corridor. Let the half-column
+        # clear that corridor before releasing the next staging group.
+        if fk==1:_release_stage(S,job,2*pair+1)
         for t in range(8 if second else 0,16 if second else 8):
             S.waste_grid_events.append(dict(port=fk,tile_area=job['w']*4,slot=t,
                 row=t//4,column=t%4,step=S.nsteps,merged_without_reshape=True,
@@ -198,7 +201,8 @@ def send(S, pieces, gx, blobs, plan, jobs):
         assert ticket<16 and d.rect[2:]==(job['w'],4)
         d.S=S;d.allow=();d.waste_grid_packet=d.waste_pipeline_clearance=True
         d.tile_area=len(d.target_cells());d.waste_fk=job['port']
-        pool.items.append((d,_tile_path(S,job,d,ticket,gx),R._door_rule(gx)))
+        from transport_spacing import queue_exit
+        pool.items.append((d,queue_exit(S,d,gx,_tile_path(S,job,d,ticket,gx)),R._door_rule(gx)))
         tiles.append(d)
     S.step(geom.HOLD_MS,changed=[])
     return tiles

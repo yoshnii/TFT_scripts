@@ -1,0 +1,179 @@
+{
+  "status": "passed",
+  "native_scope_check": {
+    "flows_including_neighbors": 50,
+    "errors": 0,
+    "warnings": 3,
+    "warning_reasons": ["Legacy 5.2uL single-drop threshold also counts bulk receiving and outlet pool masks", "Preserved 50V hold frames", "Preserved intentional PCR 0V pulse frame"]
+  },
+  "spacing_unit_tests_passed": 6,
+  "nominal_timeout_budget_seconds": {"before": 36572, "after": 49427, "measured_runtime": false},
+  "baseline_sha256": "a0022b82a78f810fd1e5c7ecac9968551f28c3ff54c1e6d5cfc8ded31ff2deec",
+  "script_sha256": "5c7bc363057a1e623566c0e38e165c783efca655c884156779042ef3ccd36363",
+  "cases": [
+    {
+      "case": "sample 1.6 -> .8 -> .4",
+      "frames": 2450,
+      "equal_x_splits": 48,
+      "aspirated_ul": 19.2,
+      "static_geometry_passed": true,
+      "magnet_cut_lines_avoid_black_center": true
+    },
+    {
+      "case": "G4",
+      "frames": 465,
+      "equal_x_splits": 15,
+      "aspirated_ul": 0,
+      "static_geometry_passed": true,
+      "magnet_cut_lines_avoid_black_center": true
+    },
+    {
+      "case": "AMP",
+      "frames": 1467,
+      "equal_x_splits": 30,
+      "aspirated_ul": 0,
+      "static_geometry_passed": true,
+      "magnet_cut_lines_avoid_black_center": true
+    },
+    {
+      "case": "G14",
+      "frames": 2702,
+      "equal_x_splits": 60,
+      "aspirated_ul": 0,
+      "static_geometry_passed": true,
+      "magnet_cut_lines_avoid_black_center": true
+    },
+    {
+      "case": "G8",
+      "frames": 538,
+      "equal_x_splits": 15,
+      "aspirated_ul": 0,
+      "static_geometry_passed": true,
+      "magnet_cut_lines_avoid_black_center": true
+    },
+    {
+      "case": "LIG",
+      "frames": 1227,
+      "equal_x_splits": 30,
+      "aspirated_ul": 0,
+      "static_geometry_passed": true,
+      "magnet_cut_lines_avoid_black_center": true
+    },
+    {
+      "case": "EDTA",
+      "frames": 455,
+      "equal_x_splits": 15,
+      "aspirated_ul": 0,
+      "static_geometry_passed": true,
+      "magnet_cut_lines_avoid_black_center": true
+    },
+    {
+      "case": "G16",
+      "frames": 1269,
+      "equal_x_splits": 30,
+      "aspirated_ul": 0,
+      "static_geometry_passed": true,
+      "magnet_cut_lines_avoid_black_center": true
+    },
+    {
+      "case": "5.0 aqueous waste",
+      "frames": 4294,
+      "equal_x_splits": 112,
+      "aspirated_ul": 80.0,
+      "static_geometry_passed": true,
+      "magnet_cut_lines_avoid_black_center": true
+    },
+    {
+      "case": "5.9 aqueous waste",
+      "frames": 4294,
+      "equal_x_splits": 112,
+      "aspirated_ul": 94.4,
+      "static_geometry_passed": true,
+      "magnet_cut_lines_avoid_black_center": true
+    },
+    {
+      "case": "barcode waste",
+      "frames": 655,
+      "equal_x_splits": 0,
+      "aspirated_ul": 9.6,
+      "static_geometry_passed": true,
+      "magnet_cut_lines_avoid_black_center": true
+    },
+    {
+      "case": "bead carrier R1",
+      "frames": 2589,
+      "equal_x_splits": 48,
+      "aspirated_ul": 48.0,
+      "static_geometry_passed": true,
+      "magnet_cut_lines_avoid_black_center": true
+    },
+    {
+      "case": "bead carrier C",
+      "frames": 2589,
+      "equal_x_splits": 48,
+      "aspirated_ul": 48.0,
+      "static_geometry_passed": true,
+      "magnet_cut_lines_avoid_black_center": true
+    },
+    {
+      "case": "fresh final wash",
+      "frames": 2632,
+      "equal_x_splits": 48,
+      "aspirated_ul": 48.0,
+      "static_geometry_passed": true,
+      "magnet_cut_lines_avoid_black_center": true
+    }
+  ],
+  "approved_spacing": {
+    "top_and_transport": 6,
+    "reaction": "existing 3-4",
+    "outlet_staging": 4,
+    "outlet_entry": "last-row mouth to bottom collector",
+    "C02_entry": "existing 3-4 only while entering reaction well"
+  },
+  "scope": [
+    1002,
+    1022,
+    2000,
+    2013,
+    2061,
+    2063,
+    2068,
+    3002,
+    3026,
+    3041,
+    4000,
+    4013,
+    4041,
+    4043,
+    4048,
+    50000,
+    50001,
+    50002,
+    50003,
+    50004,
+    50005,
+    50006,
+    50007,
+    51000,
+    51002,
+    70000,
+    75000,
+    75010,
+    75020
+  ],
+  "exported_frame_audit": {
+    "energized_frames": 27460,
+    "geometric_splitting_transitions": 619,
+    "non_equal_binary_transitions": [],
+    "physical_liquid_verified": false
+  },
+  "unrelated_native_sections_unchanged": true,
+  "temperature_PCR_cycles_unchanged": true,
+  "workbook_edited": false,
+  "fresh_wash_extra_ul_per_lane": 3.0,
+  "fresh_wash_extra_ul_total": 48.0,
+  "physical_liquid_validation": false,
+  "hardware_verified": false,
+  "GUI_reload_verified": false
+}
