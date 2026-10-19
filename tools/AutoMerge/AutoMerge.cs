@@ -50,6 +50,9 @@ namespace TftPreview {
   [DllImport("user32.dll")] static extern IntPtr GetAncestor(IntPtr h, uint flags);
   [DllImport("user32.dll", CharSet = CharSet.Unicode)] static extern int GetWindowText(IntPtr h, StringBuilder s, int n);
   delegate bool EnumProc(IntPtr h, IntPtr p);
+  public static bool Transient(COMException ex) {
+   return ex.ErrorCode == unchecked((int)0x80010108) || ex.ErrorCode == unchecked((int)0x80010001) || ex.ErrorCode == unchecked((int)0x8001010A);
+  }
   public static int Pid(IntPtr h) { uint p; GetWindowThreadProcessId(h, out p); return (int)p; }
   public static bool OwnedBy(IntPtr dialog, IntPtr main) { return GetAncestor(dialog, 3) == main; }
   public static List<IntPtr> Windows(int p) {
@@ -74,7 +77,7 @@ namespace TftPreview {
     string name = a.get_accName(0) ?? "";
     if (role == 10 && SectionPattern.IsMatch(name)) scope = name;
     string value = "";
-    if (scope.Length != 0) { try { value = a.get_accValue(0) ?? ""; } catch (COMException) { } }
+    if (scope.Length != 0) { try { value = a.get_accValue(0) ?? ""; } catch (COMException ex) { if (Transient(ex)) throw; } }
     list.Add(new Node { Acc = a, Name = name, Value = value, Role = role, State = st, Scope = scope }); kept = true;
     // Never enumerate the electrode/preview grid or use selection/position as a revision.
     if (role == 24 || role == 35 || role == 11) return;
@@ -82,7 +85,7 @@ namespace TftPreview {
     if (count > 200) throw new IOException("Accessibility child list incomplete");
     for (int i = 1; i <= count; i++) {
      IAccessible child = null;
-     try { child = a.get_accChild(i) as IAccessible; } catch (COMException) { }
+     try { child = a.get_accChild(i) as IAccessible; } catch (COMException ex) { if (Transient(ex)) throw; }
      if (child != null) Walk(child, depth + 1, scope, list);
     }
    } finally { if (!kept) Release(a); }
@@ -214,8 +217,10 @@ namespace TftPreview {
    if (wins.Count != 1 || !Access.IsWindowEnabled(main)) {
     // A native editor dialog may change data not exposed by MSAA until it closes.
     // Conservatively re-merge once on return, even when that dialog was cancelled.
-    if (!editorDialog && lastKey.Length != 0) { editKey = lastKey; editVersion++; }
-    editorDialog = true;
+    if (!Access.IsWindowEnabled(main)) {
+     if (!editorDialog && lastKey.Length != 0) { editKey = lastKey; editVersion++; }
+     editorDialog = true;
+    }
     state.Interrupt(); Show("暂停：原软件对话框或调试窗口打开", lastKey); return 400;
    }
    editorDialog = false;
@@ -226,7 +231,8 @@ namespace TftPreview {
     string key = Access.Section(nodes);
     if (key == null || Access.OneButton(nodes, "合并") == null) { state.Interrupt(); Show("等待 section 编辑页", lastKey); return 400; }
     if (key != lastKey) { lastKey = key; if (editKey != key) editKey = ""; }
-    string revision = source.Read(key) + ":" + Access.GraphRevision(nodes, key) + ":" + (editKey == key ? editVersion : 0);
+    string sourceVersion = source.Read(key), graphVersion = Access.GraphRevision(nodes, key);
+    string revision = sourceVersion + ":" + graphVersion + ":" + (editKey == key ? editVersion : 0);
     string token = MergeState.Token(session, key, revision);
     state.StableMilliseconds = stableMs;
     if (!state.Observe(token, clock.ElapsedMilliseconds)) {
@@ -242,7 +248,8 @@ namespace TftPreview {
     var merge = Access.OneButton(nodes, "合并");
     if (merge == null || Access.OneButton(nodes, "连接") == null || !Allowed(epoch, pid)) { state.Interrupt(); return 200; }
     pendingPid = pid; pendingMain = main; pendingKey = key; pendingToken = token; pendingSince = clock.ElapsedMilliseconds;
-    Log("MERGE", key); Show("正在合并当前 section", key); merge.Invoke(); return 200;
+    Log("MERGE", key + "\tsource=" + sourceVersion + "\tgraph=" + graphVersion + "\tedit=" + (editKey == key ? editVersion : 0));
+    Show("正在合并当前 section", key); merge.Invoke(); return 200;
    } finally { Access.Free(nodes); }
   }
   void Loop() {
@@ -257,6 +264,10 @@ namespace TftPreview {
      try { delay = Scan(epoch); }
      catch (XmlException ex) { state.Interrupt(); Show("等待脚本保存完成：" + ex.Message, lastKey); }
      catch (IOException ex) { state.Interrupt(); Show("等待脚本或窗口就绪：" + ex.Message, lastKey); }
+     catch (COMException ex) {
+      if (Access.Transient(ex)) { state.Interrupt(); Show("等待 section 切换完成", lastKey); }
+      else if (epoch == Epoch) StopWithError("检查失败，已禁用：" + ex.Message, ex.Message);
+     }
      catch (Exception ex) { if (epoch == Epoch) StopWithError("检查失败，已禁用：" + ex.Message, ex.Message); }
     }
     wake.WaitOne(delay);

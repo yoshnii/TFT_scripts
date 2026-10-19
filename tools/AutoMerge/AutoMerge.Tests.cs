@@ -33,6 +33,9 @@ namespace TftPreview {
    try { Revision.Flow("<!DOCTYPE Script [<!ENTITY e SYSTEM 'file:///not-read'>]>" + xml,"1"); }
    catch (System.Xml.XmlException) { dtdBlocked = true; }
    Check(dtdBlocked, "external entities blocked");
+   Check(Access.Transient(new System.Runtime.InteropServices.COMException("stale",unchecked((int)0x80010108))), "stale section object is retryable");
+   Check(Access.Transient(new System.Runtime.InteropServices.COMException("busy",unchecked((int)0x8001010A))), "busy TFT is retryable");
+   Check(!Access.Transient(new System.Runtime.InteropServices.COMException("denied",unchecked((int)0x80070005))), "unexpected COM error remains fail closed");
    var nodes = new System.Collections.Generic.List<Node>();
    nodes.Add(new Node { Scope="A",Role=10,Name="canvas",Value="",State=0 });
    nodes.Add(new Node { Scope="A",Role=43,Name="command",Value="1",State=0 });
