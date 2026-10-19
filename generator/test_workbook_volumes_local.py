@@ -37,6 +37,23 @@ class WorkbookVolumesTests(unittest.TestCase):
         self.assertEqual(proof['binary_events_checked'],93)
         self.assertEqual(proof['exported_frame_audit']['non_equal_binary_transitions'],[])
 
+    def test_sample_splitting_stays_in_its_own_reaction_well(self):
+        from audit_binary_frames import PATTERN
+        relays=list(self.flows[70000][0])
+        # Locate the actual complete four-quarter staging frame, not a fixed
+        # frame-count assumption that would miss an inserted movement.
+        end=next(i for i,relay in enumerate(relays) if sorted(int(x) for y,x,h,w
+                 in PATTERN.findall(relay.get('RelayCode','')) if y=='28' and h=='4' and w=='2')==[11,17,23,29])
+        for relay in relays[:end+1]:
+            for y,x,h,w in PATTERN.findall(relay.get('RelayCode','')):
+                x,y,w,h=map(int,(x,y,w,h))
+                self.assertTrue(10<=x<x+w<=46,(relay.get('ItemID'),x,w))
+                row=(y-27)//9+1;py=27+9*(row-1)
+                self.assertTrue(1<=row<=16 and py<=y<y+h<=py+6)
+        proof=json.loads((PROJECT/'取样区内劈裂局部校验_20261019.json').read_text())
+        self.assertEqual(proof['quarter_final_x'],[11,17,23,29])
+        self.assertEqual(proof['equal_split_events'],48)
+
     def test_thermal_targets_and_pcr_are_retained(self):
         cdna=self.flows[1010]
         self.assertEqual([c.get('Params') for c in cdna if c.get('Component')=='Heater1'],['37,1','85,1','4,1'])

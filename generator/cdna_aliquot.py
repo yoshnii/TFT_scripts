@@ -11,9 +11,21 @@ def sample_aliquots(S, lanes, blobs):
     assert len(lanes)==16 and all(S.get(ln.name).vol==1.6 for ln in lanes)
     ops.settle_loaded(S)
     halves=partition(S,[S.get(ln.name) for ln in lanes],2,'x',4)
-    # Reserve the four-cell opening for the next pair of cuts before cutting.
-    ops.move_rects(S,{ds[0].name:ln.X0+1 for ln,ds in zip(lanes,halves)})
+    # Make room on the right, not by pushing the retained branch out of its well.
+    # At column A: 15..19 / 23..27 -> 15..19 / 27..31;
+    # the next equal cuts end at X=11,17,23,29 (all within X=10..46).
+    ops.move_rects(S,{ds[1].name:ln.X0+17 for ln,ds in zip(lanes,halves)})
     quarters=partition(S,[d for ds in halves for d in ds],2,'x',4)
+    # Splitting/staging may not borrow either adjacent channel. The later
+    # intentional waste exit is a separate route, not a splitting exception.
+    for ln in lanes:
+        events=[e for e in S.split_events if any(name.startswith(ln.name+'_') for name in e['children'])]
+        for event in events:
+            for frame in event['positions']:
+                for x,y,w,h in frame:
+                    assert ln.X0<=x<x+w<=ln.X0+geom.LANE_L,('取样劈裂越出本反应区',ln.id,(x,y,w,h))
+                    py=geom.physical_zone(ln.c,ln.r)[1]
+                    assert py<=y<y+h<=py+geom.PHYSICAL_LANE_H
     by_lane={ln.id:[*quarters[2*i],*quarters[2*i+1]] for i,ln in enumerate(lanes)}
     for ln in lanes:
         keep=by_lane[ln.id][0]
