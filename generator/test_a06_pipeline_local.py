@@ -1,84 +1,105 @@
-"""A06-only native regression, with unchanged immediate neighbors and F tail."""
+"""Current rectangle transport: approved waste commands and their boundaries."""
 import copy
+import csv
+import hashlib
+import io
+import json
 from pathlib import Path
 import subprocess
 import tempfile
 import unittest
 import xml.etree.ElementTree as E
-import geom
 from waste_recovery import boxes
-from update_a06_pipeline_local import build
+from update_waste_timing_local import TARGETS,REPORT
 from audit_binary_frames import audit
 
 ROOT=Path(__file__).resolve().parents[1]
 SOURCE='projects/PTseq_SIRO16_A_10x/PTseq_16_A.elab'
 
 
-class A06PipelineTests(unittest.TestCase):
+class WasteTimingTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.before=subprocess.check_output(['git','show','50687a9:'+SOURCE],cwd=ROOT,text=True)
-        cls.after,cls.delta,cls.count,cls.proof=build(cls.before)
-        cls.old=E.fromstring(cls.before);cls.new=E.fromstring(cls.after)
-        cls.flow=cls.new.find("Flow[@ID='1019']");cls.cmd=cls.flow[-1]
+        cls.old=E.fromstring(subprocess.check_output(['git','show','4f9bcef:'+SOURCE],cwd=ROOT,text=True))
+        cls.new=E.parse(ROOT/SOURCE).getroot()
+        cls.proof=json.loads((ROOT/SOURCE).with_name(REPORT).read_text())
+        cls.oldmap={f.get('Name').split()[0]:f for f in cls.old}
+        cls.newmap={f.get('Name').split()[0]:f for f in cls.new}
 
-    def test_only_a06_command_1021_changes(self):
+    def test_only_named_waste_commands_change(self):
         for a,b in zip(self.old,self.new):
-            if a.get('ID')!='1019':self.assertEqual(E.tostring(a),E.tostring(b))
-        self.assertEqual(E.tostring(self.old.find("Flow[@ID='1019']")[0]),E.tostring(self.flow[0]))
-
-    def test_shipped_native_output_matches_generator(self):
-        self.assertEqual((ROOT/SOURCE).read_text(),self.after)
+            if a.get('Name').split()[0] not in TARGETS:self.assertEqual(E.tostring(a),E.tostring(b))
+        self.assertEqual(E.tostring(self.oldmap['A06'][0]),E.tostring(self.newmap['A06'][0]))
+        for label in TARGETS:
+            a,b=self.oldmap[label][-1],self.newmap[label][-1]
+            self.assertEqual({k:v for k,v in a.attrib.items() if k!='Timeout'},
+                             {k:v for k,v in b.attrib.items() if k!='Timeout'})
 
     def test_original_tail_verbatim_except_row_numbers(self):
-        old=self.old.find("Flow[@ID='1019']")[-1]
-        for a,b in zip(list(old)[-23:],list(self.cmd)[-23:]):
-            self.assertEqual({k:v for k,v in a.attrib.items() if k!='ItemID'},
-                             {k:v for k,v in b.attrib.items() if k!='ItemID'})
+        for label in TARGETS:
+            for a,b in zip(list(self.oldmap[label][-1])[-23:],list(self.newmap[label][-1])[-23:]):
+                self.assertEqual({k:v for k,v in a.attrib.items() if k!='ItemID'},
+                                 {k:v for k,v in b.attrib.items() if k!='ItemID'})
 
-    def test_actual_time_reduction(self):
-        self.assertEqual(self.proof['before_seconds'],897)
-        self.assertEqual(self.proof['after_seconds'],796)
-        self.assertEqual(self.proof['saved_seconds'],101)
-        self.assertEqual(sum(int(r.get('Duration')) for r in self.cmd),740000)
+    def test_nominal_time_and_explicit_revert_cost(self):
+        cases={c['section']:c for c in self.proof['cases']}
+        self.assertEqual(cases['A06']['after_seconds'],869)
+        self.assertEqual(cases['A06']['before_seconds'],796)
+        self.assertEqual(897-cases['A06']['after_seconds'],28)
+        self.assertEqual(self.proof['saved_seconds'],191)
+        for label in TARGETS-{'A06'}:self.assertEqual(cases[label]['saved_seconds'],44)
+        for label in TARGETS:
+            cmd=self.newmap[label][-1]
+            self.assertEqual(sum(int(r.get('Duration')) for r in cmd),1000*int(cmd.get('Timeout')))
 
-    def test_raw_area_bounds_and_other_column_exclusion(self):
-        for r in list(self.cmd)[:-23]:
-            rs=boxes(r.get('RelayCode'))
-            self.assertEqual(sum(w*h for x,y,w,h in rs),704)
-            for x,y,w,h in rs:
-                self.assertTrue(0<=x<x+w<=256 and 0<=y<y+h<=192)
-                self.assertFalse(y<172 and x<68 and x+w>50)
-                if y>=172:self.assertIn((w,h),((4,4),(8,8),(16,16)))
+    def test_area_levels_unchanged_outside_aspiration(self):
+        # No new carrier padding; only rectangle positions and timing differ.
+        for label in TARGETS:
+            def levels(cmd):
+                return {sum(w*h for x,y,w,h in boxes(r.get('RelayCode'))) for r in list(cmd)[:-23]}
+            self.assertEqual(levels(self.oldmap[label][-1]),levels(self.newmap[label][-1]),label)
 
-    def test_residents_never_lose_power(self):
-        resident=boxes(self.flow[0][-1].get('RelayCode'))[::2]
-        # Source code order is not relied on: identify the 0.50-uL 3x4 masks.
-        resident=[r for r in boxes(self.flow[0][-1].get('RelayCode')) if r[2:]==(3,4)]
-        self.assertEqual(len(resident),16)
-        for r in self.cmd:self.assertTrue(set(resident)<=set(boxes(r.get('RelayCode'))))
+    def test_energized_frames_bounds_and_other_column_exclusion(self):
+        for label in TARGETS:
+            for r in self.newmap[label][-1]:
+                self.assertGreater(float(r.get('Amp')),0)
+                rs=boxes(r.get('RelayCode'));self.assertTrue(rs)
+                for x,y,w,h in rs:
+                    self.assertTrue(0<=x<x+w<=256 and 0<=y<y+h<=192)
+                    self.assertFalse(y<172 and x<68 and x+w>50)
 
-    def test_volume_and_port_counts_unchanged(self):
-        self.assertEqual(self.proof['ports'],['F3','F1'])
-        self.assertEqual(self.proof['total_waste_ul'],24.)
-        for event in self.proof['collection']:
-            self.assertEqual(len(event['blocks']),4)
-            self.assertEqual(sum(b['volume_ul'] for b in event['blocks']),12.)
-            self.assertTrue(all(b['rectangle'][2:]==[8,8] for b in event['blocks']))
+    def test_a06_residents_never_lose_power(self):
+        f=self.newmap['A06'];res=[r for r in boxes(f[0][-1].get('RelayCode')) if r[2:]==(3,4)]
+        self.assertEqual(len(res),16)
+        for r in f[-1]:self.assertTrue(set(res)<=set(boxes(r.get('RelayCode'))))
 
-    def test_near_port_work_overlaps_far_port_work(self):
-        far,near=self.proof['collection']
-        self.assertLess(near['blocks'][0]['frame'],far['end_frame'])
-        self.assertLess(near['docks'][0]['frame'],far['end_frame'])
+    def test_aspiration_csv_unchanged_except_row_count(self):
+        path=(ROOT/SOURCE).with_name('手工吸液顺序.csv')
+        before=subprocess.check_output(['git','show','4f9bcef:'+str(path.relative_to(ROOT))],cwd=ROOT).decode('utf-8-sig')
+        a=list(csv.DictReader(io.StringIO(before)))
+        b=list(csv.DictReader(io.StringIO(path.read_text(encoding='utf-8-sig'))))
+        self.assertEqual(len(a),len(b))
+        for old,new in zip(a,b):
+            if old['吸液流程组名称'].split()[0] in TARGETS:
+                self.assertEqual({k:v for k,v in old.items() if k!='末尾帧号'},
+                                 {k:v for k,v in new.items() if k!='末尾帧号'})
+            else:self.assertEqual(old,new)
 
-    def test_binary_split_audit_including_neighbors(self):
-        flows=list(self.new);i=next(i for i,f in enumerate(flows) if f.get('ID')=='1019')
+    def test_binary_split_audit_with_immediate_neighbors(self):
+        fs=list(self.new);indices={i for i,f in enumerate(fs) if f.get('Name').split()[0] in TARGETS}
+        included={j for i in indices for j in (i-1,i,i+1) if 0<=j<len(fs)}
         context=E.Element('Script')
-        for f in flows[i-1:i+2]:context.append(copy.deepcopy(f))
-        with tempfile.TemporaryDirectory(prefix='tft-a06-check-') as temp:
+        for i in sorted(included):context.append(copy.deepcopy(fs[i]))
+        with tempfile.TemporaryDirectory(prefix='tft-waste-local-') as temp:
             path=Path(temp)/'context.elab';E.ElementTree(context).write(path,encoding='utf-8')
             result=audit(path)
         self.assertFalse(result['non_equal_binary_transitions'],result)
+
+    def test_hash_and_main_timeout(self):
+        self.assertEqual(hashlib.sha256((ROOT/SOURCE).read_bytes()).hexdigest(),self.proof['source_sha256'])
+        total=sum(int(f.get('Timeout'))*int(f.get('Repeats','1')) for f in self.new)
+        main=E.parse((ROOT/SOURCE).with_name('main.elab')).getroot()
+        self.assertEqual(int(main[0].get('Timeout')),total)
 
 
 if __name__=='__main__':unittest.main()

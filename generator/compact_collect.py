@@ -50,12 +50,12 @@ def _assemble(S, job, ds, index):
     assert len(top) == 2
     for d in ds:
         d.allow = tuple(q.name for q in ds if q is not d)
-    for _ in range(4):
+    for _ in range(job['gap']):
         yield _call_move(S,top,0,1)
     def columns():
         bars=[]
         for col in (0,1):
-            part=[d for d in ds if d.rect[0] == job['left']+col*(job['w']+4)]
+            part=[d for d in ds if d.rect[0] == job['left']+col*(job['w']+job['gap'])]
             bars.append(_join(S,part,f"WBAR{job['port']}_{index}_{col}"))
         bars[0].allow=(bars[1].name,)
         bars[1].allow=(bars[0].name,)
@@ -64,7 +64,7 @@ def _assemble(S, job, ds, index):
 
 
 def _close_columns(S, job, bars, index):
-    for _ in range(4):
+    for _ in range(job['gap']):
         yield _call_move(S,[bars[0]],1,0)
     def block():
         d=_join(S,bars,f"WBLOCK{job['port']}_{index}")
@@ -86,10 +86,10 @@ def _block_path(S, job, d, index):
     target_x=park_x if index%2==0 else park_x-2*w-geom.MIN_GAP
     for action in R.go(d,[('x',target_x)]):
         yield action
-        if d.rect[0]>=job['left']+2*w+4+geom.MIN_GAP:
+        if d.rect[0]>=job['left']+2*w+job['gap']+geom.MIN_GAP:
             _release_stage(S,job,index)
     if index%2 == 0:
-        yield from R.go(d,[('y',180)])
+        yield from R.go(d,[('y',W.TRANSPORT_Y+4+job['gap'])])
         # Park below the incoming Y172 corridor, not across it.
         job['parked'][index//2]=d
         yield ('call',lambda:_release_stage(S,job,index),geom.HOLD_MS,[])
@@ -146,7 +146,7 @@ def _tile_path(S, job, d, ticket, gx):
     # Fill the farther column first; the next tile never crosses an occupied top slot.
     far=0 if job['left']<gx else 1
     col=far if i%2==0 else 1-far
-    x=job['left']+col*(job['w']+4)
+    x=job['left']+col*(job['w']+job['gap'])
     yield from R.go(d,[('y',W.TRANSPORT_Y)])
     released=False
     for action in R.go(d,[('x',x)]):
@@ -156,7 +156,7 @@ def _tile_path(S, job, d, ticket, gx):
             job['entry']+=1;released=True
     if not released:
         job['entry']+=1
-    yield from R.go(d,[('y',180 if i<2 else 172)])
+    yield from R.go(d,[('y',W.TRANSPORT_Y+4+job['gap'] if i<2 else W.TRANSPORT_Y)])
     job['arrived'].append(d)
     job['event']['entries'].append(dict(ticket=ticket,frame=S.nsteps))
     if i==3:
@@ -187,9 +187,10 @@ def send(S, pieces, gx, blobs, plan, jobs):
             fk=plan['specs'][key]['port'];w=d.rect[2]
             assert not blobs.get(fk)
             fx=geom.HOLE_X[fk]-2*w
-            left=(fx-(4*w+12+geom.MIN_GAP) if fx<gx+geom.CH_W+geom.PREFERRED_GAP
+            gap=plan.get('compact_gap',4)
+            left=(fx-(4*w+3*gap+geom.MIN_GAP) if fx<gx+geom.CH_W+geom.PREFERRED_GAP
                   else gx+geom.CH_W+geom.MIN_GAP)
-            job=jobs[key]=dict(port=fk,w=w,left=left,parked={},
+            job=jobs[key]=dict(port=fk,w=w,left=left,gap=gap,parked={},
                 final_x=fx,blobs=blobs,group=0,entry=0,count=0,arrived=[],
                 event=dict(port=fk,scheduled_drops=16,start_frame=S.nsteps,entries=[],row_merges=[]))
             S.compact_collect_jobs.append(job);S.waste_parallel_events.append(job['event'])

@@ -1,0 +1,205 @@
+{
+  "status": "passed",
+  "base_sha256": "f55c15e55165ede8d9492a4a0c78a71564a4beab02220e657f89a5252ea8f7a3",
+  "source_sha256": "a3567580dc059ec55ced07f07e46bd8ffaa08470ada2f9c24a4228d97c2071d4",
+  "cases": [
+    {
+      "section": "A06",
+      "before_seconds": 796,
+      "after_seconds": 869,
+      "saved_seconds": -73,
+      "frames_before": 702,
+      "frames_after": 761,
+      "port_volumes": {
+        "F3": 12.0,
+        "F1": 12.0
+      },
+      "actual_waste_ul": 24.0,
+      "tail_23_unchanged": true,
+      "moving_packet_shape": [
+        4,
+        4
+      ],
+      "merged_transport_shape": [
+        8,
+        16
+      ],
+      "full_rectangles": true,
+      "source_split_algorithm_unchanged": true,
+      "source_split_command_verbatim": true
+    },
+    {
+      "section": "R05",
+      "before_seconds": 1531,
+      "after_seconds": 1487,
+      "saved_seconds": 44,
+      "frames_before": 1461,
+      "frames_after": 1417,
+      "port_volumes": {
+        "F4": 10.0,
+        "F3": 10.0,
+        "F2": 10.0,
+        "F1": 10.0
+      },
+      "actual_waste_ul": 40.0,
+      "tail_23_unchanged": true,
+      "moving_packet_shape": [
+        4,
+        4
+      ],
+      "merged_transport_shape": [
+        8,
+        16
+      ],
+      "full_rectangles": true,
+      "source_split_algorithm_unchanged": true,
+      "source_split_command_verbatim": false
+    },
+    {
+      "section": "R06",
+      "before_seconds": 1539,
+      "after_seconds": 1495,
+      "saved_seconds": 44,
+      "frames_before": 1470,
+      "frames_after": 1426,
+      "port_volumes": {
+        "F4": 10.0,
+        "F3": 10.0,
+        "F2": 10.0,
+        "F1": 10.0
+      },
+      "actual_waste_ul": 40.0,
+      "tail_23_unchanged": true,
+      "moving_packet_shape": [
+        4,
+        4
+      ],
+      "merged_transport_shape": [
+        8,
+        16
+      ],
+      "full_rectangles": true,
+      "source_split_algorithm_unchanged": true,
+      "source_split_command_verbatim": false
+    },
+    {
+      "section": "R19",
+      "before_seconds": 1538,
+      "after_seconds": 1494,
+      "saved_seconds": 44,
+      "frames_before": 1469,
+      "frames_after": 1425,
+      "port_volumes": {
+        "F4": 12.0,
+        "F3": 12.0,
+        "F2": 12.0,
+        "F1": 12.0
+      },
+      "actual_waste_ul": 48.0,
+      "tail_23_unchanged": true,
+      "moving_packet_shape": [
+        4,
+        4
+      ],
+      "merged_transport_shape": [
+        8,
+        16
+      ],
+      "full_rectangles": true,
+      "source_split_algorithm_unchanged": true,
+      "source_split_command_verbatim": false
+    },
+    {
+      "section": "C05",
+      "before_seconds": 1529,
+      "after_seconds": 1485,
+      "saved_seconds": 44,
+      "frames_before": 1459,
+      "frames_after": 1415,
+      "port_volumes": {
+        "F4": 11.8,
+        "F3": 11.8,
+        "F2": 11.8,
+        "F1": 11.8
+      },
+      "actual_waste_ul": 47.2,
+      "tail_23_unchanged": true,
+      "moving_packet_shape": [
+        4,
+        4
+      ],
+      "merged_transport_shape": [
+        8,
+        16
+      ],
+      "full_rectangles": true,
+      "source_split_algorithm_unchanged": true,
+      "source_split_command_verbatim": false
+    },
+    {
+      "section": "C06",
+      "before_seconds": 1539,
+      "after_seconds": 1495,
+      "saved_seconds": 44,
+      "frames_before": 1470,
+      "frames_after": 1426,
+      "port_volumes": {
+        "F4": 11.8,
+        "F3": 11.8,
+        "F2": 11.8,
+        "F1": 11.8
+      },
+      "actual_waste_ul": 47.2,
+      "tail_23_unchanged": true,
+      "moving_packet_shape": [
+        4,
+        4
+      ],
+      "merged_transport_shape": [
+        8,
+        16
+      ],
+      "full_rectangles": true,
+      "source_split_algorithm_unchanged": true,
+      "source_split_command_verbatim": false
+    },
+    {
+      "section": "C15",
+      "before_seconds": 1538,
+      "after_seconds": 1494,
+      "saved_seconds": 44,
+      "frames_before": 1469,
+      "frames_after": 1425,
+      "port_volumes": {
+        "F4": 12.0,
+        "F3": 12.0,
+        "F2": 12.0,
+        "F1": 12.0
+      },
+      "actual_waste_ul": 48.0,
+      "tail_23_unchanged": true,
+      "moving_packet_shape": [
+        4,
+        4
+      ],
+      "merged_transport_shape": [
+        8,
+        16
+      ],
+      "full_rectangles": true,
+      "source_split_algorithm_unchanged": true,
+      "source_split_command_verbatim": false
+    }
+  ],
+  "saved_seconds": 191,
+  "timing_changes_only": "three-cell collection gaps; unchanged 1000ms moves and 4000ms reshapes",
+  "unrelated_sections_unchanged": true,
+  "actual_volumes_unchanged": true,
+  "packet_area_unchanged": true,
+  "merged_area_unchanged": true,
+  "hardware_verified": false,
+  "local_tests_passed": 9,
+  "local_static_errors": 0,
+  "local_static_warning_types": ["existing large waste electrode masks", "existing 50V drive frames"],
+  "visual_check": "native XML overview inspected: each changed section at early transport, later transport, full collection and final suction; tail 23 frames checked byte-equivalent except ItemID"
+}

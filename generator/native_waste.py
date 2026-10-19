@@ -32,7 +32,8 @@ def schedule(round_count,w,h,kind):
         for r in range(nround):
             chunk=assign[r*16:(r+1)*16];keys=list(dict.fromkeys(k for k,row,col in chunk))
             plans.append(dict(stop=stop,flush=r==nround-1,ports=[specs[k]['port'] for k in keys],
-                assign=chunk,specs=specs,minimum_ports=ports,packed=True))
+                assign=chunk,specs=specs,minimum_ports=ports,packed=True,
+                compact_gap=3 if kind in ('A05','R04','C04','cleanup') and (w,h)==(4,4) else 4))
     return plans
 
 
@@ -94,8 +95,6 @@ def bites(S,items,blobs,final=True,pellets=None,collect_three=False,collect_a05=
             child.native_packet=True;child.native_leaf_shape=(w,h)
             pieces.append((ln,child))
         plan=plans[index]
-        if kind=='A05' and n==32 and collect_a05:
-            plan['a06_square_pipeline']=True
         tiles=W._send_pipeline(S,pieces,gx,blobs,plan,jobs)
         if plan['flush']:
             W._drain(S,lambda:not S.waste_pool.items)
