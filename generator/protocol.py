@@ -82,6 +82,10 @@ class Protocol:
     # ── 复合动作 ──
     def add_reagent(self, seg, title, reagent, vol, park=True):
         S, cmds = self.S, []
+        if reagent=='G4' and abs(vol-.10)<1e-8:
+            # The post-aspiration receiving section contains this one parallel
+            # area-preserving reshape, not an extra empty continuation section.
+            rigid.reshape_many(S,[(S.get(ln.name),(S.get(ln.name).rect[0],ln.Y0,4,2)) for ln in self.ALL])
         total=round(S.get(self.ALL[0].name).vol+vol,2)
         S.clearance_context=1 if geom.running_gap(total)==1 else None
         if total in (4.,5.,5.9):
@@ -359,7 +363,8 @@ class Protocol:
         S.step(geom.HOLD_MS,changed=[])
         ops.merge_all(S,self.ALL,'E');cmds.append(self.cmd('S孔加液完成 · 磁铁保持升起 · 洗脱液逐格覆盖磁珠后再降下'))
         self.magnet('down',f'{seg} 第{round_no}次洗脱液覆盖磁珠后重悬前')
-        self.mix(seg, title + f' · 第{round_no}次磁铁落下重悬', resus_cycles, initial=cmds)
+        self.mix(seg, title + f' · 第{round_no}次磁铁落下重悬', resus_cycles, initial=cmds,
+                 seconds=288 if seg=='R1' and abs(vol-3.)<1e-8 else None)
         cmds = []
         incubation=300 if seg=='R1' else 180
         if seg=='R1':
@@ -368,7 +373,8 @@ class Protocol:
             first_incubation=len(self.segs.get(seg,[]))
             for at in (120,240):
                 wait = self.hold(f'磁铁保持下降 · 洗脱孵育等待 {at-elapsed:g}s', at-elapsed)
-                elapsed += self.mix(seg, title + f' · 孵育第{at}s轻晃', cycles=2, initial=[wait])
+                elapsed += self.mix(seg, title + f' · 孵育第{at}s轻晃', cycles=2, initial=[wait],
+                                    seconds=49 if abs(vol-3.)<1e-8 else None)
                 assert elapsed<=incubation,'轻晃动作超过洗脱孵育窗口'
                 periodic.append(dict(start_seconds=at,cycles=2,end_seconds=elapsed))
             tail=self.hold(f'第{round_no}次：洗脱孵育剩余等待 {incubation-elapsed:g}s', incubation-elapsed)
@@ -537,11 +543,12 @@ class Protocol:
             geom.magnetic_shape(round(4.20+1.70,2),allow_590_cross=True)
         S = self.S
         # 段 A
-        self.load_samples("A", "A01 上样 1.60µL (S孔距一格承接)", "S", 1.60, "L", "待测核酸")
-        self.add_reagent("A", "A02 加 G4 cDNA合成反应液 0.40µL", "G4", 0.40)
+        from cdna_aliquot import load_and_aliquot
+        load_and_aliquot(self)
+        self.add_reagent("A", "A03 加 G4 cDNA合成反应液 0.10µL（1.60µL母液四级等分）", "G4", 0.10)
         self.mix("A", "A03 往复混匀", seconds=A03_MIX_SECONDS)
         self.thermal("A", "A04 cDNA合成 37℃10min→85℃5s→4℃", [(37, 600), (85, 5)], lid=105)
-        self.split_waste("A", "A05 劈裂 留25%(0.50µL) 弃1.50µL", 0.50, "cDNA 弃液 1.50µL")
+        # New 0.50µL cDNA is all retained; do not discard another 75%.
         self.add_reagent("A", "A06 加靶向扩增反应液 2.00µL(台面预混)", "AMP", 2.00)
         self.mix("A", "A07 往复混匀")
         self.pcr_thermal_block("A", "A08 预变性→PCR三段×30→终延伸→4℃")
@@ -549,10 +556,10 @@ class Protocol:
         self.add_reagent("R1", "R01 加 G14 磁珠 2.50µL (1:1)", "G14", 2.50)
         self.bead_capture("R1", "R02-R03 混匀结合5min → 移至磁铁 → 磁吸", mix_cycles=BEAD_BIND_MIX['R1'], mix_span=19)
         self.supernatant_off("R1", "R04 液相移离磁珠 → 排废全部5.00µL（不保留计划液相）")
-        self.elute_offchip("R1", "R05 纯化1第1次洗脱：溶解液 5.00µL → 产物离片", "G15", 5.00, 5.00, 1, final=False)
-        self.elute_offchip("R1", "R06 纯化1第2次洗脱：溶解液 5.00µL → 产物离片", "G15", 5.00, 5.00, 2, final=True)
+        self.elute_offchip("R1", "R05 纯化1第1次洗脱：溶解液 3.00µL → 产物离片", "G15", 3.00, 3.00, 1, final=False)
+        self.elute_offchip("R1", "R06 纯化1第2次洗脱：溶解液 3.00µL → 产物离片", "G15", 3.00, 3.00, 2, final=True)
         # 两次洗脱产物下片 Qubit/手工均一化；以 1.30µL/道回片开始段 B。
-        self.load_samples("B", "B01 均一化后产物 1.30µL 回片 (S孔距一格承接)", "S", 1.30, "L", "均一化产物",receiving_shape=(6,5))
+        self.load_samples("B", "B01 均一化后产物50ng/µL，1.30µL/道=65ng 回片", "S", 1.30, "L", "均一化产物50ng/µL",receiving_shape=(6,5))
         self.add_reagent("B", "B02 加 Rapid End Repair ReadyMix 0.70µL", "G8", 0.70)
         self.mix("B", "B03 往复混匀")
         self.thermal("B", "B04 末端修复加A 37℃4min→4℃", [(37, 240)], lid=105)

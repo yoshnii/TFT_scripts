@@ -115,16 +115,18 @@ def deliver(S,reagent,vol,cols,tag,on_before_load=None,on_load=None,controlled=F
     import rigid as R
     assert len(cols)==1 and geom.odd(cols[0]),'当前原形子滴路由只用于单奇数列'
     if controlled:assert reagent in ('G8','EDTA'),'只改变已点名的B02/B10配送'
-    c=cols[0];ports,n,pv,w,h,per_lane=_configuration(reagent)
+    small_g4 = reagent == 'G4' and abs(vol-.10)<1e-8
+    c=cols[0]
+    ports,n,pv,w,h,per_lane=(1,16,.10,1,2,1) if small_g4 else _configuration(reagent)
     assert abs(pv*per_lane-vol)<1e-8
     initial={r:S.get(ops.Lane(c,r).name).vol for r in range(1,17)}
     if on_before_load:on_before_load()
     roots=[];fields=[];left=geom.SAFE_X;spacing=3
     for k in range(1,ports+1):
-        capacity=72 if reagent=='G4' else 240 if reagent in ('G8','LIG') else w*h*n
+        capacity=72 if reagent=='G4' and not small_g4 else 240 if reagent in ('G8','LIG') else w*h*n
         actual=round(pv*n,10)
-        rw,rh=R.compact_receiving_shape(capacity)
-        if reagent=='G4':rw,rh=12,6  # Direct manual receiving frame; no 8×8 stage.
+        rw,rh=(8,4) if small_g4 else R.compact_receiving_shape(capacity)
+        if reagent=='G4' and not small_g4:rw,rh=12,6  # Legacy approved receiving frame.
         elif reagent in ('G8','LIG'):rw,rh=20,12
         elif reagent=='G16':rw,rh=20,16
         d=S.add(Drop(f'D{reagent}E{k}',(geom.HOLE_X[k]-rw//2,geom.E_TANG_Y,rw,rh),actual))
@@ -153,7 +155,7 @@ def deliver(S,reagent,vol,cols,tag,on_before_load=None,on_load=None,controlled=F
     parallel_amp=[]
     for f in fields:
         if reagent in ('G8','LIG','G16'):continue
-        W,H=(12,6) if reagent=='G4' else (20,12) if reagent=='G14' else (f['nx']*w,2*h)
+        W,H=(12,6) if reagent=='G4' and not small_g4 else (20,12) if reagent=='G14' else (f['nx']*w,2*h)
         d=f['root'];cy=d.rect[1]+(d.rect[3]-H)//2
         target=(geom.HOLE_X[f['port']]-W//2,cy,W,H)
         if reagent=='AMP':parallel_amp.append((d,target))
@@ -166,7 +168,7 @@ def deliver(S,reagent,vol,cols,tag,on_before_load=None,on_load=None,controlled=F
     if reagent in ('G8','LIG','G16'):
         from compact_cascade import generate
         generate(S,fields,reagent)
-    elif reagent=='G4':
+    elif reagent=='G4' and not small_g4:
         # Mother reshapes are parallel and add four cells, never remove area.
         # Descendants stay native 3×4 until the existing chemical fusion.
         def expand_mothers(nodes,width,height):
@@ -278,7 +280,7 @@ def deliver(S,reagent,vol,cols,tag,on_before_load=None,on_load=None,controlled=F
         assert abs(S.get(f'{tag}{ln.id}').vol-vol)<1e-8
     S.pipeline_events.append(dict(kind='all_ready',rows=list(range(1,17)),step=S.nsteps))
     S.step(geom.HOLD_MS,changed=[]);ops.merge_all(S,lanes,tag)
-    if reagent=='G4':
+    if reagent=='G4' and not small_g4:
         # Preserve the released A03 endpoint and its one-cell transition into A04.
         ops.move_rects(S,{ln.name:ln.X0+26 for ln in lanes})
     elif reagent=='AMP' and all(getattr(S.get(ln.name),'a06_authorized_padding',False) for ln in lanes):
