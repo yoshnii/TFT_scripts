@@ -6,6 +6,62 @@ import waste_grid as W
 from native_packets import partition
 
 
+def _stream_exit(S,d,gx,previous,first,assignments,jobs):
+    """Reuse vacated channel space; allocate outlet slots in arrival order."""
+    while ((previous is not None and previous.rect[0]<gx)
+           or (first and any(q.rect[0]<gx for q in first))):
+        yield 'wait'
+    # Wait outside the channel's six-cell clearance, not halfway through
+    # its door where a descending packet and an entering packet could jam.
+    yield from R.go(d,[('y',d.rect[1]+1),('x',gx-6-d.rect[2])])
+    travel=gx-d.rect[0]
+    def opening():
+        target=(gx,d.rect[1],*d.rect[2:])
+        if not R.rect_ok(S,d.name,target):return False
+        for other in S.drops.values():
+            if other is d:continue
+            x,y,w,h=other.rect
+            if x+w>gx-6 and x<gx+geom.CH_W and y+h<=d.rect[1]:
+                if d.rect[1]-y-h<6+travel:return False
+        return True
+    while not opening():yield 'wait'
+    yield from R.go(d,[('x',gx)])
+    S.a02_exit_events=getattr(S,'a02_exit_events',[])
+    S.a02_exit_events.append(dict(name=d.name,batch=d.batch_round,frame=S.nsteps,
+        first_batch_still_in_channel=any(S.drops.get(q.name) is q and q.rect[1]<172 for q in first)))
+    yield from R.go(d,[('y',164)])
+    ticket=S.a02_outlet_ticket;S.a02_outlet_ticket+=1
+    key,row,pos=assignments[ticket];job=jobs[key]
+    d.waste_fk=job['port'];d.slot=job['rows'][row]['n']-1-pos
+    job['event'].setdefault('arrival_order',[]).append(d.name)
+    yield from W._tile_path(S,d,job,ticket,row,pos,gx)
+
+
+def _send_stream(S,pieces,gx,blobs,specs,assignments,jobs,previous,first):
+    pool=W._pool(S)
+    S.waste_grid_events=getattr(S,'waste_grid_events',[])
+    for key,spec in specs.items():
+        if key not in jobs:jobs[key]=W._job(S,spec,blobs,gx)
+    if not hasattr(S,'a02_outlet_ticket'):S.a02_outlet_ticket=0
+    S.batch_channel_x=gx
+    S.batch_members=getattr(S,'batch_members',{})
+    batch=len(S.batch_members);members=S.batch_members[batch]=[]
+    S.waste_batch_events=getattr(S,'waste_batch_events',[])
+    S.waste_batch_events.append(dict(count=len(pieces),ports=[3,1],tile_shape=[2,4],
+                                    streaming_channel=True))
+    S.batch_events=getattr(S,'batch_events',[])
+    S.batch_events.append(dict(round=batch,start_frame=S.nsteps,packets=len(pieces)))
+    for ln,d in pieces:
+        assert d.rect[2:]==(2,4) and d.vol==.4
+        d.S=S;d.allow=();d.waste_grid_packet=d.waste_pipeline_clearance=True
+        d.batch_round=batch;d.tile_area=8
+        leader=previous.get(ln.id);previous[ln.id]=d
+        path=_stream_exit(S,d,gx,leader,first,assignments,jobs)
+        pool.items.append((d,path,R._door_rule(gx)));members.append(d)
+    S.step(geom.HOLD_MS,changed=[])
+    return members
+
+
 def sample_aliquots(S, lanes, blobs):
     lanes=list(lanes)
     assert len(lanes)==16 and all(S.get(ln.name).vol==1.6 for ln in lanes)
@@ -36,24 +92,15 @@ def sample_aliquots(S, lanes, blobs):
                         strict_staging=True,stage_before_hole=k==3) for k in (3,1)}
     assignments=[((1,k),i//6,i%6) for k in (3,1) for i in range(24)]
     gx=geom.gap_x(geom.waste_gap(lanes[0].c));jobs={}
-    S.batch_generic=True
-    for batch in range(3):
-        pieces=[(ln,by_lane[ln.id][3-batch]) for ln in lanes]
-        plan=dict(stop=1,flush=batch==2,ports=[3,1],assign=assignments[16*batch:16*(batch+1)],
-                  specs=specs,minimum_ports=2,packed=True)
-        ordered=sorted(pieces,key=lambda item:-item[0].r)
-        # Do not interleave opposing bottom-band row transfers for F3 and F1.
-        # Both pools are still aspirated together; no extra tip or stop.
-        for key in dict.fromkeys(a[0] for a in plan['assign']):
-            chosen=[(piece,a) for piece,a in zip(ordered,plan['assign']) if a[0]==key]
-            sub=dict(plan,assign=[a for piece,a in chosen])
-            tiles=W._send_pipeline(S,[piece for piece,a in chosen],gx,blobs,sub,jobs)
-            for job in jobs.values():
-                if job['port']!=3:job['under_exit']=True
-            W._drain(S,lambda:all(S.drops.get(d.name) is not d or d.rect[1]>=W.TRANSPORT_Y for d in tiles))
-            if chosen[-1][1][1:]==(3,5) and key[1]!=3:
-                W._drain(S,lambda:not S.waste_pool.items)
+    previous={}
+    first=_send_stream(S,[(ln,by_lane[ln.id][3]) for ln in reversed(lanes)],
+                       gx,blobs,specs,assignments,jobs,previous,[])
+    # Register both remaining aliquots together. Each row follows its own
+    # predecessor as soon as channel space opens, not after the train docks.
+    rest=[(ln,by_lane[ln.id][quarter]) for quarter in (2,1) for ln in reversed(lanes)]
+    _send_stream(S,rest,gx,blobs,specs,assignments,jobs,previous,first)
     W._drain(S,lambda:not S.waste_pool.items)
+    assert S.a02_outlet_ticket==48
     W.flush(S,blobs)
     assert all(abs(S.get(ln.name).vol-.4)<1e-8 for ln in lanes)
 
