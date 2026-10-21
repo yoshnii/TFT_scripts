@@ -51,7 +51,7 @@ def sample_aliquots(S, lanes, blobs):
             for job in jobs.values():
                 if job['port']!=3:job['under_exit']=True
             W._drain(S,lambda:all(S.drops.get(d.name) is not d or d.rect[1]>=W.TRANSPORT_Y for d in tiles))
-            if chosen[-1][1][1:]==(3,5):
+            if chosen[-1][1][1:]==(3,5) and key[1]!=3:
                 W._drain(S,lambda:not S.waste_pool.items)
     W._drain(S,lambda:not S.waste_pool.items)
     W.flush(S,blobs)

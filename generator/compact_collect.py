@@ -75,9 +75,8 @@ def _close_columns(S, job, bars, index):
 def _release_stage(S,job,index):
     if job['group'] != index:return
     job.update(group=index+1,entry=0)
-    if index==3:
-        assert S.compact_collect_jobs[0] is job
-        S.compact_collect_jobs.pop(0)
+    if index==3 and job in S.compact_collect_jobs:
+        S.compact_collect_jobs.remove(job)
 
 
 def _block_path(S, job, d, index):
@@ -139,26 +138,55 @@ def _half_path(S, job, d, pair):
     yield ('call',dock,geom.HOLD_MS,[])
 
 
+def _active(S, job):
+    """20261021: a port job may start once every earlier job has sent all of
+    its tiles past the channel mouth; ports then assemble in parallel."""
+    for j in S.compact_order:
+        if j is job:return True
+        if j['entered']<16:return False
+    return True
+
+
 def _tile_path(S, job, d, ticket, gx):
     import waste_grid as W
     yield from R.go(d,[('x',gx),('y',164)])
-    while (S.compact_collect_jobs[0] is not job or job['group']!=ticket//4
-           or job['entry']!=ticket%4):
+    while not _active(S,job) or job['mouth']!=ticket:
         yield 'wait'
     i=ticket%4
     # Fill the farther column first; the next tile never crosses an occupied top slot.
     far=0 if job['left']<gx else 1
     col=far if i%2==0 else 1-far
     x=job['left']+col*(job['w']+job['gap'])
+    if job['left']<gx:
+        # Mouth-side pool (F1): keep the original group gating before the
+        # packet leaves the channel.
+        while job['group']!=ticket//4 or job['entry']!=ticket%4:
+            yield 'wait'
     yield from R.go(d,[('y',W.TRANSPORT_Y)])
-    released=False
-    for action in R.go(d,[('x',x)]):
-        yield action
-        if not released and (d.rect[0]>=gx+geom.CH_W+geom.MIN_GAP
-                             or d.rect[0]+d.rect[2]<=gx-geom.MIN_GAP):
-            job['entry']+=1;released=True
-    if not released:
+    def passed():
+        return (d.rect[0]>=gx+geom.CH_W+geom.MIN_GAP or d.rect[0]+d.rect[2]<=gx-geom.MIN_GAP)
+    if job['left']>gx:
+        # Leave the mouth at once and queue at the port's own holding point,
+        # six cells before its staging slots; group gating happens there.
+        hold=job['left']-d.rect[2]-6
+        released=False
+        for action in R.go(d,[('x',hold)]):
+            yield action
+            if not released and passed():
+                job['mouth']+=1;job['entered']+=1;released=True
+        if not released:job['mouth']+=1;job['entered']+=1
+        while job['group']!=ticket//4 or job['entry']!=ticket%4:
+            yield 'wait'
         job['entry']+=1
+        yield from R.go(d,[('x',x)])
+    else:
+        released=False
+        for action in R.go(d,[('x',x)]):
+            yield action
+            if not released and passed():
+                job['entry']+=1;job['mouth']+=1;job['entered']+=1;released=True
+        if not released:
+            job['entry']+=1;job['mouth']+=1;job['entered']+=1
     yield from R.go(d,[('y',W.TRANSPORT_Y+4+job['gap'] if i<2 else W.TRANSPORT_Y)])
     job['arrived'].append(d)
     job['event']['entries'].append(dict(ticket=ticket,frame=S.nsteps))
@@ -194,12 +222,15 @@ def send(S, pieces, gx, blobs, plan, jobs):
             assert not blobs.get(fk)
             fx=geom.HOLE_X[fk]-2*w
             gap=plan.get('compact_gap',4)
-            left=(fx-(4*w+3*gap+geom.MIN_GAP) if fx<gx+geom.CH_W+geom.PREFERRED_GAP
-                  else gx+geom.CH_W+geom.MIN_GAP)
+            # 20261021: every port stages next to its own pool (the formula
+            # already used for F1), so far ports assemble while nearer ports
+            # receive; previously all ports shared the stage beside the mouth.
+            left=fx-(4*w+3*gap+geom.MIN_GAP)
             job=jobs[key]=dict(port=fk,w=w,left=left,gap=gap,parked={},
-                final_x=fx,blobs=blobs,group=0,entry=0,count=0,arrived=[],
+                final_x=fx,blobs=blobs,group=0,entry=0,count=0,arrived=[],mouth=0,entered=0,
                 event=dict(port=fk,scheduled_drops=16,start_frame=S.nsteps,entries=[],row_merges=[]))
             S.compact_collect_jobs.append(job);S.waste_parallel_events.append(job['event'])
+            S.compact_order=getattr(S,'compact_order',[]);S.compact_order.append(job)
         job=jobs[key];ticket=job['count'];job['count']+=1
         assert ticket<16 and d.rect[2:]==(job['w'],4)
         d.S=S;d.allow=();d.waste_grid_packet=d.waste_pipeline_clearance=True
