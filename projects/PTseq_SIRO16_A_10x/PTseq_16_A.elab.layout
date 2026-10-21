@@ -3,7 +3,7 @@
   <Command Position="0,0" SequenceTypeId="0" ID="1001" Name="【手工加液・流程组结束】S孔×16 待测核酸母液 1.60µL · A1-A16（每道1.60µL） · 第1/1批 · 加好后运行下一流程组" Type="2" ScriptHead=""/>
  </Flow>
 <Flow Position="35,118.406" ID="70000" Name="A02 样本逐级对半：1.60→0.80→0.40µL；每道弃1.20µL · F3/F1 待手工吸液（保持全部液滴上电）" Type="0" Expandgroup="">
-  <Command Position="0,0" SequenceTypeId="0" ID="70001" Name="两级等分，保留0.40µL；三滴0.40µL原形并行排废 · 【手工吸液・组结束】F3/F1 19.200µL · 运行期间配合吸液，回收电极已撤除；确认吸净后运行下一组" Type="2" ScriptHead=""/>
+  <Command Position="0,0" SequenceTypeId="0" ID="70001" Name="两级等分，保留0.40µL；0.80µL（4×4）与0.40µL（2×4）原形接续排废 · 【手工吸液・组结束】F3/F1 19.200µL · 运行期间配合吸液，回收电极已撤除；确认吸净后运行下一组" Type="2" ScriptHead=""/>
  </Flow>
 <Flow Position="35,222.812" ID="1002" Name="A03 G4 cDNA反应液0.10µL/道：母液1.60µL四级对半 · 加液承接（上电后手工加液）" Type="0" Expandgroup="">
   <Command Position="0,0" SequenceTypeId="0" ID="1003" Name="常驻液滴让开进液端" Type="2" ScriptHead=""/>

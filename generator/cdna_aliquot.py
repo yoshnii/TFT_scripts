@@ -28,10 +28,12 @@ def _stream_exit(S,d,gx,previous,first,assignments,jobs):
     yield from R.go(d,[('x',gx)])
     S.a02_exit_events=getattr(S,'a02_exit_events',[])
     S.a02_exit_events.append(dict(name=d.name,batch=d.batch_round,frame=S.nsteps,
+        shape=list(d.rect[2:]),actual_ul=d.vol,
         first_batch_still_in_channel=any(S.drops.get(q.name) is q and q.rect[1]<172 for q in first)))
     yield from R.go(d,[('y',164)])
     ticket=S.a02_outlet_ticket;S.a02_outlet_ticket+=1
     key,row,pos=assignments[ticket];job=jobs[key]
+    assert d.rect[2:]==(job['rows'][row]['widths'][pos],4)
     d.waste_fk=job['port'];d.slot=job['rows'][row]['n']-1-pos
     job['event'].setdefault('arrival_order',[]).append(d.name)
     yield from W._tile_path(S,d,job,ticket,row,pos,gx)
@@ -41,20 +43,32 @@ def _send_stream(S,pieces,gx,blobs,specs,assignments,jobs,previous,first):
     pool=W._pool(S)
     S.waste_grid_events=getattr(S,'waste_grid_events',[])
     for key,spec in specs.items():
-        if key not in jobs:jobs[key]=W._job(S,spec,blobs,gx)
+        if key not in jobs:
+            job=jobs[key]=W._job(S,spec,blobs,gx)
+            # This local mixed-size row uses cumulative widths, not the
+            # equal-width shorthand used by the other released routes.
+            for row in job['rows']:
+                slots=list(reversed(row['widths']))
+                sw=sum(slots)+(len(slots)-1)*geom.CUT_GAP
+                left=(job['final_x']-6-sw if spec.get('stage_before_hole') else
+                      job['final_x']+spec['W']+geom.PREFERRED_GAP)
+                row['stage_x']=[left+sum(slots[:i])+i*geom.CUT_GAP for i in range(len(slots))]
+                base=left+sw-sum(slots) if spec.get('stage_before_hole') else left
+                row['contract_x']=[base+sum(slots[:i]) for i in range(len(slots))]
     if not hasattr(S,'a02_outlet_ticket'):S.a02_outlet_ticket=0
     S.batch_channel_x=gx
     S.batch_members=getattr(S,'batch_members',{})
     batch=len(S.batch_members);members=S.batch_members[batch]=[]
     S.waste_batch_events=getattr(S,'waste_batch_events',[])
-    S.waste_batch_events.append(dict(count=len(pieces),ports=[3,1],tile_shape=[2,4],
+    shape=list(pieces[0][1].rect[2:])
+    S.waste_batch_events.append(dict(count=len(pieces),ports=[3,1],tile_shape=shape,
                                     streaming_channel=True))
     S.batch_events=getattr(S,'batch_events',[])
     S.batch_events.append(dict(round=batch,start_frame=S.nsteps,packets=len(pieces)))
     for ln,d in pieces:
-        assert d.rect[2:]==(2,4) and d.vol==.4
+        assert list(d.rect[2:])==shape and d.vol in (.4,.8)
         d.S=S;d.allow=();d.waste_grid_packet=d.waste_pipeline_clearance=True
-        d.batch_round=batch;d.tile_area=8
+        d.batch_round=batch;d.tile_area=d.rect[2]*d.rect[3]
         leader=previous.get(ln.id);previous[ln.id]=d
         path=_stream_exit(S,d,gx,leader,first,assignments,jobs)
         pool.items.append((d,path,R._door_rule(gx)));members.append(d)
@@ -67,11 +81,9 @@ def sample_aliquots(S, lanes, blobs):
     assert len(lanes)==16 and all(S.get(ln.name).vol==1.6 for ln in lanes)
     ops.settle_loaded(S)
     halves=partition(S,[S.get(ln.name) for ln in lanes],2,'x',4)
-    # Make room on the right, not by pushing the retained branch out of its well.
-    # At column A: 15..19 / 23..27 -> 15..19 / 27..31;
-    # the next equal cuts end at X=11,17,23,29 (all within X=10..46).
-    ops.move_rects(S,{ds[1].name:ln.X0+17 for ln,ds in zip(lanes,halves)})
-    quarters=partition(S,[d for ds in halves for d in ds],2,'x',4)
+    # Only split the retained-side half. Keep the outlet-side 0.80µL as
+    # its native 4×4 square instead of making two 2×4 waste droplets.
+    quarters=partition(S,[ds[0] for ds in halves],2,'x',4)
     # Splitting/staging may not borrow either adjacent channel. The later
     # intentional waste exit is a separate route, not a splitting exception.
     for ln in lanes:
@@ -82,25 +94,27 @@ def sample_aliquots(S, lanes, blobs):
                     assert ln.X0<=x<x+w<=ln.X0+geom.LANE_L,('取样劈裂越出本反应区',ln.id,(x,y,w,h))
                     py=geom.physical_zone(ln.c,ln.r)[1]
                     assert py<=y<y+h<=py+geom.PHYSICAL_LANE_H
-    by_lane={ln.id:[*quarters[2*i],*quarters[2*i+1]] for i,ln in enumerate(lanes)}
+    by_lane={ln.id:[*quarters[i],halves[i][1]] for i,ln in enumerate(lanes)}
     for ln in lanes:
         keep=by_lane[ln.id][0]
         S.remove(keep.name);keep.name=ln.name;S.add(keep)
-    # Forty-eight native 2×4 waste packets; two balanced 12×16 outlet pools.
-    # This keeps the already approved F-hole aspiration tail, without reshaping packets.
-    specs={(1,k):dict(port=k,W=12,rows=[([2]*6,4)]*4,native=True,
+    # Sixteen 4×4 plus sixteen 2×4 packets, without transport reshaping.
+    # Both outlets still finish as the same 12×16 / 9.60µL pools.
+    rows={3:[([4]*3,4)]*4,
+          1:[([4]*3,4),([4]+[2]*4,4),([2]*6,4),([2]*6,4)]}
+    specs={(1,k):dict(port=k,W=12,rows=rows[k],native=True,
                         strict_staging=True,stage_before_hole=k==3) for k in (3,1)}
-    assignments=[((1,k),i//6,i%6) for k in (3,1) for i in range(24)]
+    assignments=[((1,k),r,pos) for k in (3,1) for r,(widths,h) in enumerate(rows[k])
+                 for pos in range(len(widths))]
     gx=geom.gap_x(geom.waste_gap(lanes[0].c));jobs={}
     previous={}
-    first=_send_stream(S,[(ln,by_lane[ln.id][3]) for ln in reversed(lanes)],
+    first=_send_stream(S,[(ln,by_lane[ln.id][2]) for ln in reversed(lanes)],
                        gx,blobs,specs,assignments,jobs,previous,[])
-    # Register both remaining aliquots together. Each row follows its own
-    # predecessor as soon as channel space opens, not after the train docks.
-    rest=[(ln,by_lane[ln.id][quarter]) for quarter in (2,1) for ln in reversed(lanes)]
+    # Smaller drops follow the intact half when channel space opens.
+    rest=[(ln,by_lane[ln.id][1]) for ln in reversed(lanes)]
     _send_stream(S,rest,gx,blobs,specs,assignments,jobs,previous,first)
     W._drain(S,lambda:not S.waste_pool.items)
-    assert S.a02_outlet_ticket==48
+    assert S.a02_outlet_ticket==32
     W.flush(S,blobs)
     assert all(abs(S.get(ln.name).vol-.4)<1e-8 for ln in lanes)
 
@@ -109,4 +123,4 @@ def load_and_aliquot(p):
     p.load_samples('A','A01 样本母液1.60µL（对半取样投入0.40µL）','S',1.6,'L','待测核酸母液')
     sample_aliquots(p.S,p.ALL,p.blob)
     p.flow('A','A02 样本逐级对半：1.60→0.80→0.40µL；每道弃1.20µL',
-           [p.cmd('两级等分，保留0.40µL；三滴0.40µL原形并行排废')])
+           [p.cmd('两级等分，保留0.40µL；0.80µL（4×4）与0.40µL（2×4）原形接续排废')])

@@ -10,7 +10,7 @@ from update_a02_batch_local import build, REPORT
 
 ROOT=Path(__file__).resolve().parent.parent
 PROJECT=ROOT/'projects/PTseq_SIRO16_A_10x'
-BASE='ed5cb66'
+BASE='96e70e8'
 
 
 class A02BatchTests(unittest.TestCase):
@@ -22,10 +22,13 @@ class A02BatchTests(unittest.TestCase):
 
     def test_two_batches_stream_into_vacated_channel_space(self):
         r=self.report
-        self.assertEqual(r['batch_sizes'],[16,32])
+        self.assertEqual(r['batch_drop_counts'],[16,16])
+        self.assertEqual(r['packet_areas_cells'],[16,8])
         self.assertGreater(r['second_batch_packets_entering_before_first_clears'],0)
-        self.assertEqual(r['packet_shape'],[2,4])
-        self.assertEqual(r['scene']['equal_x_splits'],48)
+        self.assertEqual(r['packet_shapes'],[[4,4],[2,4]])
+        self.assertEqual(r['packet_volumes_ul'],[.8,.4])
+        self.assertEqual(r['transport_reshapes'],0)
+        self.assertEqual(r['scene']['equal_x_splits'],32)
         self.assertEqual(r['waste_ul_per_port'],{'F3':9.6,'F1':9.6})
         self.assertGreater(r['saved_seconds'],0)
         self.assertFalse(r['exported_frame_audit']['non_equal_binary_transitions'])
@@ -40,7 +43,7 @@ class A02BatchTests(unittest.TestCase):
 
     def test_operator_metadata_and_total_timing_match_new_flow(self):
         stored=json.loads((PROJECT/REPORT).read_text())
-        for key in ('script_sha256','after_frames','after_seconds','batch_sizes',
+        for key in ('script_sha256','after_frames','after_seconds','batch_drop_counts',
                     'second_batch_packets_entering_before_first_clears',
                     'waste_ul_per_port','exported_frame_audit'):
             self.assertEqual(stored[key],self.report[key])

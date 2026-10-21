@@ -5,23 +5,42 @@
     "A01 output",
     "A03 input"
   ],
-  "baseline_sha256": "19028bf3b5ee262587406d65ea03e7d2fda49969f9de87a590ba841eff937066",
-  "script_sha256": "583c76aad986f2d3dc0eadd802bfbb912fa11c1424f8dfa1e0aee9e73d281260",
-  "before_frames": 971,
-  "after_frames": 947,
-  "before_seconds": 1016,
-  "after_seconds": 992,
-  "saved_seconds": 24,
-  "batch_sizes": [
+  "baseline_sha256": "583c76aad986f2d3dc0eadd802bfbb912fa11c1424f8dfa1e0aee9e73d281260",
+  "script_sha256": "d1ad59015e75741ea93af148d3ac374a251cbba644904e70202833a26c8dd336",
+  "before_frames": 947,
+  "after_frames": 744,
+  "before_seconds": 992,
+  "after_seconds": 787,
+  "saved_seconds": 205,
+  "batch_drop_counts": [
     16,
-    32
+    16
   ],
-  "packet_shape": [
-    2,
-    4
+  "packet_areas_cells": [
+    16,
+    8
   ],
-  "packet_ul": 0.4,
-  "second_batch_packets_entering_before_first_clears": 9,
+  "packet_shapes": [
+    [
+      4,
+      4
+    ],
+    [
+      2,
+      4
+    ]
+  ],
+  "packet_volumes_ul": [
+    0.8,
+    0.4
+  ],
+  "transport_reshapes": 0,
+  "staged_x": [
+    11,
+    17,
+    23
+  ],
+  "second_batch_packets_entering_before_first_clears": 7,
   "outlet_slots_allocated_in_actual_arrival_order": true,
   "retained_ul_per_well": 0.4,
   "waste_ul_per_port": {
@@ -31,15 +50,15 @@
   "unchanged_recovery_suffix_frames": 39,
   "scene": {
     "case": "A02 whole-column waste",
-    "frames": 960,
-    "equal_x_splits": 48,
+    "frames": 755,
+    "equal_x_splits": 32,
     "aspirated_ul": 19.2,
     "static_geometry_passed": true,
     "magnet_cut_lines_avoid_black_center": true
   },
   "exported_frame_audit": {
-    "energized_frames": 949,
-    "geometric_splitting_transitions": 48,
+    "energized_frames": 746,
+    "geometric_splitting_transitions": 32,
     "non_equal_binary_transitions": [],
     "physical_liquid_verified": false
   },

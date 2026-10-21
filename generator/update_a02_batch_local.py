@@ -8,6 +8,7 @@ import re
 import tempfile
 from pathlib import Path
 import xml.etree.ElementTree as E
+from xml.sax.saxutils import escape
 
 import protocol
 from cdna_aliquot import load_and_aliquot
@@ -29,13 +30,12 @@ def build(text):
     flow = scripts[0].flows[1]
     remap(flow, 70000, [70001])
     flow.name = old.get('Name')
-    flow.cmds[0].name = old[0].get('Name')
     fresh = E.fromstring(flow.xml())
-    # Scheduling only: all native metadata and both electrical endpoints stay.
+    # Preserve native IDs/dependencies and both electrical endpoints.
     assert {k:v for k,v in fresh.attrib.items() if k != 'Timeout'} == {
         k:v for k,v in old.attrib.items() if k != 'Timeout'}
-    assert {k:v for k,v in fresh[0].attrib.items() if k != 'Timeout'} == {
-        k:v for k,v in old[0].attrib.items() if k != 'Timeout'}
+    assert {k:v for k,v in fresh[0].attrib.items() if k not in ('Timeout','Name')} == {
+        k:v for k,v in old[0].attrib.items() if k not in ('Timeout','Name')}
     for index in (0, -1):
         assert {k:v for k,v in fresh[0][index].attrib.items() if k != 'ItemID'} == {
             k:v for k,v in old[0][index].attrib.items() if k != 'ItemID'}
@@ -47,12 +47,15 @@ def build(text):
         common_tail += 1
     assert common_tail >= 21, 'Existing F-hole recovery tail must remain intact'
     scene = validate_scene(p, 'A02 whole-column waste', 25.6, 19.2)
-    assert [e['count'] for e in p.S.waste_batch_events] == [16,32]
-    assert [e['packets'] for e in p.S.batch_events] == [16,32]
-    assert len(p.S.a02_exit_events) == 48
+    assert [e['count'] for e in p.S.waste_batch_events] == [16,16]
+    assert [e['tile_shape'] for e in p.S.waste_batch_events] == [[4,4],[2,4]]
+    assert [e['packets'] for e in p.S.batch_events] == [16,16]
+    assert len(p.S.a02_exit_events) == 32
+    assert [(e['shape'],e['actual_ul']) for e in p.S.a02_exit_events] == [([4,4],.8)]*16+[([2,4],.4)]*16
+    assert not getattr(p.S,'waste_morph_events',[])
     overlapping=sum(e['first_batch_still_in_channel'] for e in p.S.a02_exit_events)
     assert overlapping>0, 'The next batch must enter before the first clears Y172'
-    assert len(p.S.split_events) == 48
+    assert len(p.S.split_events) == 32
     assert all(d.vol == .4 and len(d.target_cells()) == 8 for d in p.S.drops.values())
     assert len(p.S.manual_aspirations) == 1
     assert p.S.manual_aspirations[0][1]['port_volumes'] == {'F3':9.6,'F1':9.6}
@@ -81,7 +84,9 @@ def build(text):
         before_frames=len(old[0]),after_frames=len(fresh[0]),
         before_seconds=int(old.get('Timeout')),after_seconds=flow.timeout,
         saved_seconds=int(old.get('Timeout'))-flow.timeout,
-        batch_sizes=[16,32],packet_shape=[2,4],packet_ul=.4,
+        batch_drop_counts=[16,16],packet_areas_cells=[16,8],
+        packet_shapes=[[4,4],[2,4]],packet_volumes_ul=[.8,.4],
+        transport_reshapes=0,staged_x=[11,17,23],
         second_batch_packets_entering_before_first_clears=overlapping,
         outlet_slots_allocated_in_actual_arrival_order=True,
         retained_ul_per_well=.4,waste_ul_per_port={'F3':9.6,'F1':9.6},
@@ -109,8 +114,15 @@ def update(folder):
     pattern=r'(<tr><td>PTseq_16_A\.elab</td><td>70000</td><td>[^<]*</td><td>70001</td><td>)\d+(</td>)'
     page,count=re.subn(pattern,lambda m:m[1]+str(last_frame)+m[2],page)
     assert count==1
-    # Generated artifacts only; the native layout and workbook are untouched.
+    layout=folder/'PTseq_16_A.elab.layout'
+    command_name=E.fromstring(new).find("Flow[@ID='70000']/Command").get('Name')
+    escaped=escape(command_name, {'"':'&quot;'})
+    lt,count=re.subn(r'(<Command\b(?=[^>]*\bID="70001")[^>]*\bName=")[^"]*(")',
+                    lambda m:m[1]+escaped+m[2],layout.read_text())
+    assert count==1
+    # Generated artifacts only; layout geometry and workbook are untouched.
     path.write_text(new);main.write_text(mt)
+    layout.write_text(lt)
     asp.write_text(stream.getvalue(),encoding='utf-8-sig',newline='')
     html.write_text(page)
     (folder/REPORT).write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n')

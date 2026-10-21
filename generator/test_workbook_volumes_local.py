@@ -40,19 +40,19 @@ class WorkbookVolumesTests(unittest.TestCase):
     def test_sample_splitting_stays_in_its_own_reaction_well(self):
         from audit_binary_frames import PATTERN
         relays=list(self.flows[70000][0])
-        # Locate the actual complete four-quarter staging frame, not a fixed
+        # Locate the two quarters plus the intact waste-half staging frame, not a fixed
         # frame-count assumption that would miss an inserted movement.
         end=next(i for i,relay in enumerate(relays) if sorted(int(x) for y,x,h,w
-                 in PATTERN.findall(relay.get('RelayCode','')) if y=='28' and h=='4' and w=='2')==[11,17,23,29])
+                 in PATTERN.findall(relay.get('RelayCode','')) if y=='28' and h=='4' and w in ('2','4'))==[11,17,23])
         for relay in relays[:end+1]:
             for y,x,h,w in PATTERN.findall(relay.get('RelayCode','')):
                 x,y,w,h=map(int,(x,y,w,h))
                 self.assertTrue(10<=x<x+w<=46,(relay.get('ItemID'),x,w))
                 row=(y-27)//9+1;py=27+9*(row-1)
                 self.assertTrue(1<=row<=16 and py<=y<y+h<=py+6)
-        proof=json.loads((PROJECT/'取样区内劈裂局部校验_20261019.json').read_text())
-        self.assertEqual(proof['quarter_final_x'],[11,17,23,29])
-        self.assertEqual(proof['equal_split_events'],48)
+        proof=json.loads((PROJECT/'A02整列并行局部校验.json').read_text())
+        self.assertEqual(proof['staged_x'],[11,17,23])
+        self.assertEqual(proof['scene']['equal_x_splits'],32)
 
     def test_thermal_targets_and_pcr_are_retained(self):
         cdna=self.flows[1010]
