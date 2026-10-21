@@ -36,7 +36,10 @@ def bites(S,items,blobs,kind,pellets=None,single_stop=False):
         if plan['flush']:
             W._drain(S,lambda:not S.waste_pool.items);W.flush(S,blobs)
         else:
-            W._drain(S,lambda:all(S.drops.get(d.name) is not d or d.rect[1]>=W.TRANSPORT_Y for d in tiles))
+            # 20261021 batch train: the next in-well split may start once this
+            # whole batch has left its wells; channel entry of the next batch
+            # is still gated until this batch reaches the Y172 band.
+            W._drain(S,lambda:all(S.drops.get(d.name) is not d or d.rect[0]>=gx for d in tiles))
 
     def quarter(branches):
         # Select the leftmost legal cutting station, considering actual held

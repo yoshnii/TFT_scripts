@@ -1,11 +1,11 @@
 {
   "status": "passed",
   "baseline_sha256": "a0022b82a78f810fd1e5c7ecac9968551f28c3ff54c1e6d5cfc8ded31ff2deec",
-  "script_sha256": "4eaca5986e44c6fb58cebf14fd4e92143592c2131539b55633414c7032133cd2",
+  "script_sha256": "239885ae8a289b7b3eb780ae3faa91b8b3764c7f9f201a173b20d3e936e945b0",
   "cases": [
     {
       "case": "sample 1.6 -> .8 -> .4",
-      "frames": 2450,
+      "frames": 1192,
       "equal_x_splits": 48,
       "aspirated_ul": 19.2,
       "static_geometry_passed": true,
@@ -69,7 +69,7 @@
     },
     {
       "case": "5.0 aqueous waste",
-      "frames": 3094,
+      "frames": 2980,
       "equal_x_splits": 112,
       "aspirated_ul": 80.0,
       "static_geometry_passed": true,
@@ -77,7 +77,7 @@
     },
     {
       "case": "5.9 aqueous waste",
-      "frames": 3094,
+      "frames": 2980,
       "equal_x_splits": 112,
       "aspirated_ul": 94.4,
       "static_geometry_passed": true,
@@ -93,7 +93,7 @@
     },
     {
       "case": "bead carrier R1",
-      "frames": 1642,
+      "frames": 1569,
       "equal_x_splits": 48,
       "aspirated_ul": 48.0,
       "static_geometry_passed": true,
@@ -101,7 +101,7 @@
     },
     {
       "case": "bead carrier C",
-      "frames": 1642,
+      "frames": 1569,
       "equal_x_splits": 48,
       "aspirated_ul": 48.0,
       "static_geometry_passed": true,
@@ -109,7 +109,7 @@
     },
     {
       "case": "fresh final wash",
-      "frames": 1685,
+      "frames": 1612,
       "equal_x_splits": 48,
       "aspirated_ul": 48.0,
       "static_geometry_passed": true,
@@ -155,7 +155,7 @@
     75020
   ],
   "exported_frame_audit": {
-    "energized_frames": 22212,
+    "energized_frames": 20502,
     "geometric_splitting_transitions": 619,
     "non_equal_binary_transitions": [],
     "physical_liquid_verified": false

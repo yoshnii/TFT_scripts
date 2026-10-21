@@ -185,6 +185,9 @@ def send(S, pieces, gx, blobs, plan, jobs):
         ports=plan['ports'],collection_group=plan['stop'],flush_after=plan['flush'],
         whole_port_pipeline=True,packed=True,minimum_ports=plan['minimum_ports']))
     tiles=[]
+    S.batch_members=getattr(S,'batch_members',{})
+    batch_round=len(S.batch_members);S.batch_members[batch_round]=[]
+    S.batch_channel_x=gx
     for (ln,d),(key,r,pos) in zip(pending,plan['assign']):
         if key not in jobs:
             fk=plan['specs'][key]['port'];w=d.rect[2]
@@ -201,6 +204,7 @@ def send(S, pieces, gx, blobs, plan, jobs):
         assert ticket<16 and d.rect[2:]==(job['w'],4)
         d.S=S;d.allow=();d.waste_grid_packet=d.waste_pipeline_clearance=True
         d.pre_advance_exit=True
+        d.batch_round=batch_round;S.batch_members[batch_round].append(d)
         d.tile_area=len(d.target_cells());d.waste_fk=job['port']
         from transport_spacing import queue_exit
         pool.items.append((d,queue_exit(S,d,gx,_tile_path(S,job,d,ticket,gx)),R._door_rule(gx)))

@@ -17,6 +17,16 @@ def _well(rect):
     return None
 
 
+TRAIN_GAP=5
+
+
+def in_channel(S,r):
+    gx=getattr(S,'batch_channel_x',None)
+    # The channel itself plus the door strip a packet crosses from its well.
+    return (gx is not None and gx-10<=r[0] and r[0]+r[2]<=gx+geom.CH_W
+            and r[1]>=23 and r[1]+r[3]<=171)
+
+
 def required(S,a,ra,b,rb):
     if not getattr(S,'strict_transport',False):return geom.MIN_GAP
     if well(ra) is not None and well(rb) is not None:return geom.MIN_GAP
@@ -28,6 +38,14 @@ def required(S,a,ra,b,rb):
                 and 27<=r[1]<172 and 6<=r[0]<10):return geom.MIN_GAP
     if ra[1]+ra[3]<=23 and rb[1]+rb[3]<=23:return 6
     moving=lambda d:getattr(d,'native_packet',False) or getattr(d,'waste_grid_packet',False)
+    # 20261021 user-approved exception: one whole-column waste batch enters
+    # the outlet channel together and descends as a train; packets of the
+    # SAME batch keep the 9-row well pitch, i.e. five cells for 4-high
+    # packets. Only inside the vertical channel above the Y172 band.
+    if (moving(a) and moving(b) and getattr(a,'batch_round',None) is not None
+            and getattr(a,'batch_round',None)==getattr(b,'batch_round',None)
+            and in_channel(S,ra) and in_channel(S,rb)):
+        return TRAIN_GAP
     if moving(a) and moving(b):
         # Include the last-row channel mouth (Y162 onwards) when the other
         # object is already in Y172 outlet staging. Two packets higher up, or
@@ -47,6 +65,8 @@ def queue_exit(S,d,gx,path):
     if not getattr(S,'strict_transport',False):
         yield from path;return
     import rigid as R
+    if getattr(d,'batch_round',None) is not None:
+        yield from _batch_exit(S,d,gx,path);return
     state=getattr(S,'waste_entry_state',None)
     if state is None:state=S.waste_entry_state=dict(issued=0,next=0)
     ticket=state['issued'];state['issued']+=1
@@ -79,3 +99,43 @@ def queue_exit(S,d,gx,path):
         if not released and d.rect[0]==gx and d.rect[1]>=origin+2:
             state['next']+=1;released=True
     if not released:state['next']+=1
+
+
+def _round_done(S,members):
+    import waste_grid as W
+    return all(S.drops.get(q.name) is not q or q.rect[1]>=W.TRANSPORT_Y for q in members)
+
+
+def _batch_exit(S,d,gx,path):
+    """Whole-column batch (user approved 20261021).
+
+    Every packet of one send waits, pre-advanced inside its own well, until
+    all earlier batches have reached the Y172 band. Then all packets of the
+    batch lower one cell and slide into the channel in the same frames and
+    descend as one train at the well pitch. Spacing, door and channel checks
+    are still applied to every single-cell step by the pool (rect_ok/rule).
+    """
+    import rigid as R
+    rounds=S.batch_members;me=d.batch_round;rule=R._door_rule(gx)
+    home=well(d.rect)
+    def earlier_done():
+        return all(_round_done(S,rounds[k]) for k in rounds if k<me)
+    while True:
+        if home is not None:
+            cand=(d.rect[0]+1,d.rect[1],d.rect[2],d.rect[3])
+            if (cand[0]+cand[2]<=gx-6 and well(cand)==home
+                    and R.rect_ok(S,d.name,cand,frozenset(getattr(d,'allow',())))
+                    and rule(d,cand)):
+                d.batch_parked=False
+                yield '+X';continue
+        d.batch_parked=True
+        if earlier_done() and all(getattr(q,'batch_parked',False) or S.drops.get(q.name) is not q
+                                   for q in rounds[me]):
+            break
+        yield 'wait'
+    S.batch_events=getattr(S,'batch_events',[])
+    if not any(e['round']==me for e in S.batch_events):
+        S.batch_events.append(dict(round=me,start_frame=S.nsteps,packets=len(rounds[me])))
+    if home is not None and d.rect[3]<=4:
+        yield from R.go(d,[('y',d.rect[1]+1)])
+    yield from path

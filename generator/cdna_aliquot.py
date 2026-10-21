@@ -33,9 +33,10 @@ def sample_aliquots(S, lanes, blobs):
     # Forty-eight native 2×4 waste packets; two balanced 12×16 outlet pools.
     # This keeps the already approved F-hole aspiration tail, without reshaping packets.
     specs={(1,k):dict(port=k,W=12,rows=[([2]*6,4)]*4,native=True,
-                        strict_staging=True) for k in (3,1)}
+                        strict_staging=True,stage_before_hole=k==3) for k in (3,1)}
     assignments=[((1,k),i//6,i%6) for k in (3,1) for i in range(24)]
     gx=geom.gap_x(geom.waste_gap(lanes[0].c));jobs={}
+    S.batch_generic=True
     for batch in range(3):
         pieces=[(ln,by_lane[ln.id][3-batch]) for ln in lanes]
         plan=dict(stop=1,flush=batch==2,ports=[3,1],assign=assignments[16*batch:16*(batch+1)],
@@ -47,7 +48,8 @@ def sample_aliquots(S, lanes, blobs):
             chosen=[(piece,a) for piece,a in zip(ordered,plan['assign']) if a[0]==key]
             sub=dict(plan,assign=[a for piece,a in chosen])
             tiles=W._send_pipeline(S,[piece for piece,a in chosen],gx,blobs,sub,jobs)
-            for job in jobs.values():job['under_exit']=True
+            for job in jobs.values():
+                if job['port']!=3:job['under_exit']=True
             W._drain(S,lambda:all(S.drops.get(d.name) is not d or d.rect[1]>=W.TRANSPORT_Y for d in tiles))
             if chosen[-1][1][1:]==(3,5):
                 W._drain(S,lambda:not S.waste_pool.items)

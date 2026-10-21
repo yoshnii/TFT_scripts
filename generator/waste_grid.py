@@ -289,7 +289,15 @@ def _job(S,spec,blobs,gx):
                   else fx-sw-geom.MIN_GAP)
             r['stage_x']=[left+s*(widths[0]+geom.CUT_GAP) for s in range(len(widths))]
             r['contract_x']=[left+s*widths[0] for s in range(len(widths))]
-        if spec.get('strict_staging',False):
+        if spec.get('strict_staging',False) and spec.get('stage_before_hole',False):
+            # 20261021: stage on the channel side of the hole so the finished
+            # row continues in the travel direction (no head-on transfer
+            # against arriving packets); staging gap to the pool is 6 cells.
+            sw=sum(widths)+(len(widths)-1)*geom.CUT_GAP
+            left=geom.HOLE_X[spec['port']]-spec['W']//2-6-sw
+            r['stage_x']=[left+s*(widths[0]+geom.CUT_GAP) for s in range(len(widths))]
+            r['contract_x']=[left+sw-sum(widths)+s*widths[0] for s in range(len(widths))]
+        elif spec.get('strict_staging',False):
             left=geom.HOLE_X[spec['port']]+spec['W']//2+geom.PREFERRED_GAP
             r['stage_x']=[left+s*(widths[0]+geom.CUT_GAP) for s in range(len(widths))]
             r['contract_x']=[left+s*widths[0] for s in range(len(widths))]
@@ -330,6 +338,10 @@ def _send_pipeline(S,pieces,gx,blobs,plan,jobs):
                                     ports=plan['ports'],collection_group=plan['stop'],flush_after=plan['flush'],
                                     whole_port_pipeline=True,packed=plan.get('packed',False),minimum_ports=plan['minimum_ports']))
     tiles=[]
+    if getattr(S,'batch_generic',False):
+        S.batch_members=getattr(S,'batch_members',{})
+        batch_round=len(S.batch_members);S.batch_members[batch_round]=[]
+        S.batch_channel_x=gx
     for t,((ln,d),(key,r,pos)) in enumerate(zip(pending,plan['assign'])):
         if key not in jobs:
             assert not blobs.get(plan['specs'][key]['port']),'调度给出的收集孔已占用'
@@ -339,6 +351,8 @@ def _send_pipeline(S,pieces,gx,blobs,plan,jobs):
         d.S=S;d.waste_fk=job['port'];d.slot=spec['n']-1-pos;d.tile_area=area(d)
         d.waste_pipeline_clearance=True;assert 0<d.tile_area<=32
         d.entry_ticket=t;d.allow=() if job.get('strict_staging',False) else (f"BLOB{job['port']}",)
+        if getattr(S,'batch_generic',False):
+            d.batch_round=batch_round;S.batch_members[batch_round].append(d)
         from transport_spacing import queue_exit
         pool.items.append((d,queue_exit(S,d,gx,_tile_path(S,d,job,t,r,pos,gx)),R._door_rule(gx)))
         tiles.append(d)
