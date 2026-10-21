@@ -50,12 +50,32 @@ def queue_exit(S,d,gx,path):
     state=getattr(S,'waste_entry_state',None)
     if state is None:state=S.waste_entry_state=dict(issued=0,next=0)
     ticket=state['issued'];state['issued']+=1
-    while state['next']!=ticket:yield 'wait'
+    # Pre-advance (compact collection only): while waiting for its exit
+    # ticket, a packet may shift one cell per frame toward the exit inside
+    # its own reaction well, stopping six cells short of the channel so it
+    # never narrows the gap to packets descending the channel. Each step is
+    # checked with the exact rect_ok/door rule the pool applies, so a
+    # yielded step always executes. Exit order is unchanged.
+    home=well(d.rect) if getattr(d,'pre_advance_exit',False) else None
+    rule=R._door_rule(gx)
+    while state['next']!=ticket:
+        if home is not None:
+            cand=(d.rect[0]+1,d.rect[1],d.rect[2],d.rect[3])
+            if (cand[0]+cand[2]<=gx-6 and well(cand)==home
+                    and R.rect_ok(S,d.name,cand,frozenset(getattr(d,'allow',())))
+                    and rule(d,cand)):
+                yield '+X';continue
+        yield 'wait'
     origin=d.rect[1];released=False
     if well(d.rect) is not None and d.rect[3]<=4:
         yield from R.go(d,[('y',origin+1)])
     for action in path:
         yield action
+        # Pre-advanced packets hand over as soon as the head is inside the
+        # channel (it only moves away from the door afterwards); others keep
+        # the original two-cell descent condition.
+        if not released and home is not None and d.rect[0]==gx:
+            state['next']+=1;released=True
         if not released and d.rect[0]==gx and d.rect[1]>=origin+2:
             state['next']+=1;released=True
     if not released:state['next']+=1

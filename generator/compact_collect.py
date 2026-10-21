@@ -200,6 +200,7 @@ def send(S, pieces, gx, blobs, plan, jobs):
         job=jobs[key];ticket=job['count'];job['count']+=1
         assert ticket<16 and d.rect[2:]==(job['w'],4)
         d.S=S;d.allow=();d.waste_grid_packet=d.waste_pipeline_clearance=True
+        d.pre_advance_exit=True
         d.tile_area=len(d.target_cells());d.waste_fk=job['port']
         from transport_spacing import queue_exit
         pool.items.append((d,queue_exit(S,d,gx,_tile_path(S,job,d,ticket,gx)),R._door_rule(gx)))
