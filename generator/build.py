@@ -1,11 +1,18 @@
 """v3 构建: python3 build.py [--out DIR] [--cols 6]"""
 import argparse, os, sys, time
+from pathlib import Path
+import xml.etree.ElementTree as ET
 import geom, protocol
 from project_structure import prepare_scripts
 from manual_sections import write_loading_order, write_aspiration_order
 ap = argparse.ArgumentParser(); ap.add_argument("--out", default="out/PTseq_SIRO96_v3"); ap.add_argument("--cols", type=int, default=6)
 ap.add_argument('--script-name', default='PTseq_16_A', choices=['A_cDNA_PCR', 'PTseq_16_A'])
+ap.add_argument('--rotation',type=int,choices=(0,180),default=None,
+                help='Physical publication orientation; when omitted, retain the existing project orientation.')
 a = ap.parse_args()
+if a.rotation is None:
+    manifests=list(Path(a.out).glob('*.elabprj'))
+    a.rotation=180 if any(ET.parse(p).getroot().get('ChipModel','').endswith('_R180') for p in manifests) else 0
 t0 = time.time()
 P = protocol.Protocol(tuple(range(1, a.cols + 1))); segs = P.build()
 CHIP = "ChipArea_192_256_96_SIRO"; os.makedirs(a.out, exist_ok=True); prj = os.path.basename(a.out.rstrip("/"))
@@ -23,6 +30,10 @@ open(f"{a.out}/main.elab", "w", encoding="utf-8").write(f'<Script Name="main" Ve
 open(f"{a.out}/main.elab.layout", "w", encoding="utf-8").write('<Script Name="main" Version="v0.0.0.1">\n' + "\n".join(f' <Flow Type="1" Position="74,{45+100*i}" Name="{s.name}" ID="{i+1}"/>' for i, s in enumerate(scripts)) + "\n</Script>\n")
 files = "\n".join(f'    <file include="{n}" BuildMd5=""/>' for n in ["main"] + [s.name for s in scripts])
 open(f"{a.out}/{prj}.elabprj", "w", encoding="utf-8").write(f'<?xml version="1.0" encoding="UTF-8"?>\n<project Target="{prj}" ActiveTec="1" Smart8Dir="" Description="" Instrument="3" TargetVersion="v0.0.0.1" ChipModel="{CHIP}" InstrumentName="TFT" DbName="">\n{files}\n</project>\n')
+if a.rotation==180:
+    from rotate_project_180 import write_publication
+    write_publication(Path(a.out))
+    print('发布方向：布局与全部步骤电极整体180°；温控/外部磁控身份不变。')
 nrel = sum(len(c.relays) for s in scripts for f in s.flows for c in f.cmds); tot = sum(f.timeout * f.repeats for s in scripts for f in s.flows)
 sz = sum(os.path.getsize(f"{a.out}/{s.name}.elab") for s in scripts) / 1e6
 print(f"{a.out}: {len(scripts)} 文件 / {sum(len(s.flows) for s in scripts)} Flow / {sum(len(f.cmds) for s in scripts for f in s.flows)} 指令 / {nrel} RelayItem / {sz:.1f} MB / 标称 {tot/3600:.2f} h / 生成耗时 {time.time()-t0:.0f}s")

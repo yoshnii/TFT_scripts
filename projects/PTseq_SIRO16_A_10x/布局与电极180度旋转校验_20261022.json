@@ -1,0 +1,1225 @@
+{
+  "status": "passed",
+  "date": "2026-10-22",
+  "rotation_degrees": 180,
+  "grid_width": 256,
+  "grid_height": 192,
+  "source_chip": "ChipArea_192_256_96_SIRO",
+  "published_chip": "ChipArea_192_256_96_SIRO_R180",
+  "scripts": [
+    {
+      "file": "main.elab",
+      "before_sha256": "5fcf670bad4478bc446c9bdfd58853ffa9e50bb62ca516cd40e76ec59c5dd7df",
+      "after_sha256": "a14845712e1d6b9f45cf14926a6b9b577b1ad7c8d2baf5d9c48d06f7e72ba0f0",
+      "frames": 0,
+      "rectangles": 0,
+      "all_non_coordinate_parameters_unchanged": true
+    },
+    {
+      "file": "PTseq_16_A.elab",
+      "before_sha256": "efdda6f8e644a2cb6dbc474b7665945780cc27ea1324505ec6465185c95668c2",
+      "after_sha256": "735d0e054a820554d8e095e1687cdeb4c086a0de66b41fb50d400486ea80d9d5",
+      "frames": 18951,
+      "rectangles": 630498,
+      "all_non_coordinate_parameters_unchanged": true
+    }
+  ],
+  "layout": {
+    "feature_counts": {
+      "Tec": 6,
+      "Magnet": 96,
+      "ReagentWell": 216,
+      "Rec": 96,
+      "WarnLine": 2
+    },
+    "tec_regions_row_identity_preserved": [
+      {
+        "channel": "Heater1",
+        "csv_line": 2,
+        "before": [
+          "10",
+          "23",
+          "18",
+          "149"
+        ],
+        "after": [
+          "228",
+          "20",
+          "18",
+          "149"
+        ]
+      },
+      {
+        "channel": "Heater2",
+        "csv_line": 3,
+        "before": [
+          "50",
+          "23",
+          "18",
+          "149"
+        ],
+        "after": [
+          "188",
+          "20",
+          "18",
+          "149"
+        ]
+      },
+      {
+        "channel": "Heater3",
+        "csv_line": 4,
+        "before": [
+          "90",
+          "23",
+          "18",
+          "149"
+        ],
+        "after": [
+          "148",
+          "20",
+          "18",
+          "149"
+        ]
+      },
+      {
+        "channel": "Heater4",
+        "csv_line": 5,
+        "before": [
+          "130",
+          "23",
+          "18",
+          "149"
+        ],
+        "after": [
+          "108",
+          "20",
+          "18",
+          "149"
+        ]
+      },
+      {
+        "channel": "Heater5",
+        "csv_line": 6,
+        "before": [
+          "170",
+          "23",
+          "18",
+          "149"
+        ],
+        "after": [
+          "68",
+          "20",
+          "18",
+          "149"
+        ]
+      },
+      {
+        "channel": "Heater6",
+        "csv_line": 7,
+        "before": [
+          "210",
+          "23",
+          "18",
+          "149"
+        ],
+        "after": [
+          "28",
+          "20",
+          "18",
+          "149"
+        ]
+      }
+    ],
+    "magnet_centres": [
+      {
+        "csv_line": 8,
+        "before": [
+          "37.0",
+          "30.0"
+        ],
+        "after": [
+          "219.0",
+          "162.0"
+        ]
+      },
+      {
+        "csv_line": 9,
+        "before": [
+          "37.0",
+          "39.0"
+        ],
+        "after": [
+          "219.0",
+          "153.0"
+        ]
+      },
+      {
+        "csv_line": 10,
+        "before": [
+          "37.0",
+          "48.0"
+        ],
+        "after": [
+          "219.0",
+          "144.0"
+        ]
+      },
+      {
+        "csv_line": 11,
+        "before": [
+          "37.0",
+          "57.0"
+        ],
+        "after": [
+          "219.0",
+          "135.0"
+        ]
+      },
+      {
+        "csv_line": 12,
+        "before": [
+          "37.0",
+          "66.0"
+        ],
+        "after": [
+          "219.0",
+          "126.0"
+        ]
+      },
+      {
+        "csv_line": 13,
+        "before": [
+          "37.0",
+          "75.0"
+        ],
+        "after": [
+          "219.0",
+          "117.0"
+        ]
+      },
+      {
+        "csv_line": 14,
+        "before": [
+          "37.0",
+          "84.0"
+        ],
+        "after": [
+          "219.0",
+          "108.0"
+        ]
+      },
+      {
+        "csv_line": 15,
+        "before": [
+          "37.0",
+          "93.0"
+        ],
+        "after": [
+          "219.0",
+          "99.0"
+        ]
+      },
+      {
+        "csv_line": 16,
+        "before": [
+          "37.0",
+          "102.0"
+        ],
+        "after": [
+          "219.0",
+          "90.0"
+        ]
+      },
+      {
+        "csv_line": 17,
+        "before": [
+          "37.0",
+          "111.0"
+        ],
+        "after": [
+          "219.0",
+          "81.0"
+        ]
+      },
+      {
+        "csv_line": 18,
+        "before": [
+          "37.0",
+          "120.0"
+        ],
+        "after": [
+          "219.0",
+          "72.0"
+        ]
+      },
+      {
+        "csv_line": 19,
+        "before": [
+          "37.0",
+          "129.0"
+        ],
+        "after": [
+          "219.0",
+          "63.0"
+        ]
+      },
+      {
+        "csv_line": 20,
+        "before": [
+          "37.0",
+          "138.0"
+        ],
+        "after": [
+          "219.0",
+          "54.0"
+        ]
+      },
+      {
+        "csv_line": 21,
+        "before": [
+          "37.0",
+          "147.0"
+        ],
+        "after": [
+          "219.0",
+          "45.0"
+        ]
+      },
+      {
+        "csv_line": 22,
+        "before": [
+          "37.0",
+          "156.0"
+        ],
+        "after": [
+          "219.0",
+          "36.0"
+        ]
+      },
+      {
+        "csv_line": 23,
+        "before": [
+          "37.0",
+          "165.0"
+        ],
+        "after": [
+          "219.0",
+          "27.0"
+        ]
+      },
+      {
+        "csv_line": 24,
+        "before": [
+          "77.0",
+          "30.0"
+        ],
+        "after": [
+          "179.0",
+          "162.0"
+        ]
+      },
+      {
+        "csv_line": 25,
+        "before": [
+          "77.0",
+          "39.0"
+        ],
+        "after": [
+          "179.0",
+          "153.0"
+        ]
+      },
+      {
+        "csv_line": 26,
+        "before": [
+          "77.0",
+          "48.0"
+        ],
+        "after": [
+          "179.0",
+          "144.0"
+        ]
+      },
+      {
+        "csv_line": 27,
+        "before": [
+          "77.0",
+          "57.0"
+        ],
+        "after": [
+          "179.0",
+          "135.0"
+        ]
+      },
+      {
+        "csv_line": 28,
+        "before": [
+          "77.0",
+          "66.0"
+        ],
+        "after": [
+          "179.0",
+          "126.0"
+        ]
+      },
+      {
+        "csv_line": 29,
+        "before": [
+          "77.0",
+          "75.0"
+        ],
+        "after": [
+          "179.0",
+          "117.0"
+        ]
+      },
+      {
+        "csv_line": 30,
+        "before": [
+          "77.0",
+          "84.0"
+        ],
+        "after": [
+          "179.0",
+          "108.0"
+        ]
+      },
+      {
+        "csv_line": 31,
+        "before": [
+          "77.0",
+          "93.0"
+        ],
+        "after": [
+          "179.0",
+          "99.0"
+        ]
+      },
+      {
+        "csv_line": 32,
+        "before": [
+          "77.0",
+          "102.0"
+        ],
+        "after": [
+          "179.0",
+          "90.0"
+        ]
+      },
+      {
+        "csv_line": 33,
+        "before": [
+          "77.0",
+          "111.0"
+        ],
+        "after": [
+          "179.0",
+          "81.0"
+        ]
+      },
+      {
+        "csv_line": 34,
+        "before": [
+          "77.0",
+          "120.0"
+        ],
+        "after": [
+          "179.0",
+          "72.0"
+        ]
+      },
+      {
+        "csv_line": 35,
+        "before": [
+          "77.0",
+          "129.0"
+        ],
+        "after": [
+          "179.0",
+          "63.0"
+        ]
+      },
+      {
+        "csv_line": 36,
+        "before": [
+          "77.0",
+          "138.0"
+        ],
+        "after": [
+          "179.0",
+          "54.0"
+        ]
+      },
+      {
+        "csv_line": 37,
+        "before": [
+          "77.0",
+          "147.0"
+        ],
+        "after": [
+          "179.0",
+          "45.0"
+        ]
+      },
+      {
+        "csv_line": 38,
+        "before": [
+          "77.0",
+          "156.0"
+        ],
+        "after": [
+          "179.0",
+          "36.0"
+        ]
+      },
+      {
+        "csv_line": 39,
+        "before": [
+          "77.0",
+          "165.0"
+        ],
+        "after": [
+          "179.0",
+          "27.0"
+        ]
+      },
+      {
+        "csv_line": 40,
+        "before": [
+          "117.0",
+          "30.0"
+        ],
+        "after": [
+          "139.0",
+          "162.0"
+        ]
+      },
+      {
+        "csv_line": 41,
+        "before": [
+          "117.0",
+          "39.0"
+        ],
+        "after": [
+          "139.0",
+          "153.0"
+        ]
+      },
+      {
+        "csv_line": 42,
+        "before": [
+          "117.0",
+          "48.0"
+        ],
+        "after": [
+          "139.0",
+          "144.0"
+        ]
+      },
+      {
+        "csv_line": 43,
+        "before": [
+          "117.0",
+          "57.0"
+        ],
+        "after": [
+          "139.0",
+          "135.0"
+        ]
+      },
+      {
+        "csv_line": 44,
+        "before": [
+          "117.0",
+          "66.0"
+        ],
+        "after": [
+          "139.0",
+          "126.0"
+        ]
+      },
+      {
+        "csv_line": 45,
+        "before": [
+          "117.0",
+          "75.0"
+        ],
+        "after": [
+          "139.0",
+          "117.0"
+        ]
+      },
+      {
+        "csv_line": 46,
+        "before": [
+          "117.0",
+          "84.0"
+        ],
+        "after": [
+          "139.0",
+          "108.0"
+        ]
+      },
+      {
+        "csv_line": 47,
+        "before": [
+          "117.0",
+          "93.0"
+        ],
+        "after": [
+          "139.0",
+          "99.0"
+        ]
+      },
+      {
+        "csv_line": 48,
+        "before": [
+          "117.0",
+          "102.0"
+        ],
+        "after": [
+          "139.0",
+          "90.0"
+        ]
+      },
+      {
+        "csv_line": 49,
+        "before": [
+          "117.0",
+          "111.0"
+        ],
+        "after": [
+          "139.0",
+          "81.0"
+        ]
+      },
+      {
+        "csv_line": 50,
+        "before": [
+          "117.0",
+          "120.0"
+        ],
+        "after": [
+          "139.0",
+          "72.0"
+        ]
+      },
+      {
+        "csv_line": 51,
+        "before": [
+          "117.0",
+          "129.0"
+        ],
+        "after": [
+          "139.0",
+          "63.0"
+        ]
+      },
+      {
+        "csv_line": 52,
+        "before": [
+          "117.0",
+          "138.0"
+        ],
+        "after": [
+          "139.0",
+          "54.0"
+        ]
+      },
+      {
+        "csv_line": 53,
+        "before": [
+          "117.0",
+          "147.0"
+        ],
+        "after": [
+          "139.0",
+          "45.0"
+        ]
+      },
+      {
+        "csv_line": 54,
+        "before": [
+          "117.0",
+          "156.0"
+        ],
+        "after": [
+          "139.0",
+          "36.0"
+        ]
+      },
+      {
+        "csv_line": 55,
+        "before": [
+          "117.0",
+          "165.0"
+        ],
+        "after": [
+          "139.0",
+          "27.0"
+        ]
+      },
+      {
+        "csv_line": 56,
+        "before": [
+          "157.0",
+          "30.0"
+        ],
+        "after": [
+          "99.0",
+          "162.0"
+        ]
+      },
+      {
+        "csv_line": 57,
+        "before": [
+          "157.0",
+          "39.0"
+        ],
+        "after": [
+          "99.0",
+          "153.0"
+        ]
+      },
+      {
+        "csv_line": 58,
+        "before": [
+          "157.0",
+          "48.0"
+        ],
+        "after": [
+          "99.0",
+          "144.0"
+        ]
+      },
+      {
+        "csv_line": 59,
+        "before": [
+          "157.0",
+          "57.0"
+        ],
+        "after": [
+          "99.0",
+          "135.0"
+        ]
+      },
+      {
+        "csv_line": 60,
+        "before": [
+          "157.0",
+          "66.0"
+        ],
+        "after": [
+          "99.0",
+          "126.0"
+        ]
+      },
+      {
+        "csv_line": 61,
+        "before": [
+          "157.0",
+          "75.0"
+        ],
+        "after": [
+          "99.0",
+          "117.0"
+        ]
+      },
+      {
+        "csv_line": 62,
+        "before": [
+          "157.0",
+          "84.0"
+        ],
+        "after": [
+          "99.0",
+          "108.0"
+        ]
+      },
+      {
+        "csv_line": 63,
+        "before": [
+          "157.0",
+          "93.0"
+        ],
+        "after": [
+          "99.0",
+          "99.0"
+        ]
+      },
+      {
+        "csv_line": 64,
+        "before": [
+          "157.0",
+          "102.0"
+        ],
+        "after": [
+          "99.0",
+          "90.0"
+        ]
+      },
+      {
+        "csv_line": 65,
+        "before": [
+          "157.0",
+          "111.0"
+        ],
+        "after": [
+          "99.0",
+          "81.0"
+        ]
+      },
+      {
+        "csv_line": 66,
+        "before": [
+          "157.0",
+          "120.0"
+        ],
+        "after": [
+          "99.0",
+          "72.0"
+        ]
+      },
+      {
+        "csv_line": 67,
+        "before": [
+          "157.0",
+          "129.0"
+        ],
+        "after": [
+          "99.0",
+          "63.0"
+        ]
+      },
+      {
+        "csv_line": 68,
+        "before": [
+          "157.0",
+          "138.0"
+        ],
+        "after": [
+          "99.0",
+          "54.0"
+        ]
+      },
+      {
+        "csv_line": 69,
+        "before": [
+          "157.0",
+          "147.0"
+        ],
+        "after": [
+          "99.0",
+          "45.0"
+        ]
+      },
+      {
+        "csv_line": 70,
+        "before": [
+          "157.0",
+          "156.0"
+        ],
+        "after": [
+          "99.0",
+          "36.0"
+        ]
+      },
+      {
+        "csv_line": 71,
+        "before": [
+          "157.0",
+          "165.0"
+        ],
+        "after": [
+          "99.0",
+          "27.0"
+        ]
+      },
+      {
+        "csv_line": 72,
+        "before": [
+          "197.0",
+          "30.0"
+        ],
+        "after": [
+          "59.0",
+          "162.0"
+        ]
+      },
+      {
+        "csv_line": 73,
+        "before": [
+          "197.0",
+          "39.0"
+        ],
+        "after": [
+          "59.0",
+          "153.0"
+        ]
+      },
+      {
+        "csv_line": 74,
+        "before": [
+          "197.0",
+          "48.0"
+        ],
+        "after": [
+          "59.0",
+          "144.0"
+        ]
+      },
+      {
+        "csv_line": 75,
+        "before": [
+          "197.0",
+          "57.0"
+        ],
+        "after": [
+          "59.0",
+          "135.0"
+        ]
+      },
+      {
+        "csv_line": 76,
+        "before": [
+          "197.0",
+          "66.0"
+        ],
+        "after": [
+          "59.0",
+          "126.0"
+        ]
+      },
+      {
+        "csv_line": 77,
+        "before": [
+          "197.0",
+          "75.0"
+        ],
+        "after": [
+          "59.0",
+          "117.0"
+        ]
+      },
+      {
+        "csv_line": 78,
+        "before": [
+          "197.0",
+          "84.0"
+        ],
+        "after": [
+          "59.0",
+          "108.0"
+        ]
+      },
+      {
+        "csv_line": 79,
+        "before": [
+          "197.0",
+          "93.0"
+        ],
+        "after": [
+          "59.0",
+          "99.0"
+        ]
+      },
+      {
+        "csv_line": 80,
+        "before": [
+          "197.0",
+          "102.0"
+        ],
+        "after": [
+          "59.0",
+          "90.0"
+        ]
+      },
+      {
+        "csv_line": 81,
+        "before": [
+          "197.0",
+          "111.0"
+        ],
+        "after": [
+          "59.0",
+          "81.0"
+        ]
+      },
+      {
+        "csv_line": 82,
+        "before": [
+          "197.0",
+          "120.0"
+        ],
+        "after": [
+          "59.0",
+          "72.0"
+        ]
+      },
+      {
+        "csv_line": 83,
+        "before": [
+          "197.0",
+          "129.0"
+        ],
+        "after": [
+          "59.0",
+          "63.0"
+        ]
+      },
+      {
+        "csv_line": 84,
+        "before": [
+          "197.0",
+          "138.0"
+        ],
+        "after": [
+          "59.0",
+          "54.0"
+        ]
+      },
+      {
+        "csv_line": 85,
+        "before": [
+          "197.0",
+          "147.0"
+        ],
+        "after": [
+          "59.0",
+          "45.0"
+        ]
+      },
+      {
+        "csv_line": 86,
+        "before": [
+          "197.0",
+          "156.0"
+        ],
+        "after": [
+          "59.0",
+          "36.0"
+        ]
+      },
+      {
+        "csv_line": 87,
+        "before": [
+          "197.0",
+          "165.0"
+        ],
+        "after": [
+          "59.0",
+          "27.0"
+        ]
+      },
+      {
+        "csv_line": 88,
+        "before": [
+          "237.0",
+          "30.0"
+        ],
+        "after": [
+          "19.0",
+          "162.0"
+        ]
+      },
+      {
+        "csv_line": 89,
+        "before": [
+          "237.0",
+          "39.0"
+        ],
+        "after": [
+          "19.0",
+          "153.0"
+        ]
+      },
+      {
+        "csv_line": 90,
+        "before": [
+          "237.0",
+          "48.0"
+        ],
+        "after": [
+          "19.0",
+          "144.0"
+        ]
+      },
+      {
+        "csv_line": 91,
+        "before": [
+          "237.0",
+          "57.0"
+        ],
+        "after": [
+          "19.0",
+          "135.0"
+        ]
+      },
+      {
+        "csv_line": 92,
+        "before": [
+          "237.0",
+          "66.0"
+        ],
+        "after": [
+          "19.0",
+          "126.0"
+        ]
+      },
+      {
+        "csv_line": 93,
+        "before": [
+          "237.0",
+          "75.0"
+        ],
+        "after": [
+          "19.0",
+          "117.0"
+        ]
+      },
+      {
+        "csv_line": 94,
+        "before": [
+          "237.0",
+          "84.0"
+        ],
+        "after": [
+          "19.0",
+          "108.0"
+        ]
+      },
+      {
+        "csv_line": 95,
+        "before": [
+          "237.0",
+          "93.0"
+        ],
+        "after": [
+          "19.0",
+          "99.0"
+        ]
+      },
+      {
+        "csv_line": 96,
+        "before": [
+          "237.0",
+          "102.0"
+        ],
+        "after": [
+          "19.0",
+          "90.0"
+        ]
+      },
+      {
+        "csv_line": 97,
+        "before": [
+          "237.0",
+          "111.0"
+        ],
+        "after": [
+          "19.0",
+          "81.0"
+        ]
+      },
+      {
+        "csv_line": 98,
+        "before": [
+          "237.0",
+          "120.0"
+        ],
+        "after": [
+          "19.0",
+          "72.0"
+        ]
+      },
+      {
+        "csv_line": 99,
+        "before": [
+          "237.0",
+          "129.0"
+        ],
+        "after": [
+          "19.0",
+          "63.0"
+        ]
+      },
+      {
+        "csv_line": 100,
+        "before": [
+          "237.0",
+          "138.0"
+        ],
+        "after": [
+          "19.0",
+          "54.0"
+        ]
+      },
+      {
+        "csv_line": 101,
+        "before": [
+          "237.0",
+          "147.0"
+        ],
+        "after": [
+          "19.0",
+          "45.0"
+        ]
+      },
+      {
+        "csv_line": 102,
+        "before": [
+          "237.0",
+          "156.0"
+        ],
+        "after": [
+          "19.0",
+          "36.0"
+        ]
+      },
+      {
+        "csv_line": 103,
+        "before": [
+          "237.0",
+          "165.0"
+        ],
+        "after": [
+          "19.0",
+          "27.0"
+        ]
+      }
+    ],
+    "well_row_identity_preserved": true
+  },
+  "flowchart_positions_unchanged": true,
+  "transport_shape_area_split_merge_and_timing_unchanged": true,
+  "heater_commands": "Heater1 retained; no inferred Heater1-to-Heater6 rewiring",
+  "active_tec_identity_unchanged": true,
+  "magnet_commands": "External control; no addressable magnet/motor commands added or remapped",
+  "physical_heater_wiring_verified": false,
+  "physical_magnet_alignment_verified": false,
+  "first_water_run_tag": "tft-first-on-chip-water-run-20261022",
+  "first_water_run_tag_target_unchanged": true,
+  "chip_csv_before_sha256": "0cf4c0e70d749105544795bba84a7cab1d6a8a99b6e12b457027b086fb479872",
+  "chip_csv_after_sha256": "8d3c73dffe59dfd875496a9e1b0f2d0d962e193e43794a4d2d2d95dffd64e039",
+  "previous_geometry_reports_apply_to_pre_rotation_coordinates": true,
+  "GUI_checked": false,
+  "hardware_verified": false,
+  "rotation_regression_tests_passed": 7,
+  "generic_check_errors": 0,
+  "generic_check_warnings": 5,
+  "generic_warnings_retained": [
+    "main BuildMd5 empty",
+    "PTseq_16_A BuildMd5 empty",
+    "approved large load/waste frames above legacy 104-cell threshold",
+    "intentional 50V hold",
+    "intentional PCR 0V pulse"
+  ],
+  "thermal_hold_masks_inside_rotated_Tec1": true,
+  "software_csv_reader_checked": {
+    "exe_sha256": "b66bce1876397e6be263f2a4eac27df6e8f0d85d6061f087bd705c0dda5b2af4",
+    "vm_exe_matches_inspected_copy": true,
+    "csv_reader_address": "0x435a90",
+    "Tec_row_order_retained": true,
+    "physical_wiring_not_inferred_from_screen_position": true
+  }
+}
