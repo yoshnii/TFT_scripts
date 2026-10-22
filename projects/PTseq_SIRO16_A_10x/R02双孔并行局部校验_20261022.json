@@ -1,0 +1,59 @@
+{
+  "status": "passed",
+  "baseline_sha256": "683b9a2d50f09cee30e294cbb76fa3d208c56c2948424042e2b784253f527265",
+  "script_sha256": "efdda6f8e644a2cb6dbc474b7665945780cc27ea1324505ec6465185c95668c2",
+  "scope": [
+    "R02",
+    "R01 output",
+    "R03 input"
+  ],
+  "before_seconds": 2658,
+  "after_seconds": 2132,
+  "saved_seconds": 526,
+  "before_frames": 2584,
+  "after_frames": 2096,
+  "ports_per_group": 2,
+  "parallel_mothers_by_level": [
+    2,
+    4,
+    8,
+    16,
+    2,
+    4,
+    8,
+    16
+  ],
+  "actual_leaf_ul": 0.625,
+  "leaf_shape": [
+    3,
+    5
+  ],
+  "leaf_cells": 15,
+  "leaf_count": 64,
+  "reagent_ul_per_well": 2.5,
+  "receiving_port_volumes_ul": {
+    "E1": 10.0,
+    "E2": 10.0,
+    "E3": 10.0,
+    "E4": 10.0
+  },
+  "synchronous_reaction_merge": true,
+  "scene": {
+    "case": "R02 paired G14 families",
+    "frames": 2140,
+    "equal_x_splits": 60,
+    "aspirated_ul": 0,
+    "static_geometry_passed": true,
+    "magnet_cut_lines_avoid_black_center": true
+  },
+  "exported_frame_audit": {
+    "frames": 2096,
+    "symmetric_horizontal_splits": 60,
+    "one_cell_wide_half_splits": 0,
+    "unequal_or_one_sided_splits": 0,
+    "physical_liquid_verified": false
+  },
+  "all_other_sections_unchanged": true,
+  "GUI_checked": false,
+  "hardware_verified": false
+}

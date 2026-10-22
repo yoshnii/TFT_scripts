@@ -5,13 +5,13 @@
     "A01 output",
     "A03 input"
   ],
-  "baseline_sha256": "583c76aad986f2d3dc0eadd802bfbb912fa11c1424f8dfa1e0aee9e73d281260",
-  "script_sha256": "d1ad59015e75741ea93af148d3ac374a251cbba644904e70202833a26c8dd336",
-  "before_frames": 947,
-  "after_frames": 744,
-  "before_seconds": 992,
-  "after_seconds": 787,
-  "saved_seconds": 205,
+  "baseline_sha256": "d1ad59015e75741ea93af148d3ac374a251cbba644904e70202833a26c8dd336",
+  "script_sha256": "efdda6f8e644a2cb6dbc474b7665945780cc27ea1324505ec6465185c95668c2",
+  "before_frames": 744,
+  "after_frames": 735,
+  "before_seconds": 787,
+  "after_seconds": 778,
+  "saved_seconds": 9,
   "batch_drop_counts": [
     16,
     16
@@ -35,11 +35,17 @@
     0.4
   ],
   "transport_reshapes": 0,
-  "staged_x": [
-    11,
+  "first_split_x": [
     17,
-    23
+    25
   ],
+  "second_split_x": [
+    15,
+    21
+  ],
+  "downstream_x": 11,
+  "right_half_enters_channel_before_left_half_split": true,
+  "symmetric_left_right_splits": true,
   "second_batch_packets_entering_before_first_clears": 7,
   "outlet_slots_allocated_in_actual_arrival_order": true,
   "retained_ul_per_well": 0.4,
@@ -47,17 +53,17 @@
     "F3": 9.6,
     "F1": 9.6
   },
-  "unchanged_recovery_suffix_frames": 39,
+  "unchanged_recovery_suffix_frames": 637,
   "scene": {
     "case": "A02 whole-column waste",
-    "frames": 755,
+    "frames": 746,
     "equal_x_splits": 32,
     "aspirated_ul": 19.2,
     "static_geometry_passed": true,
     "magnet_cut_lines_avoid_black_center": true
   },
   "exported_frame_audit": {
-    "energized_frames": 746,
+    "energized_frames": 737,
     "geometric_splitting_transitions": 32,
     "non_equal_binary_transitions": [],
     "physical_liquid_verified": false

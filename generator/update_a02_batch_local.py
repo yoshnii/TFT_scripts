@@ -56,6 +56,7 @@ def build(text):
     overlapping=sum(e['first_batch_still_in_channel'] for e in p.S.a02_exit_events)
     assert overlapping>0, 'The next batch must enter before the first clears Y172'
     assert len(p.S.split_events) == 32
+    assert max(e['frame'] for e in p.S.a02_exit_events[:16]) <= p.S.split_events[16]['partition_frame']
     assert all(d.vol == .4 and len(d.target_cells()) == 8 for d in p.S.drops.values())
     assert len(p.S.manual_aspirations) == 1
     assert p.S.manual_aspirations[0][1]['port_volumes'] == {'F3':9.6,'F1':9.6}
@@ -86,7 +87,9 @@ def build(text):
         saved_seconds=int(old.get('Timeout'))-flow.timeout,
         batch_drop_counts=[16,16],packet_areas_cells=[16,8],
         packet_shapes=[[4,4],[2,4]],packet_volumes_ul=[.8,.4],
-        transport_reshapes=0,staged_x=[11,17,23],
+        transport_reshapes=0,first_split_x=[17,25],second_split_x=[15,21],downstream_x=11,
+        right_half_enters_channel_before_left_half_split=True,
+        symmetric_left_right_splits=True,
         second_batch_packets_entering_before_first_clears=overlapping,
         outlet_slots_allocated_in_actual_arrival_order=True,
         retained_ul_per_well=.4,waste_ul_per_port={'F3':9.6,'F1':9.6},

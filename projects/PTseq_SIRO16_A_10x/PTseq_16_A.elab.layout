@@ -285,9 +285,9 @@
   <Command Position="0,0" SequenceTypeId="0" ID="75001" Name="【手工加液・流程组结束】S孔×16 G18 末尾清洗新液 3.00µL · A1-A16（每道3.00µL） · 第1/1批 · 加好后运行下一流程组" Type="2" ScriptHead=""/>
  </Flow>
  <Flow Position="35,6173.95" ID="75010" Name="C17 新液清洗反应区及两侧通道（排珠完成后）" Type="0" Expandgroup="">
-  <Command Position="0,0" SequenceTypeId="0" ID="75011" Name="[外部磁控]磁铁下降后：清理载液扫过本反应区两侧过液通道 → 左端定位（面积不变）" Type="2" ScriptHead=""/>
-  <Command Position="0,30" SequenceTypeId="0" ID="75012" Name="往复混匀 · 单轮闭合循环（全部液滴带电）" Type="2" ScriptHead=""/>
-  <Command Position="0,60" ID="75013" Name="混匀计时 98s（同步结束）" Type="2"/>
+  <Command Position="0,0" SequenceTypeId="0" ID="75011" Name="[外部磁控]磁铁下降后：清洗液左端定位（每轮覆盖两侧通道，面积不变）" Type="2" ScriptHead=""/>
+  <Command Position="0,30" SequenceTypeId="0" ID="75012" Name="往复清洗 · 单轮闭合循环（每轮覆盖左右通道）" Type="2" ScriptHead=""/>
+  <Command Position="0,60" ID="75013" Name="混匀计时 130s（同步结束）" Type="2"/>
  </Flow>
  <Flow Position="35,6278.36" ID="75020" Name="C18 清洗新液排废、孔旁收尾后撤电 · F4/F3/F2/F1 运行期间手工回收（末帧撤除回收电极）" Type="0" Expandgroup="">
   <Command Position="0,0" SequenceTypeId="0" ID="75021" Name="不含磁珠的清洗液排至F孔，手工吸取后孔口电极全部撤除 · 【手工吸液・组结束】F4/F3/F2/F1 48.000µL · 运行期间配合吸液，回收电极已撤除；确认吸净后运行下一组" Type="2" ScriptHead=""/>

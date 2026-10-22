@@ -183,7 +183,7 @@ def go(d, targets):
             yield ("+X" if val > cur else "-X") if axis == "x" else ("+Y" if val > cur else "-Y")
 
 def split_many(S, specs, axis='x', offset=None, dur=CUT_MS, touching=()):
-    """先就地等面积分区，再交替移动两半；每帧间隙最多增加一格。
+    """先就地等面积分区，两半每帧同时向相反方向各移动一格。
 
     specs: (母滴, 最终两框, 两液量, 两名称[, 就地两轮廓])。
     同级所有母滴同步拆分；分离期间仅豁免同母滴子滴的短间距。
@@ -239,19 +239,19 @@ def split_many(S, specs, axis='x', offset=None, dur=CUT_MS, touching=()):
         for (a,b),event in zip(groups,events):
             assert not a.target_cells()&b.target_cells(),'分离时子滴重叠'
             g=gap(a,b)
-            if event['gaps']:assert 0<=g-event['gaps'][-1]<=1,('切分间隙跳格',event['parent'],event['gaps'],g)
+            if event['gaps']:assert g-event['gaps'][-1]==2,('切分间隙跳格',event['parent'],event['gaps'],g)
             event['gaps'].append(g);event['positions'].append([list(a.rect),list(b.rect)])
             event['separation_frames'].append(S.nsteps-1)
     record_frame(geom.HOLD_MS,[d.name for ab in groups for d in ab])
     for _ in range(offset):
+        changed=[]
         for side,sign in ((0,-1),(1,1)):
-            changed=[]
             for children in groups:
                 d=children[side];previous=d.target_cells();rc=list(d.rect);rc[coordinate]+=sign;d.rect=rc
                 dx,dy=(sign,0) if axis=='x' else (0,sign)
                 assert d.target_cells()==frozenset((x+dx,y+dy) for x,y in previous),'分离时改变子滴形状'
                 changed.append(d.name)
-            record_frame(dur if side==1 and _==offset-1 else geom.STEP_MS,changed)
+        record_frame(dur if _==offset-1 else geom.STEP_MS,changed)
     for children,spec in zip(groups,specs):
         assert tuple(d.rect for d in children)==tuple(map(tuple,spec[1])),'逐格分离未到预定终点'
     return groups

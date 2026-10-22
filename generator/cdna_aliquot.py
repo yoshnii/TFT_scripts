@@ -81,8 +81,18 @@ def sample_aliquots(S, lanes, blobs):
     assert len(lanes)==16 and all(S.get(ln.name).vol==1.6 for ln in lanes)
     ops.settle_loaded(S)
     halves=partition(S,[S.get(ln.name) for ln in lanes],2,'x',4)
-    # Only split the retained-side half. Keep the outlet-side 0.80µL as
-    # its native 4×4 square instead of making two 2×4 waste droplets.
+    # Dispatch the right-hand half before cutting the remaining half.
+    rows={3:[([4]*3,4)]*4,
+          1:[([4]*3,4),([4]+[2]*4,4),([2]*6,4),([2]*6,4)]}
+    specs={(1,k):dict(port=k,W=12,rows=rows[k],native=True,
+                        strict_staging=True,stage_before_hole=k==3) for k in (3,1)}
+    assignments=[((1,k),r,pos) for k in (3,1) for r,(widths,h) in enumerate(rows[k])
+                 for pos in range(len(widths))]
+    gx=geom.gap_x(geom.waste_gap(lanes[0].c));jobs={};previous={}
+    first=_send_stream(S,[(ln,halves[i][1]) for i,ln in reversed(list(enumerate(lanes)))],
+                       gx,blobs,specs,assignments,jobs,previous,[])
+    W._drain(S,lambda:len(getattr(S,'a02_exit_events',[]))==16)
+    S.a02_right_exit_before_second_split=S.nsteps
     quarters=partition(S,[ds[0] for ds in halves],2,'x',4)
     # Splitting/staging may not borrow either adjacent channel. The later
     # intentional waste exit is a separate route, not a splitting exception.
@@ -98,21 +108,11 @@ def sample_aliquots(S, lanes, blobs):
     for ln in lanes:
         keep=by_lane[ln.id][0]
         S.remove(keep.name);keep.name=ln.name;S.add(keep)
-    # Sixteen 4×4 plus sixteen 2×4 packets, without transport reshaping.
-    # Both outlets still finish as the same 12×16 / 9.60µL pools.
-    rows={3:[([4]*3,4)]*4,
-          1:[([4]*3,4),([4]+[2]*4,4),([2]*6,4),([2]*6,4)]}
-    specs={(1,k):dict(port=k,W=12,rows=rows[k],native=True,
-                        strict_staging=True,stage_before_hole=k==3) for k in (3,1)}
-    assignments=[((1,k),r,pos) for k in (3,1) for r,(widths,h) in enumerate(rows[k])
-                 for pos in range(len(widths))]
-    gx=geom.gap_x(geom.waste_gap(lanes[0].c));jobs={}
-    previous={}
-    first=_send_stream(S,[(ln,by_lane[ln.id][2]) for ln in reversed(lanes)],
-                       gx,blobs,specs,assignments,jobs,previous,[])
     # Smaller drops follow the intact half when channel space opens.
     rest=[(ln,by_lane[ln.id][1]) for ln in reversed(lanes)]
     _send_stream(S,rest,gx,blobs,specs,assignments,jobs,previous,first)
+    # Keep the published downstream input mask, after (not during) splitting.
+    ops.move_rects(S,{ln.name:ln.X0+1 for ln in lanes})
     W._drain(S,lambda:not S.waste_pool.items)
     assert S.a02_outlet_ticket==32
     W.flush(S,blobs)

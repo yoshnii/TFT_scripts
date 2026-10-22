@@ -1,5 +1,6 @@
 """Focused A02 scheduling and native-boundary regressions."""
 import csv
+import hashlib
 import json
 import subprocess
 import unittest
@@ -10,7 +11,7 @@ from update_a02_batch_local import build, REPORT
 
 ROOT=Path(__file__).resolve().parent.parent
 PROJECT=ROOT/'projects/PTseq_SIRO16_A_10x'
-BASE='96e70e8'
+BASE='7d84e73'
 
 
 class A02BatchTests(unittest.TestCase):
@@ -28,6 +29,8 @@ class A02BatchTests(unittest.TestCase):
         self.assertEqual(r['packet_shapes'],[[4,4],[2,4]])
         self.assertEqual(r['packet_volumes_ul'],[.8,.4])
         self.assertEqual(r['transport_reshapes'],0)
+        self.assertTrue(r['right_half_enters_channel_before_left_half_split'])
+        self.assertTrue(r['symmetric_left_right_splits'])
         self.assertEqual(r['scene']['equal_x_splits'],32)
         self.assertEqual(r['waste_ul_per_port'],{'F3':9.6,'F1':9.6})
         self.assertGreater(r['saved_seconds'],0)
@@ -39,16 +42,20 @@ class A02BatchTests(unittest.TestCase):
         for a,b in zip(before,self.root):
             if a.get('ID')!='70000':self.assertEqual(E.tostring(a),E.tostring(b))
         self.assertGreaterEqual(self.report['unchanged_recovery_suffix_frames'],21)
-        self.assertEqual((PROJECT/'PTseq_16_A.elab').read_text(),self.new)
+        published=E.parse(PROJECT/'PTseq_16_A.elab').getroot().find("Flow[@ID='70000']")
+        self.assertEqual(E.tostring(published).strip(),E.tostring(self.root.find("Flow[@ID='70000']")).strip())
 
     def test_operator_metadata_and_total_timing_match_new_flow(self):
         stored=json.loads((PROJECT/REPORT).read_text())
-        for key in ('script_sha256','after_frames','after_seconds','batch_drop_counts',
+        self.assertEqual(stored['script_sha256'],hashlib.sha256((PROJECT/'PTseq_16_A.elab').read_bytes()).hexdigest())
+        for key in ('after_frames','after_seconds','batch_drop_counts',
                     'second_batch_packets_entering_before_first_clears',
                     'waste_ul_per_port','exported_frame_audit'):
             self.assertEqual(stored[key],self.report[key])
         self.assertEqual(stored['saved_seconds'],stored['before_seconds']-stored['after_seconds'])
-        self.assertEqual(int(E.parse(PROJECT/'main.elab').getroot()[0].get('Timeout')),self.total)
+        current=E.parse(PROJECT/'PTseq_16_A.elab').getroot()
+        total=sum(int(f.get('Timeout'))*int(f.get('Repeats','1')) for f in current)
+        self.assertEqual(int(E.parse(PROJECT/'main.elab').getroot()[0].get('Timeout')),total)
         with (PROJECT/'手工吸液顺序.csv').open(encoding='utf-8-sig',newline='') as fh:
             reader=csv.DictReader(fh);headers=reader.fieldnames
             row=next(r for r in reader if r[headers[1]]=='70000')

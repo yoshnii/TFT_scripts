@@ -130,19 +130,21 @@ class Protocol:
         if spec is None:
             spec = {ln.name: (ln.X0, ln.X0 + geom.LANE_L - S.get(ln.name).rect[2]) for ln in self.ALL}
         assert spec and all(hi > lo for lo, hi in spec.values()), '混匀须有完整往返行程'
-        if cleanup_channels:
-            from cleanup_sweep import wash_region
-            wash_region(S,self.ALL)
-        else:ops.move_rects(S, {name: lo for name, (lo, _) in spec.items()})
+        ops.move_rects(S, {name: lo for name, (lo, _) in spec.items()})
         S.step(geom.HOLD_MS, changed=[])
         cmds = [c for c in initial if c]
-        position = self.cmd('[外部磁控]磁铁下降后：清理载液扫过本反应区两侧过液通道 → 左端定位（面积不变）' if cleanup_channels else
+        position = self.cmd('[外部磁控]磁铁下降后：清洗液左端定位（每轮覆盖两侧通道，面积不变）' if cleanup_channels else
                             '液滴左端定位 · 随后启动混匀（全部液滴带电）')
         if cmds: position.pre = (cmds[-1], 'FS')
         cmds.append(position)
         S.step(geom.STEP_MS, changed=[])
-        ops.mix_range(S, spec, 1)
-        hv = self.cmd('往复混匀 · 单轮闭合循环（全部液滴带电）')
+        if cleanup_channels:
+            from cleanup_sweep import wash_region
+            wash_region(S,self.ALL)
+            S.cleanup_sweep_events[-1].update(every_cycle=True,planned_rounds=complete_rounds)
+        else:ops.mix_range(S, spec, 1)
+        hv = self.cmd('往复清洗 · 单轮闭合循环（每轮覆盖左右通道）' if cleanup_channels else
+                      '往复混匀 · 单轮闭合循环（全部液滴带电）')
         assert hv and hv.relays[0].codes == hv.relays[-1].codes, '混匀轨迹首末必须闭合'
         hv.params = 'SCRIPTCYCLE_TRUE'
         hv.pre = (position, 'FS')
@@ -304,7 +306,9 @@ class Protocol:
         S, cmds, touch = self.S, [], []
         assert self.magnet_state=='up','排液期间磁铁必须保持升起'
         if self.rigid:
-            rigid.supernatant_bites(S, self.ALL, self.blob, PELLET, final=True,collect_three=seg=='R1')
+            S.r05_parallel=seg=='R1'
+            try:rigid.supernatant_bites(S, self.ALL, self.blob, PELLET, final=True,collect_three=seg=='R1')
+            finally:S.r05_parallel=False
             grouping='按F1–F4几何容量流水收集，整批到齐后吸液；'
             cmds.append(self.cmd("磁铁保持升起 · 分离 → 小矩形逐格切开移液 → 整排等齐汇液；"+grouping+"待手工吸出后续行，反应区只留磁珠"))
             self.flow(seg, title, cmds); return

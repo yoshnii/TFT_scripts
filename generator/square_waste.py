@@ -31,14 +31,16 @@ def bites(S,items,blobs,kind,pellets=None,single_stop=False):
             pieces.append((ln,d))
         # Bead-carrying waste is never a channel-washing liquid. A separate
         # fresh-liquid wash is scheduled after the final bead-disposal flow.
-        plan=plans[ticket];ticket+=1
+        plan=dict(plans[ticket],early_exit=(kind=='R04' and ticket<4 and getattr(S,'r05_parallel',False)))
+        ticket+=1
         tiles=W._send_pipeline(S,pieces,gx,blobs,plan,jobs)
         if plan['flush']:
             W._drain(S,lambda:not S.waste_pool.items);W.flush(S,blobs)
         else:
             # 20261021 batch train: the next in-well split may start once this
             # whole batch has left its wells; channel entry of the next batch
-            # is still gated until this batch reaches the Y172 band.
+            # normally waits for Y172; R05 alone may pre-start at Y164,
+            # retaining all actual single-cell clearance checks.
             W._drain(S,lambda:all(S.drops.get(d.name) is not d or d.rect[0]>=gx for d in tiles))
 
     def quarter(branches):
@@ -50,8 +52,9 @@ def bites(S,items,blobs,kind,pellets=None,single_stop=False):
             others=[q.rect[0]+q.rect[2] for q in S.drops.values()
                     if q.name not in active and q.vol>0 and ln.Y0-1<=q.rect[1]<ln.Y0+5
                     and ln.X0<=q.rect[0]<ln.X0+36]
-            minimum=max(ln.X0+geom.CUT_GAP,max(others,default=ln.X0-geom.MIN_GAP)+geom.MIN_GAP+geom.CUT_GAP)
-            choices=[x for x in range(minimum,ln.X0+36-16+1) if x+8!=ln.mag]
+            half_gap=(geom.CUT_GAP+1)//2
+            minimum=max(ln.X0+half_gap,max(others,default=ln.X0-geom.MIN_GAP)+geom.MIN_GAP+half_gap)
+            choices=[x for x in range(minimum,ln.X0+36-16-half_gap+1) if x+8!=ln.mag]
             assert choices,('区内切分站放不下',ln.id,others)
             positions[d.name]=min(choices)
         # A held 60-cell half uses the hole-free left 10×6 rectangle. Restore
@@ -88,8 +91,9 @@ def bites(S,items,blobs,kind,pellets=None,single_stop=False):
             for (ln,_),d in zip(items,mothers):
                 ends=[q.rect[0]+q.rect[2] for q in S.drops.values() if q.name not in active
                       and q.vol>0 and ln.Y0-1<=q.rect[1]<ln.Y0+5 and ln.X0<=q.rect[0]<ln.X0+36]
-                minimum=max(ln.X0+4,max(ends,default=ln.X0-3)+7)
-                candidates=[x for x in range(minimum,ln.X0+36-8+1) if x+4!=ln.mag]
+                half_gap=(geom.CUT_GAP+1)//2
+                minimum=max(ln.X0+half_gap,max(ends,default=ln.X0-3)+3+half_gap)
+                candidates=[x for x in range(minimum,ln.X0+36-8-half_gap+1) if x+4!=ln.mag]
                 assert candidates,('区内末级切分站放不下',ln.id,ends)
                 targets[d.name]=min(candidates)
             ops.move_rects(S,targets)
@@ -102,7 +106,10 @@ def bites(S,items,blobs,kind,pellets=None,single_stop=False):
         ops.move_rects(S,{d.name:ln.X0+10 for ln,d in items})
         halves=partition(S,roots,2,'x',geom.CUT_GAP)
         held=[pair[0] for pair in halves]
-        ops.move_rects(S,{d.name:ln.X0 for (ln,_),d in zip(items,held)})
+        moves={d.name:ln.X0 for (ln,_),d in zip(items,held)}
+        if kind=='R04' and getattr(S,'r05_parallel',False):
+            moves.update({pair[1].name:ln.X0+15 for (ln,_),pair in zip(items,halves)})
+        ops.move_rects(S,moves)
         R.reshape_many(S,[(d,(ln.X0,geom.physical_zone(ln.c,ln.r)[1],10,6))
                           for (ln,_),d in zip(items,held) if len(d.target_cells())==60])
         quarter([pair[1] for pair in halves])

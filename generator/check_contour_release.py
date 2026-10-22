@@ -190,13 +190,9 @@ def check(out,before):
     cuts=[e for e in P.S.pipeline_events if e['kind']=='cut']
     splits=P.S.split_events
     assert partitions==len(splits)>0
+    from native_packets import validate_symmetric_split
     for e in splits:
-        assert e['gaps'][0]==0,('切分一开始已有多格间隙',e['parent'],e['gaps'])
-        assert all(0<=b-a<=1 for a,b in zip(e['gaps'],e['gaps'][1:]))
-        for prev,nxt in zip(e['positions'],e['positions'][1:]):
-            distances=[abs(a[0]-b[0])+abs(a[1]-b[1]) for a,b in zip(prev,nxt)]
-            assert sorted(distances)==[0,1],'同一切分每帧只能一半外移一格'
-            assert all(a[2:]==b[2:] for a,b in zip(prev,nxt)),'拉开子滴期间改变形状'
+        validate_symmetric_split(e)
     assert len([e for e in P.S.pipeline_events if e['kind']=='all_ready'])==7
     assert all(e['ports'] for e in cuts)
     assert all(e.get('row_ready') and e['actual_area']==e['rect'][2]*e['rect'][3]

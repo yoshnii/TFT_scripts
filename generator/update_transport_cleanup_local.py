@@ -41,11 +41,9 @@ def seed(relay,volumes):
 
 def validate_scene(p,title,initial_mass=None,expected_waste=None):
     events=getattr(p.S,'split_events',[])
+    from native_packets import validate_symmetric_split
     for event in events:
-        assert event['axis']=='x' and len(event['volumes'])==2
-        assert event['volumes'][0]==event['volumes'][1]
-        assert event['partition_preserves_mother_cells']
-        assert all(0<=b-a<=1 for a,b in zip(event['gaps'],event['gaps'][1:]))
+        validate_symmetric_split(event)
         if event['parent'].startswith('LIQ'):
             row=int(re.match(r'LIQA(\d+)',event['parent'])[1]);ln=p.ALL[row-1]
             assert event['positions'][0][1][0]!=ln.mag,('切口碰磁珠中心',event)
@@ -127,12 +125,16 @@ def generate(before,old):
         assert all(d.vol==0 and d.magnet_only for d in p.S.drops.values())
         proof.append(validate_scene(p,f'{vol} aqueous waste',vol*16,vol*16))
 
-    # Keep barcode aliquoting command 3019 byte-identical; only waste route changes.
-    raw=old[50004][0];p=seed(raw[-1],[('',2.),('K',.6),('BKWA',.6)])
-    initial=51.2;p.S.step();p.S.flush()
+    # Regenerate the binary opening as well as the waste route: both halves
+    # move outward together, retaining the published start/end masks.
+    raw=old[50004][0];p=seed(raw[0],[('',2.),('K',1.2)])
+    rigid.bisect_many(p.S,[p.S.get('K'+ln.id) for ln in p.ALL],
+                      names=[('K'+ln.id,'BKWA'+ln.id) for ln in p.ALL])
+    original=p.cmd(raw.get('Name'))
+    assert set(original.relays[0].codes)==codes(raw[0])
+    assert set(original.relays[-1].codes)==codes(raw[-1])
+    initial=51.2
     rigid.egress_pieces(p.S,[(ln,p.S.get('BKWA'+ln.id)) for ln in p.ALL],p.blob)
-    original=Cmd(raw.get('Name'),raw.get('Component'),raw.get('Action'),int(raw.get('Timeout')),raw.get('Params'),
-                 [Relay(list(codes(r)),int(r.get('Duration')),int(r.get('Amp'))) for r in raw])
     p.flow('B',old[50004].get('Name'),[original,p.cmd('接头余液保持原形排废，孔旁收尾后撤电')])
     fs=prepared(p);register(fs,[50004],p,'barcode waste')
     proof.append(validate_scene(p,'barcode waste',initial,9.6))

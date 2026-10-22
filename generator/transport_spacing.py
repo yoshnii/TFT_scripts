@@ -110,7 +110,8 @@ def _batch_exit(S,d,gx,path):
     """Whole-column batch (user approved 20261021).
 
     Every packet of one send waits, pre-advanced inside its own well, until
-    all earlier batches have reached the Y172 band. Then all packets of the
+    earlier batches reach Y172 (R05 only may start at Y164, with every actual
+    movement still subject to rectangle clearance and door checks). All packets of the
     batch lower one cell and slide into the channel in the same frames and
     descend as one train at the well pitch. Spacing, door and channel checks
     are still applied to every single-cell step by the pool (rect_ok/rule).
@@ -119,6 +120,9 @@ def _batch_exit(S,d,gx,path):
     rounds=S.batch_members;me=d.batch_round;rule=R._door_rule(gx)
     home=well(d.rect)
     def earlier_done():
+        if getattr(d,'early_exit',False):
+            return all(S.drops.get(q.name) is not q or q.rect[1]>=164
+                       for k in rounds if k<me for q in rounds[k])
         return all(_round_done(S,rounds[k]) for k in rounds if k<me)
     while True:
         if home is not None:

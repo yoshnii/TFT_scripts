@@ -235,6 +235,7 @@ def send(S, pieces, gx, blobs, plan, jobs):
         assert ticket<16 and d.rect[2:]==(job['w'],4)
         d.S=S;d.allow=();d.waste_grid_packet=d.waste_pipeline_clearance=True
         d.pre_advance_exit=True
+        d.early_exit=plan.get('early_exit',False)
         d.batch_round=batch_round;S.batch_members[batch_round].append(d)
         d.tile_area=len(d.target_cells());d.waste_fk=job['port']
         from transport_spacing import queue_exit

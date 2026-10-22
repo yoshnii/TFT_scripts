@@ -10,9 +10,9 @@ import ops
 
 
 def partition(S, parents, count=2, axis='x', gap=3, names=None):
-    """同体积、同面积原位分区，逐界面每帧开一格缝；最右/下子滴不动。
+    """同体积、同面积原位分区；两半每帧同时向相反方向各移一格。
 
-    每次移动一个前缀，使每条缝只增加1格，不先移出大缝再缩回。
+    奇数最小间隙向上取偶数，不以固定一半补足奇数间隙。
     调用方须为展开后的子滴预留空间；不会自动挪回一个固定切割站。
     """
     parents=list(parents);groups=[];events=[];pairs=[];idx=0 if axis=='x' else 1
@@ -53,18 +53,28 @@ def partition(S, parents, count=2, axis='x', gap=3, names=None):
         for ds,e in zip(groups,events):
             gaps=[ds[j+1].rect[idx]-ds[j].rect[idx]-ds[j].rect[2+idx]
                   for j in range(count-1)]
-            if e['gaps']:assert 0<=min(gaps)-e['gaps'][-1]<=1
+            if e['gaps']:assert min(gaps)-e['gaps'][-1]==2
             e['gaps'].append(min(gaps));e['positions'].append([list(d.rect) for d in ds])
             e['separation_frames'].append(S.nsteps-1)
     record([d.name for ds in groups for d in ds])
-    for _ in range(gap):
-        for interface in range(count-1):
-            changed=[]
-            for ds in groups:
-                for d in ds[:interface+1]:
-                    rc=list(d.rect);rc[idx]-=1;d.rect=rc;changed.append(d.name)
-            record(changed)
+    for _ in range((gap+1)//2):
+        changed=[]
+        for ds in groups:
+            for d,sign in zip(ds,(-1,1)):
+                rc=list(d.rect);rc[idx]+=sign;d.rect=rc;changed.append(d.name)
+        record(changed)
     return groups
+
+
+def validate_symmetric_split(event):
+    """Formal single-column splits must move both equal halves left/right."""
+    assert event['axis']=='x' and len(event['volumes'])==2
+    assert event['volumes'][0]==event['volumes'][1]
+    assert event['partition_preserves_mother_cells'] and event['gaps'][0]==0
+    for before,after in zip(event['positions'],event['positions'][1:]):
+        for a,b,dx in zip(before,after,(-1,1)):
+            assert b[0]-a[0]==dx and b[1:]==a[1:],('非双侧同步逐格分液',event['parent'],before,after)
+    assert all(b-a==2 for a,b in zip(event['gaps'],event['gaps'][1:]))
 
 
 def _configuration(reagent):

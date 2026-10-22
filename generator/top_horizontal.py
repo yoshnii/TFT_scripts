@@ -1,7 +1,7 @@
 """Horizontal binary cuts in the top band; six-cell transport/staging gaps.
 
-All edge holes are loaded together. One port's family is expanded and routed
-at a time when all families cannot fit at six-cell spacing. Reaction fusion
+All edge holes are loaded together. G14 expands two port families together;
+other reagents keep their existing one-family layout. Reaction fusion
 still waits until every lane is ready. No extra liquid or loading tips.
 """
 import geom,ops
@@ -19,15 +19,16 @@ PLANS={
 }
 
 
-def _arrange(S,nodes,W,H):
+def _arrange(S,nodes,W,H,columns=4):
     import rigid as R
     nodes=sorted(nodes,key=lambda d:(d.rect[1],d.rect[0]))
-    columns=min(4,len(nodes));rows=(len(nodes)+columns-1)//columns
+    columns=min(columns,len(nodes));rows=(len(nodes)+columns-1)//columns
     old_h=max(d.rect[3] for d in nodes)
     pitch_y=max(H,old_h)+6
     # At the eight-mother stage, move the left four down before sliding either
     # row sideways. Their horizontal six-cell gaps remain open throughout.
-    positions=[(16+(i%columns)*(W+12),4+(rows-1-i//columns)*pitch_y)
+    keep_rows=columns==8 and len({d.rect[1] for d in nodes})>1
+    positions=[(16+(i%columns)*(W+12),4+(i//columns if keep_rows else rows-1-i//columns)*pitch_y)
                for i in range(len(nodes))]
     assert max(y+max(H,old_h) for x,y in positions)<=23
     R.run(S,[(d,R.go(d,[('y',y)])) for d,(x,y) in zip(nodes,positions)])
@@ -73,26 +74,37 @@ def deliver(S,reagent,vol,cols,tag,on_before_load=None,on_load=None,controlled=F
                                   initial_volumes=initial,step=S.nsteps))
     # Reserve a right-hand parking strip for the other loaded mothers.
     R.run(S,[(d,R.go(d,[('x',136+32*i)])) for i,d in reversed(list(enumerate(roots[1:])))])
-    for k,root in enumerate(roots,1):
-        R.run(S,[(root,R.go(root,[('x',16),('y',4)]))])
-        nodes=[root]
-        while len(nodes)<n:
+    families=list(enumerate(roots,1))
+    groups=([families[i:i+2] for i in range(0,len(families),2)]
+            if reagent=='G14' else [[family] for family in families])
+    for family_group in groups:
+        if reagent!='G14':
+            root=family_group[0][1]
+            R.run(S,[(root,R.go(root,[('x',16),('y',4)]))])
+        nodes=[root for k,root in family_group]
+        while len(nodes)<n*len(family_group):
             area=len(nodes[0].target_cells());W,H=shapes[area]
-            nodes=_arrange(S,nodes,W,H)
+            # G14 only: two families share each binary level. The final
+            # sixteen mothers fit as two rows of eight; no leaf reshaping.
+            columns=8 if reagent=='G14' and len(nodes)==16 else 4
+            nodes=_arrange(S,nodes,W,H,columns)
             assert all(d.rect[2]>=d.rect[3] for d in nodes)
             nodes=[child for pair in partition(S,nodes,2,'x',6) for child in pair]
         assert all(d.rect[2:]==(w,h) and abs(d.vol-pv)<1e-8 for d in nodes)
         lower=[d for d in nodes if d.rect[1]>min(q.rect[1] for q in nodes)]
-        count=n//per_lane;hi=16-(k-1)*count
-        rows=[r for r in range(hi,hi-count,-1) for _ in range(per_lane)]
         packets=[]
-        for i,(d,row) in enumerate(zip(sorted(nodes,key=lambda q:(-q.rect[1],q.rect[0])),rows)):
-            S.remove(d.name);d.name=f'{tag}E{k}_{row}_{i}';S.add(d)
-            d.port=k;d.row=row;d.native_packet=True;d.native_leaf_shape=(w,h)
-            d.c02_entry_exception=reagent=='G16'
-            S.native_leaf_events.append(dict(reagent=reagent,name=d.name,row=row,
-                actual_ul=d.vol,shape=[w,h],cells=w*h,extra_cells=w*h-geom.cells(d.vol)))
-            packets.append((d,ops.Lane(c,row)))
+        for k,root in family_group:
+            leaves=[d for d in nodes if d.name.startswith(root.name+'_')]
+            assert len(leaves)==n
+            count=n//per_lane;hi=16-(k-1)*count
+            rows=[r for r in range(hi,hi-count,-1) for _ in range(per_lane)]
+            for i,(d,row) in enumerate(zip(sorted(leaves,key=lambda q:(-q.rect[1],q.rect[0])),rows)):
+                S.remove(d.name);d.name=f'{tag}E{k}_{row}_{i}';S.add(d)
+                d.port=k;d.row=row;d.native_packet=True;d.native_leaf_shape=(w,h)
+                d.c02_entry_exception=reagent=='G16'
+                S.native_leaf_events.append(dict(reagent=reagent,name=d.name,row=row,
+                    actual_ul=d.vol,shape=[w,h],cells=w*h,extra_cells=w*h-geom.cells(d.vol)))
+                packets.append((d,ops.Lane(c,row)))
         S.step(geom.HOLD_MS,changed=[])
         locks={};gx=geom.gap_x(geom.reagent_gap(c))
         def route(d,ln):
