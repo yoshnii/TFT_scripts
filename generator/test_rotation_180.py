@@ -6,6 +6,7 @@ import xml.etree.ElementTree as E
 
 from rotate_project_180 import (BOX,BASE_CHIP,ROTATED_CHIP,REPORT,rotate_code,
                                 rotate_csv,rotate_script,verify_csv,verify_scripts)
+from electrode_address_compensation import address_rotation,layout_coordinate_script
 
 ROOT=Path(__file__).resolve().parent.parent
 PROJECT=ROOT/'projects/PTseq_SIRO16_A_10x'
@@ -26,7 +27,7 @@ class RotationTests(unittest.TestCase):
     def test_all_frames_and_all_non_geometry_parameters_match_water_run_tag(self):
         count=0
         for name in ('main.elab','PTseq_16_A.elab'):
-            old=baseline(name).decode();new=(PROJECT/name).read_text()
+            old=baseline(name).decode();new=layout_coordinate_script(PROJECT,name)
             self.assertEqual(rotate_script(old),new)
             audit=verify_scripts(old,new);count+=audit['frames']
         report=json.loads((PROJECT/REPORT).read_text())
@@ -58,7 +59,9 @@ class RotationTests(unittest.TestCase):
             tec=next(r for r in csv.DictReader(fh) if r['Type']=='Tec')
         tx,ty,tw,th=(D(tec[k]) for k in ('StartX','StartY','Width','Height'))
         checked=0
-        for flow in E.parse(PROJECT/'PTseq_16_A.elab').getroot():
+        # Compare in layout coordinates, undoing only an explicitly configured
+        # address compensation. This is not a physical hardware-mapping test.
+        for flow in E.fromstring(layout_coordinate_script(PROJECT,'PTseq_16_A.elab')):
             if not any(c.get('Component')=='Heater1' for c in flow):continue
             loops=[c for c in flow if c.get('Component')=='HighVoltage' and c.get('Params')=='SCRIPTCYCLE_TRUE']
             self.assertEqual(len(loops),1)
@@ -79,6 +82,8 @@ class RotationTests(unittest.TestCase):
         self.assertEqual(len(old),len(new))
         for row,actual in zip(old,new):
             expected=[BOX.sub(lambda m:rotate_code(m[0]),field) for field in row]
+            if address_rotation(PROJECT)==180:
+                expected=[BOX.sub(lambda m:rotate_code(m[0]),field) for field in expected]
             self.assertEqual(expected,actual)
 
     def test_tag_stays_on_original_commit_and_report_hashes_match(self):
@@ -86,7 +91,7 @@ class RotationTests(unittest.TestCase):
         self.assertEqual(tagged,'af98a3858761f6bde4f40ff845cee03b8d4ee9c2')
         report=json.loads((PROJECT/REPORT).read_text())
         for row in report['scripts']:
-            self.assertEqual(row['after_sha256'],hashlib.sha256((PROJECT/row['file']).read_bytes()).hexdigest())
+            self.assertEqual(row['after_sha256'],hashlib.sha256(layout_coordinate_script(PROJECT,row['file']).encode()).hexdigest())
         self.assertEqual((PROJECT/(BASE_CHIP+'.csv')).read_bytes(),baseline(BASE_CHIP+'.csv'))
 
 

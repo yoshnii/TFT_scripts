@@ -1,0 +1,51 @@
+{
+  "status": "software_checks_passed_physical_mapping_pending",
+  "date": "2026-10-23",
+  "scope": "All electrode addresses only; retain orange chip layout",
+  "scripts": [
+    {
+      "file": "main.elab",
+      "before_sha256": "a14845712e1d6b9f45cf14926a6b9b577b1ad7c8d2baf5d9c48d06f7e72ba0f0",
+      "after_sha256": "a14845712e1d6b9f45cf14926a6b9b577b1ad7c8d2baf5d9c48d06f7e72ba0f0",
+      "frames": 0,
+      "rectangles": 0,
+      "all_non_address_parameters_unchanged": true,
+      "inverse_transform_recovers_every_original_frame": true
+    },
+    {
+      "file": "PTseq_16_A.elab",
+      "before_sha256": "735d0e054a820554d8e095e1687cdeb4c086a0de66b41fb50d400486ea80d9d5",
+      "after_sha256": "f916998f6a9959b90b71aaa205de5ebae427ac442d73fb5051ed2af2ca9b6d54",
+      "frames": 18951,
+      "rectangles": 630498,
+      "all_non_address_parameters_unchanged": true,
+      "inverse_transform_recovers_every_original_frame": true
+    }
+  ],
+  "layout_model": "ChipArea_192_256_96_SIRO_R180",
+  "layout_csv_unchanged": true,
+  "layout_csv_sha256": "8d3c73dffe59dfd875496a9e1b0f2d0d962e193e43794a4d2d2d95dffd64e039",
+  "manifest_flowchart_heater_delay_cycles_waveforms_amp_freq_unchanged": true,
+  "actual_volume_area_and_reagent_ratios_unchanged": true,
+  "address_transform": "(Y,X)(H,W) -> (192-Y-H,256-X-W)(H,W)",
+  "predicted_device_transform_degrees": 180,
+  "physical_device_transform_verified": false,
+  "software_highlight_is_device_address_not_predicted_physical_position": true,
+  "heater_identity": "Heater1 unchanged; actual thermal-zone wiring unverified",
+  "magnetic_control": "External control unchanged; actual magnet alignment unverified",
+  "runtime_loops_pauses_or_confirmation_dialogs_added": false,
+  "previous_reports_use_pre_compensation_layout_coordinates": true,
+  "GUI_checked": false,
+  "hardware_verified": false,
+  "address_regression_tests_passed": 6,
+  "layout_regression_tests_passed": 7,
+  "generic_check_errors": 0,
+  "generic_check_warnings": 5,
+  "generic_warnings_retained": [
+    "main BuildMd5 empty",
+    "PTseq_16_A BuildMd5 empty",
+    "approved large load/waste frames exceed legacy 104-cell threshold",
+    "intentional 50V holds",
+    "intentional PCR 0V pulse"
+  ]
+}

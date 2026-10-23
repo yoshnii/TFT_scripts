@@ -10,6 +10,8 @@ ap.add_argument('--script-name', default='PTseq_16_A', choices=['A_cDNA_PCR', 'P
 ap.add_argument('--rotation',type=int,choices=(0,180),default=None,
                 help='Physical publication orientation; when omitted, retain the existing project orientation.')
 a = ap.parse_args()
+from electrode_address_compensation import address_rotation
+address_compensation=address_rotation(a.out)
 if a.rotation is None:
     manifests=list(Path(a.out).glob('*.elabprj'))
     a.rotation=180 if any(ET.parse(p).getroot().get('ChipModel','').endswith('_R180') for p in manifests) else 0
@@ -34,6 +36,10 @@ if a.rotation==180:
     from rotate_project_180 import write_publication
     write_publication(Path(a.out))
     print('发布方向：布局与全部步骤电极整体180°；温控/外部磁控身份不变。')
+    if address_compensation==180:
+        from electrode_address_compensation import write_publication as write_addresses
+        write_addresses(Path(a.out),fresh_layout_output=True)
+        print('寻址补偿：保持R180布局；全部电极指令另补偿180°（设备映射待实机确认）。')
 nrel = sum(len(c.relays) for s in scripts for f in s.flows for c in f.cmds); tot = sum(f.timeout * f.repeats for s in scripts for f in s.flows)
 sz = sum(os.path.getsize(f"{a.out}/{s.name}.elab") for s in scripts) / 1e6
 print(f"{a.out}: {len(scripts)} 文件 / {sum(len(s.flows) for s in scripts)} Flow / {sum(len(f.cmds) for s in scripts for f in s.flows)} 指令 / {nrel} RelayItem / {sz:.1f} MB / 标称 {tot/3600:.2f} h / 生成耗时 {time.time()-t0:.0f}s")

@@ -1,0 +1,7 @@
+{
+  "layout_model": "ChipArea_192_256_96_SIRO_R180",
+  "layout_rotation_degrees": 180,
+  "electrode_address_compensation_degrees": 180,
+  "assumed_device_address_rotation_degrees": 180,
+  "hardware_mapping_verified": false
+}
