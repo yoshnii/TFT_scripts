@@ -5,6 +5,7 @@ import xml.etree.ElementTree as E
 
 from audit_binary_frames import PATTERN
 from rotate_project_180 import rotate_code
+from restore_blue_project import blue_script
 
 ROOT=Path(__file__).resolve().parent.parent
 PROJECT=ROOT/'projects/PTseq_SIRO16_A_10x'
@@ -68,14 +69,17 @@ class CdnaTwoMicrolitreTests(unittest.TestCase):
         self.assertEqual(rows[1019]['待吸液电极'],'')
 
     def test_all_unrelated_flows_and_chip_files_are_unchanged(self):
-        old=E.fromstring(subprocess.check_output(['git','show',BASE+':projects/PTseq_SIRO16_A_10x/PTseq_16_A.elab'],cwd=ROOT))
+        old_text=subprocess.check_output(['git','show',BASE+':projects/PTseq_SIRO16_A_10x/PTseq_16_A.elab'],cwd=ROOT).decode()
+        if self.raw.get('ChipsetType')=='ChipArea_192_256_96_SIRO':old_text=blue_script(old_text)
+        old=E.fromstring(old_text)
         for f in old:
             fid=int(f.get('ID'))
             if fid not in CHANGED|{70000}:
                 self.assertEqual(E.tostring(f),E.tostring(self.flows[fid]),fid)
         self.assertEqual(old.find("Flow[@ID='50001']")[-1][-1].get('RelayCode'),self.flows[50001][-1][-1].get('RelayCode'))
-        for name in ('ChipArea_192_256_96_SIRO.csv','ChipArea_192_256_96_SIRO_R180.csv','PTseq_SIRO16_A_10x.elabprj'):
+        for name in ('ChipArea_192_256_96_SIRO.csv','ChipArea_192_256_96_SIRO_R180.csv'):
             self.assertEqual(subprocess.check_output(['git','show',BASE+':projects/PTseq_SIRO16_A_10x/'+name],cwd=ROOT),(PROJECT/name).read_bytes())
+        self.assertEqual(E.parse(PROJECT/'PTseq_SIRO16_A_10x.elabprj').getroot().get('ChipModel'),self.raw.get('ChipsetType'))
         self.assertEqual(hashlib.sha256((PROJECT/'PTseq_16_A.elab').read_bytes()).hexdigest(),self.proof['script_sha256'])
 
 

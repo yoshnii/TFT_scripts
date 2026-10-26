@@ -1,0 +1,40 @@
+{
+  "status": "passed",
+  "date": "2026-10-26",
+  "baseline_commit": "5a8f87d3c93cb73ba0026f36d53d4089417ee54e",
+  "source_chip": "ChipArea_192_256_96_SIRO_R180",
+  "published_chip": "ChipArea_192_256_96_SIRO",
+  "rotation_degrees": 0,
+  "operation": "inverse existing 180-degree publication; not a biological rollback",
+  "scripts": [
+    {
+      "file": "main.elab",
+      "before_sha256": "afff3b30f69f6c695a1621b5f6a97e1101d52715c79eefad07fcffcd694ed080",
+      "after_sha256": "c232c1f5ef504342544540c18ef6ae7f780ab2b9ad56b1c05974718db8e4545d",
+      "frames": 0,
+      "rectangles": 0,
+      "all_non_coordinate_parameters_unchanged": true
+    },
+    {
+      "file": "PTseq_16_A.elab",
+      "before_sha256": "a6f6b8af8e05bb30d6c6d6d29f07ecd40231aa9f428af567895caf5181ba1024",
+      "after_sha256": "e20539ebdb074b786bfb59edc0d42b616a06a70ccf286046868dc2031e0c7292",
+      "frames": 19076,
+      "rectangles": 633489,
+      "all_non_coordinate_parameters_unchanged": true
+    }
+  ],
+  "thermal_hold_rectangles_checked": 80,
+  "canonical_layout_matches_first_water_run_tag": true,
+  "first_water_run_tag_unchanged": true,
+  "chip_csv_sha256": "0cf4c0e70d749105544795bba84a7cab1d6a8a99b6e12b457027b086fb479872",
+  "all_non_coordinate_parameters_unchanged": true,
+  "current_cdna_ul_per_lane": 2.0,
+  "retained_cdna_ul_per_lane": 0.5,
+  "target_reaction_ul_per_lane": 2.5,
+  "flowchart_files_unchanged": true,
+  "temperatures_cycles_timing_voltage_frequency_unchanged": true,
+  "software_ChipRotate_config_changed": false,
+  "physical_addressing_verified": false,
+  "inactive_R180_csv_retained_as_historical_asset": true
+}

@@ -19,7 +19,7 @@
   "cdna_sample_fraction": 0.8,
   "retained_sample_equivalent_ul": 0.4,
   "retained_g4_equivalent_ul": 0.1,
-  "chip_model": "ChipArea_192_256_96_SIRO_R180",
+  "chip_model": "ChipArea_192_256_96_SIRO",
   "scene": {
     "case": "2µL cDNA -> .5µL retained -> 2.5µL target PCR",
     "frames": 2868,
@@ -42,5 +42,6 @@
   "workbook_unchanged": true,
   "physical_validation": false,
   "baseline_sha256": "735d0e054a820554d8e095e1687cdeb4c086a0de66b41fb50d400486ea80d9d5",
-  "script_sha256": "a6f6b8af8e05bb30d6c6d6d29f07ecd40231aa9f428af567895caf5181ba1024"
+  "script_sha256": "e20539ebdb074b786bfb59edc0d42b616a06a70ccf286046868dc2031e0c7292",
+  "orientation_revision": "2026-10-26 restored original blue coordinates; biological checks retained"
 }

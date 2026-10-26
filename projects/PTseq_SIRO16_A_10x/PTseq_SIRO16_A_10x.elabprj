@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project Target="PTseq_SIRO16_A_10x" ActiveTec="1" Smart8Dir="" Description="" Instrument="3" TargetVersion="v0.0.0.1" ChipModel="ChipArea_192_256_96_SIRO_R180" InstrumentName="TFT" DbName="">
+<project Target="PTseq_SIRO16_A_10x" ActiveTec="1" Smart8Dir="" Description="" Instrument="3" TargetVersion="v0.0.0.1" ChipModel="ChipArea_192_256_96_SIRO" InstrumentName="TFT" DbName="">
     <file include="main" BuildMd5=""/>
     <file include="PTseq_16_A" BuildMd5=""/>
 </project>

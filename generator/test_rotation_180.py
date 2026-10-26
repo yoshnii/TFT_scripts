@@ -1,4 +1,4 @@
-"""Exact orientation-only regression against the preserved first-water-run tag."""
+"""Original-blue publication regression, retaining the latest cDNA revision."""
 import csv,hashlib,io,json,subprocess,unittest
 from decimal import Decimal as D
 from pathlib import Path
@@ -6,6 +6,7 @@ import xml.etree.ElementTree as E
 
 from rotate_project_180 import (BOX,BASE_CHIP,ROTATED_CHIP,REPORT,rotate_code,
                                 rotate_csv,rotate_script,verify_csv,verify_scripts)
+from restore_blue_project import BASELINE,REPORT as BLUE_REPORT
 
 ROOT=Path(__file__).resolve().parent.parent
 PROJECT=ROOT/'projects/PTseq_SIRO16_A_10x'
@@ -16,6 +17,10 @@ def baseline(name):
     return subprocess.check_output(['git','show',TAG+':projects/PTseq_SIRO16_A_10x/'+name],cwd=ROOT)
 
 
+def latest_rotated(name):
+    return subprocess.check_output(['git','show',BASELINE+':projects/PTseq_SIRO16_A_10x/'+name],cwd=ROOT)
+
+
 class RotationTests(unittest.TestCase):
     def test_rectangle_edges_use_transposed_grid_without_off_by_one(self):
         self.assertEqual(rotate_code('(28,19)(4,8)'),'(160,229)(4,8)')
@@ -23,16 +28,16 @@ class RotationTests(unittest.TestCase):
         self.assertEqual(rotate_code(''),'')
         with self.assertRaises(AssertionError):rotate_code('(0,255)(1,2)')
 
-    def test_all_frames_and_all_non_geometry_parameters_match_water_run_tag(self):
+    def test_all_frames_preserve_latest_cdna_and_every_non_geometry_parameter(self):
         count=0
         for name in ('main.elab','PTseq_16_A.elab'):
-            old=baseline(name).decode();new=(PROJECT/name).read_text()
-            self.assertEqual(rotate_script(old),new)
-            audit=verify_scripts(old,new);count+=audit['frames']
-        report=json.loads((PROJECT/REPORT).read_text())
+            old=latest_rotated(name).decode();new=(PROJECT/name).read_text()
+            self.assertEqual(rotate_script(new),old)
+            audit=verify_scripts(new,old);count+=audit['frames']
+        report=json.loads((PROJECT/BLUE_REPORT).read_text())
         self.assertEqual(count,sum(s['frames'] for s in report['scripts']))
         self.assertGreater(count,18000)
-        with self.assertRaises(AssertionError):rotate_script((PROJECT/'PTseq_16_A.elab').read_text())
+        with self.assertRaises(AssertionError):rotate_script(rotate_script((PROJECT/'PTseq_16_A.elab').read_text()))
 
     def test_entire_layout_rotates_without_reordering_tec_magnet_or_holes(self):
         old=baseline(BASE_CHIP+'.csv');new=(PROJECT/(ROTATED_CHIP+'.csv')).read_bytes()
@@ -53,8 +58,8 @@ class RotationTests(unittest.TestCase):
         self.assertFalse(any('Motor' in c.get('Component','') or 'Magnet' in c.get('Component','') for c in b.iter('Command')))
         self.assertEqual(b.get('ActiveTec'),a.get('ActiveTec'))
 
-    def test_all_thermal_hold_masks_stay_inside_the_same_rotated_tec_identity(self):
-        with (PROJECT/(ROTATED_CHIP+'.csv')).open() as fh:
+    def test_all_thermal_hold_masks_return_to_original_tec_identity(self):
+        with (PROJECT/(BASE_CHIP+'.csv')).open() as fh:
             tec=next(r for r in csv.DictReader(fh) if r['Type']=='Tec')
         tx,ty,tw,th=(D(tec[k]) for k in ('StartX','StartY','Width','Height'))
         checked=0
@@ -71,10 +76,10 @@ class RotationTests(unittest.TestCase):
 
     def test_project_model_flowchart_and_operator_coordinates_are_consistent(self):
         manifest=E.parse(PROJECT/'PTseq_SIRO16_A_10x.elabprj').getroot()
-        self.assertEqual(manifest.get('ChipModel'),ROTATED_CHIP)
+        self.assertEqual(manifest.get('ChipModel'),BASE_CHIP)
         for name in ('main.elab.layout','PTseq_16_A.elab.layout'):
-            self.assertEqual((PROJECT/name).read_bytes(),baseline(name))
-        old=list(csv.reader(io.StringIO(baseline('手工吸液顺序.csv').decode('utf-8-sig'))))
+            self.assertEqual((PROJECT/name).read_bytes(),latest_rotated(name))
+        old=list(csv.reader(io.StringIO(latest_rotated('手工吸液顺序.csv').decode('utf-8-sig'))))
         with (PROJECT/'手工吸液顺序.csv').open(encoding='utf-8-sig',newline='') as fh:new=list(csv.reader(fh))
         self.assertEqual(len(old),len(new))
         for row,actual in zip(old,new):
@@ -84,7 +89,7 @@ class RotationTests(unittest.TestCase):
     def test_tag_stays_on_original_commit_and_report_hashes_match(self):
         tagged=subprocess.check_output(['git','rev-parse',TAG+'^{}'],cwd=ROOT,text=True).strip()
         self.assertEqual(tagged,'af98a3858761f6bde4f40ff845cee03b8d4ee9c2')
-        report=json.loads((PROJECT/REPORT).read_text())
+        report=json.loads((PROJECT/BLUE_REPORT).read_text())
         for row in report['scripts']:
             self.assertEqual(row['after_sha256'],hashlib.sha256((PROJECT/row['file']).read_bytes()).hexdigest())
         self.assertEqual((PROJECT/(BASE_CHIP+'.csv')).read_bytes(),baseline(BASE_CHIP+'.csv'))
