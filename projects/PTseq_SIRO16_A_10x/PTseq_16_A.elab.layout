@@ -1,23 +1,20 @@
 <Script Name="PTseq_16_A" Version="v0.0.0.1">
- <Flow Position="35,14" ID="1000" Name="A01 样本母液1.60µL（对半取样投入0.40µL） · 加液承接（上电后手工加液）" Type="0" Expandgroup="">
-  <Command Position="0,0" SequenceTypeId="0" ID="1001" Name="【手工加液・流程组结束】S孔×16 待测核酸母液 1.60µL · A1-A16（每道1.60µL） · 第1/1批 · 加好后运行下一流程组" Type="2" ScriptHead=""/>
+<Flow Position="35,14" ID="1000" Name="A01 样本1.60µL全量投入cDNA反应 · 加液承接（上电后手工加液）" Type="0" Expandgroup="">
+  <Command Position="0,0" SequenceTypeId="0" ID="1001" Name="【手工加液・流程组结束】S孔×16 待测核酸 1.60µL · A1-A16（每道1.60µL） · 第1/1批 · 加好后运行下一流程组" Type="2" ScriptHead=""/>
  </Flow>
-<Flow Position="35,118.406" ID="70000" Name="A02 样本逐级对半：1.60→0.80→0.40µL；每道弃1.20µL · F3/F1 待手工吸液（保持全部液滴上电）" Type="0" Expandgroup="">
-  <Command Position="0,0" SequenceTypeId="0" ID="70001" Name="两级等分，保留0.40µL；0.80µL（4×4）与0.40µL（2×4）原形接续排废 · 【手工吸液・组结束】F3/F1 19.200µL · 运行期间配合吸液，回收电极已撤除；确认吸净后运行下一组" Type="2" ScriptHead=""/>
- </Flow>
-<Flow Position="35,222.812" ID="1002" Name="A03 G4 cDNA反应液0.10µL/道：母液1.60µL四级对半 · 加液承接（上电后手工加液）" Type="0" Expandgroup="">
+<Flow Position="35,118.406" ID="1002" Name="A02 加 G4 cDNA合成反应液 0.40µL；每道总体系2.00µL · 加液承接（上电后手工加液）" Type="0" Expandgroup="">
   <Command Position="0,0" SequenceTypeId="0" ID="1003" Name="常驻液滴让开进液端" Type="2" ScriptHead=""/>
-  <Command Position="0,30" SequenceTypeId="0" ID="1004" Name="【手工加液・流程组结束】E1 G4 1.60µL · A1-A16 · 第1/1批 · 加好后运行下一流程组" Type="2" ScriptHead=""/>
+  <Command Position="0,30" SequenceTypeId="0" ID="1004" Name="【手工加液・流程组结束】E1/E2 G4 6.40µL · A1-A16 · 第1/1批 · 加好后运行下一流程组" Type="2" ScriptHead=""/>
  </Flow>
-<Flow Position="35,327.218" ID="50000" Name="A04 G4 cDNA反应液0.10µL/道：母液1.60µL四级对半 · 加液后分液、移液及融合" Type="0" Expandgroup="">
+<Flow Position="35,222.812" ID="50000" Name="A03 加 G4 cDNA合成反应液 0.40µL；每道总体系2.00µL · 加液后分液、移液及融合" Type="0" Expandgroup="">
   <Command Position="0,0" SequenceTypeId="0" ID="1005" Name="G4 加液已完成 → 顶部拆成液珠 → 经空隙逐道送入 A/C/E 列" Type="2" ScriptHead=""/>
  </Flow>
- <Flow Position="35,431.624" ID="1006" Name="A05 往复混匀" Type="0" Expandgroup="">
+<Flow Position="35,327.218" ID="1006" Name="A04 往复混匀" Type="0" Expandgroup="">
   <Command Position="0,0" SequenceTypeId="0" ID="1007" Name="液滴左端定位 · 随后启动混匀（全部液滴带电）" Type="2" ScriptHead=""/>
   <Command Position="0,30" SequenceTypeId="0" ID="1008" Name="往复混匀 · 单轮闭合循环（全部液滴带电）" Type="2" ScriptHead=""/>
   <Command Position="0,60" ID="1009" Name="混匀计时 1800s（同步结束）" Type="2"/>
  </Flow>
- <Flow Position="35,536.03" ID="1010" Name="A06 cDNA合成37℃10min→85℃5s→4℃；0.50µL全量保留 [热盖105℃]" Type="0" Expandgroup="">
+<Flow Position="35,431.624" ID="1010" Name="A05 cDNA合成 37℃10min→85℃5s→4℃ [热盖105℃]" Type="0" Expandgroup="">
   <Command Position="0,0" SequenceTypeId="0" ID="1011" Name="液滴停 TEC 区" Type="2" ScriptHead=""/>
   <Command Position="0,30" ID="1012" Name="Heater1_37℃" Type="2"/>
   <Command Position="0,60" ID="1013" Name="保温 37℃ 600s" Type="2"/>
@@ -27,11 +24,11 @@
   <Command Position="0,180" ID="1017" Name="保温 4℃ 30s" Type="2"/>
   <Command Position="0,210" SequenceTypeId="0" ID="1018" Name="液滴持续通电保持（循环至温控结束）" Type="2" ScriptHead=""/>
  </Flow>
-<Flow Position="35,640.436" ID="1022" Name="A07 加靶向扩增反应液2.00µL（台面预混） · 加液承接（上电后手工加液）" Type="0" Expandgroup="">
+<Flow Position="35,640.436" ID="1022" Name="A07 加靶向扩增反应液 2.00µL(台面预混) · 加液承接（上电后手工加液）" Type="0" Expandgroup="">
   <Command Position="0,0" SequenceTypeId="0" ID="1023" Name="常驻液滴让开进液端" Type="2" ScriptHead=""/>
   <Command Position="0,30" SequenceTypeId="0" ID="1024" Name="【手工加液・流程组结束】E1/E2 AMP 32.00µL · A1-A16 · 第1/1批 · 加好后运行下一流程组" Type="2" ScriptHead=""/>
  </Flow>
-<Flow Position="35,744.842" ID="50001" Name="A08 加靶向扩增反应液2.00µL（台面预混） · 加液后分液、移液及融合" Type="0" Expandgroup="">
+<Flow Position="35,744.842" ID="50001" Name="A08 加靶向扩增反应液 2.00µL(台面预混) · 加液后分液、移液及融合" Type="0" Expandgroup="">
   <Command Position="0,0" SequenceTypeId="0" ID="1025" Name="AMP 加液已完成 → 顶部拆成液珠 → 经空隙逐道送入 A/C/E 列" Type="2" ScriptHead=""/>
  </Flow>
  <Flow Position="35,849.248" ID="1026" Name="A09 往复混匀" Type="0" Expandgroup="">
@@ -292,64 +289,68 @@
  <Flow Position="35,6278.36" ID="75020" Name="C18 清洗新液排废、孔旁收尾后撤电 · F4/F3/F2/F1 运行期间手工回收（末帧撤除回收电极）" Type="0" Expandgroup="">
   <Command Position="0,0" SequenceTypeId="0" ID="75021" Name="不含磁珠的清洗液排至F孔，手工吸取后孔口电极全部撤除 · 【手工吸液・组结束】F4/F3/F2/F1 48.000µL · 运行期间配合吸液，回收电极已撤除；确认吸净后运行下一组" Type="2" ScriptHead=""/>
  </Flow>
- <Arrow StartID="1000" EndID="70000"/>
- <Arrow StartID="70000" EndID="1002"/>
- <Arrow StartID="1002" EndID="50000"/>
- <Arrow StartID="50000" EndID="1006"/>
- <Arrow StartID="1006" EndID="1010"/>
- <Arrow StartID="1010" EndID="1022"/>
- <Arrow StartID="1022" EndID="50001"/>
- <Arrow StartID="50001" EndID="1026"/>
- <Arrow StartID="1026" EndID="1030"/>
- <Arrow StartID="1030" EndID="2000"/>
- <Arrow StartID="2000" EndID="50002"/>
- <Arrow StartID="50002" EndID="2004"/>
- <Arrow StartID="2004" EndID="2009"/>
- <Arrow StartID="2009" EndID="2013"/>
- <Arrow StartID="2013" EndID="51000"/>
- <Arrow StartID="51000" EndID="2015"/>
- <Arrow StartID="2015" EndID="2017"/>
- <Arrow StartID="2017" EndID="2022"/>
- <Arrow StartID="2022" EndID="2032"/>
- <Arrow StartID="2032" EndID="2038"/>
- <Arrow StartID="2038" EndID="2040"/>
- <Arrow StartID="2040" EndID="2045"/>
- <Arrow StartID="2045" EndID="2055"/>
- <Arrow StartID="2055" EndID="2061"/>
- <Arrow StartID="2061" EndID="2063"/>
- <Arrow StartID="2063" EndID="2068"/>
- <Arrow StartID="2068" EndID="3000"/>
- <Arrow StartID="3000" EndID="3002"/>
- <Arrow StartID="3002" EndID="50003"/>
- <Arrow StartID="50003" EndID="3006"/>
- <Arrow StartID="3006" EndID="3010"/>
- <Arrow StartID="3010" EndID="3017"/>
- <Arrow StartID="3017" EndID="50004"/>
- <Arrow StartID="50004" EndID="51001"/>
- <Arrow StartID="51001" EndID="3022"/>
- <Arrow StartID="3022" EndID="3026"/>
- <Arrow StartID="3026" EndID="50005"/>
- <Arrow StartID="50005" EndID="3030"/>
- <Arrow StartID="3030" EndID="3034"/>
- <Arrow StartID="3034" EndID="3041"/>
- <Arrow StartID="3041" EndID="50006"/>
- <Arrow StartID="50006" EndID="3045"/>
- <Arrow StartID="3045" EndID="4000"/>
- <Arrow StartID="4000" EndID="50007"/>
- <Arrow StartID="50007" EndID="4004"/>
- <Arrow StartID="4004" EndID="4009"/>
- <Arrow StartID="4009" EndID="4013"/>
- <Arrow StartID="4013" EndID="51002"/>
- <Arrow StartID="51002" EndID="4015"/>
- <Arrow StartID="4015" EndID="4017"/>
- <Arrow StartID="4017" EndID="4022"/>
- <Arrow StartID="4022" EndID="4028"/>
- <Arrow StartID="4028" EndID="4030"/>
- <Arrow StartID="4030" EndID="4035"/>
- <Arrow StartID="4035" EndID="4041"/>
- <Arrow StartID="4041" EndID="4043"/>
- <Arrow StartID="4043" EndID="4048"/>
- <Arrow StartID="4048" EndID="75000"/>
- <Arrow StartID="75000" EndID="75010"/>
- <Arrow StartID="75010" EndID="75020"/>
+ <Flow Position="35,536.03" ID="1019" Name="A06 cDNA结束逐级对半：2.00→1.00→0.50µL；每道弃1.50µL · F3/F1 运行期间手工回收（末帧撤除回收电极）" Type="0" Expandgroup="">
+  <Command Position="0,0" SequenceTypeId="0" ID="1020" Name="劈裂: 保留 0.50µL" Type="2" ScriptHead=""/>
+  <Command Position="0,30" SequenceTypeId="0" ID="1021" Name="cDNA多余液体 切成小块 → 依次出空隙 → 底边孔大滴 → 抽走 · 【手工吸液・组结束】F3/F1 24.000µL · 运行期间配合吸液，回收电极已撤除；确认吸净后运行下一组" Type="2" ScriptHead=""/>
+ </Flow>
+ <Arrow EndID="1002" StartID="1000"/>
+ <Arrow EndID="50000" StartID="1002"/>
+ <Arrow EndID="1006" StartID="50000"/>
+ <Arrow EndID="1010" StartID="1006"/>
+ <Arrow EndID="1019" StartID="1010"/>
+ <Arrow EndID="1022" StartID="1019"/>
+ <Arrow EndID="50001" StartID="1022"/>
+ <Arrow EndID="1026" StartID="50001"/>
+ <Arrow EndID="1030" StartID="1026"/>
+ <Arrow EndID="2000" StartID="1030"/>
+ <Arrow EndID="50002" StartID="2000"/>
+ <Arrow EndID="2004" StartID="50002"/>
+ <Arrow EndID="2009" StartID="2004"/>
+ <Arrow EndID="2013" StartID="2009"/>
+ <Arrow EndID="51000" StartID="2013"/>
+ <Arrow EndID="2015" StartID="51000"/>
+ <Arrow EndID="2017" StartID="2015"/>
+ <Arrow EndID="2022" StartID="2017"/>
+ <Arrow EndID="2032" StartID="2022"/>
+ <Arrow EndID="2038" StartID="2032"/>
+ <Arrow EndID="2040" StartID="2038"/>
+ <Arrow EndID="2045" StartID="2040"/>
+ <Arrow EndID="2055" StartID="2045"/>
+ <Arrow EndID="2061" StartID="2055"/>
+ <Arrow EndID="2063" StartID="2061"/>
+ <Arrow EndID="2068" StartID="2063"/>
+ <Arrow EndID="3000" StartID="2068"/>
+ <Arrow EndID="3002" StartID="3000"/>
+ <Arrow EndID="50003" StartID="3002"/>
+ <Arrow EndID="3006" StartID="50003"/>
+ <Arrow EndID="3010" StartID="3006"/>
+ <Arrow EndID="3017" StartID="3010"/>
+ <Arrow EndID="50004" StartID="3017"/>
+ <Arrow EndID="51001" StartID="50004"/>
+ <Arrow EndID="3022" StartID="51001"/>
+ <Arrow EndID="3026" StartID="3022"/>
+ <Arrow EndID="50005" StartID="3026"/>
+ <Arrow EndID="3030" StartID="50005"/>
+ <Arrow EndID="3034" StartID="3030"/>
+ <Arrow EndID="3041" StartID="3034"/>
+ <Arrow EndID="50006" StartID="3041"/>
+ <Arrow EndID="3045" StartID="50006"/>
+ <Arrow EndID="4000" StartID="3045"/>
+ <Arrow EndID="50007" StartID="4000"/>
+ <Arrow EndID="4004" StartID="50007"/>
+ <Arrow EndID="4009" StartID="4004"/>
+ <Arrow EndID="4013" StartID="4009"/>
+ <Arrow EndID="51002" StartID="4013"/>
+ <Arrow EndID="4015" StartID="51002"/>
+ <Arrow EndID="4017" StartID="4015"/>
+ <Arrow EndID="4022" StartID="4017"/>
+ <Arrow EndID="4028" StartID="4022"/>
+ <Arrow EndID="4030" StartID="4028"/>
+ <Arrow EndID="4035" StartID="4030"/>
+ <Arrow EndID="4041" StartID="4035"/>
+ <Arrow EndID="4043" StartID="4041"/>
+ <Arrow EndID="4048" StartID="4043"/>
+ <Arrow EndID="75000" StartID="4048"/>
+ <Arrow EndID="75010" StartID="75000"/>
+ <Arrow EndID="75020" StartID="75010"/>
 </Script>

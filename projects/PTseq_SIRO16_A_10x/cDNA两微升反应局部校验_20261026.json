@@ -1,0 +1,46 @@
+{
+  "status": "passed",
+  "scope": "A01–A08 plus unchanged A09/PCR boundary",
+  "sample_ul_per_lane": 1.6,
+  "g4_ul_per_lane": 0.4,
+  "cdna_ul_per_lane": 2.0,
+  "retained_cdna_ul_per_lane": 0.5,
+  "waste_ul_per_lane": 1.5,
+  "g4_port_ul": {
+    "E1": 3.2,
+    "E2": 3.2
+  },
+  "waste_port_ul": {
+    "F3": 12.0,
+    "F1": 12.0
+  },
+  "target_reagent_ul_per_lane": 2.0,
+  "target_reaction_ul_per_lane": 2.5,
+  "cdna_sample_fraction": 0.8,
+  "retained_sample_equivalent_ul": 0.4,
+  "retained_g4_equivalent_ul": 0.1,
+  "chip_model": "ChipArea_192_256_96_SIRO_R180",
+  "scene": {
+    "case": "2µL cDNA -> .5µL retained -> 2.5µL target PCR",
+    "frames": 2868,
+    "equal_x_splits": 92,
+    "aspirated_ul": 24.0,
+    "static_geometry_passed": true,
+    "magnet_cut_lines_avoid_black_center": true
+  },
+  "exported_frame_audit": {
+    "energized_frames": 2903,
+    "geometric_splitting_transitions": 92,
+    "non_equal_binary_transitions": [],
+    "physical_liquid_verified": false
+  },
+  "split_event_count": 92,
+  "all_splits_equal_and_symmetric": true,
+  "unchanged_from_A09": true,
+  "temperatures_and_holds_unchanged": true,
+  "layout_csv_unchanged": true,
+  "workbook_unchanged": true,
+  "physical_validation": false,
+  "baseline_sha256": "735d0e054a820554d8e095e1687cdeb4c086a0de66b41fb50d400486ea80d9d5",
+  "script_sha256": "a6f6b8af8e05bb30d6c6d6d29f07ecd40231aa9f428af567895caf5181ba1024"
+}

@@ -1,6 +1,7 @@
 """PTseq 单列10×流程：体积按TFT片上试剂体积表_单列.xlsx，温控按POCS；手工边界保持上电。
 20261009：多E孔顶部等分、固定小滴转运、S孔两次洗脱、全区重悬、明确结合/洗脱孵育、手工吸液后续行。
 20261015：A09 PCR脉冲供电为持续上电例外；周期末帧ON，执行器同步停机边界仍待验证。
+20261026：按用户批准以1.60+0.40µL完成cDNA，反应后取0.50µL；不回写原体积表。
 仅完成离线几何/计划体积校验，未验证液体、磁控或芯片执行。"""
 import math
 import geom, ops, rigid
@@ -555,18 +556,22 @@ class Protocol:
         finger("Q", ((2, 2, 10, 4), (2, 4, 21, 2)), ((24, 2, 10, 4), (13, 4, 21, 2)), f"{title} · Q07 半份2 穿过文库 → 排废", last=True)
 
     # ── 流程主体 ──
+    def cdna_and_target_add(self):
+        """Approved 2µL cDNA reaction, post-reaction quartering, then AMP."""
+        self.load_samples('A','A01 样本1.60µL全量投入cDNA反应','S',1.60,'L','待测核酸')
+        self.add_reagent("A", "A02 加 G4 cDNA合成反应液 0.40µL；每道总体系2.00µL", "G4", 0.40)
+        self.mix("A", "A03 往复混匀", seconds=A03_MIX_SECONDS)
+        self.thermal("A", "A04 cDNA合成 37℃10min→85℃5s→4℃", [(37, 600), (85, 5)], lid=105)
+        # Complete cDNA at 1.60 + 0.40µL, then retain one quarter only.
+        self.split_waste('A','A05 cDNA结束逐级对半：2.00→1.00→0.50µL；每道弃1.50µL',.50,'cDNA多余液体')
+        self.add_reagent("A", "A06 加靶向扩增反应液 2.00µL(台面预混)", "AMP", 2.00)
+
     def build(self):
         if self.rigid:
             geom.magnetic_shape(round(4.20+1.70,2),allow_590_cross=True)
         S = self.S
         # 段 A
-        from cdna_aliquot import load_and_aliquot
-        load_and_aliquot(self)
-        self.add_reagent("A", "A03 加 G4 cDNA合成反应液 0.10µL（1.60µL母液四级等分）", "G4", 0.10)
-        self.mix("A", "A03 往复混匀", seconds=A03_MIX_SECONDS)
-        self.thermal("A", "A04 cDNA合成 37℃10min→85℃5s→4℃", [(37, 600), (85, 5)], lid=105)
-        # New 0.50µL cDNA is all retained; do not discard another 75%.
-        self.add_reagent("A", "A06 加靶向扩增反应液 2.00µL(台面预混)", "AMP", 2.00)
+        self.cdna_and_target_add()
         self.mix("A", "A07 往复混匀")
         self.pcr_thermal_block("A", "A08 预变性→PCR三段×30→终延伸→4℃")
         # 刷新点 1

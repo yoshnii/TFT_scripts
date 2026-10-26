@@ -19,7 +19,7 @@ PLANS={
 }
 
 
-def _arrange(S,nodes,W,H,columns=4):
+def _arrange(S,nodes,W,H,columns=4,padding_limit=2):
     import rigid as R
     nodes=sorted(nodes,key=lambda d:(d.rect[1],d.rect[0]))
     columns=min(columns,len(nodes));rows=(len(nodes)+columns-1)//columns
@@ -35,7 +35,7 @@ def _arrange(S,nodes,W,H,columns=4):
     R.run(S,[(d,R.go(d,[('x',x)])) for d,(x,y) in zip(nodes,positions)])
     for d,(x,y) in zip(nodes,positions):
         before=len(d.target_cells());area=W*H
-        assert area>=before and area-before<=2,('未批准的承接面积变化',d.name,before,area)
+        assert area>=before and area-before<=padding_limit,('未批准的承接面积变化',d.name,before,area)
         assert W>=H and area%2==0
         d.electrode_area=area;d.margin_budget=area-geom.cells(d.vol)
         d.native_authorized_padding=d.margin_budget>0
@@ -47,6 +47,12 @@ def deliver(S,reagent,vol,cols,tag,on_before_load=None,on_load=None,controlled=F
     import rigid as R
     from native_packets import partition
     ports,n,pv,capacity,shapes,(w,h),per_lane=PLANS[reagent]
+    large_cdna = reagent=='G4' and abs(vol-.4)<1e-8
+    if large_cdna:
+        # Restore the approved 0.40µL G4 mother/leaf geometry. Only these
+        # mothers may add four carrier cells; real liquid is never increased.
+        ports,n,pv,capacity,shapes,(w,h),per_lane=(
+            2,8,.4,72,{72:(12,6),36:(10,4),20:(6,4)},(3,4),1)
     assert len(cols)==1 and abs(pv*per_lane-vol)<1e-8
     S.strict_transport=True
     c=cols[0];lanes=ops.lanes_all(cols)
@@ -54,7 +60,7 @@ def deliver(S,reagent,vol,cols,tag,on_before_load=None,on_load=None,controlled=F
     if on_before_load:on_before_load()
     roots=[]
     for k in range(1,ports+1):
-        rw,rh=(8,4) if capacity==32 else R.compact_receiving_shape(capacity)
+        rw,rh=(12,6) if large_cdna else (8,4) if capacity==32 else R.compact_receiving_shape(capacity)
         d=S.add(Drop(f'D{reagent}E{k}',(geom.HOLE_X[k]-rw//2,4,rw,rh),pv*n))
         d.electrode_area=capacity;d.margin_budget=capacity-geom.cells(d.vol)
         d.receiving=True;d.native_authorized_padding=d.margin_budget>0
@@ -76,9 +82,9 @@ def deliver(S,reagent,vol,cols,tag,on_before_load=None,on_load=None,controlled=F
     R.run(S,[(d,R.go(d,[('x',136+32*i)])) for i,d in reversed(list(enumerate(roots[1:])))])
     families=list(enumerate(roots,1))
     groups=([families[i:i+2] for i in range(0,len(families),2)]
-            if reagent=='G14' else [[family] for family in families])
+            if reagent=='G14' or large_cdna else [[family] for family in families])
     for family_group in groups:
-        if reagent!='G14':
+        if reagent!='G14' and not large_cdna:
             root=family_group[0][1]
             R.run(S,[(root,R.go(root,[('x',16),('y',4)]))])
         nodes=[root for k,root in family_group]
@@ -86,8 +92,8 @@ def deliver(S,reagent,vol,cols,tag,on_before_load=None,on_load=None,controlled=F
             area=len(nodes[0].target_cells());W,H=shapes[area]
             # G14 only: two families share each binary level. The final
             # sixteen mothers fit as two rows of eight; no leaf reshaping.
-            columns=8 if reagent=='G14' and len(nodes)==16 else 4
-            nodes=_arrange(S,nodes,W,H,columns)
+            columns=8 if (reagent=='G14' and len(nodes)==16) or (large_cdna and len(nodes)==8) else 4
+            nodes=_arrange(S,nodes,W,H,columns,padding_limit=4 if large_cdna else 2)
             assert all(d.rect[2]>=d.rect[3] for d in nodes)
             nodes=[child for pair in partition(S,nodes,2,'x',6) for child in pair]
         assert all(d.rect[2:]==(w,h) and abs(d.vol-pv)<1e-8 for d in nodes)
