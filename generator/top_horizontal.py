@@ -1,7 +1,7 @@
 """Horizontal binary cuts in the top band; six-cell transport/staging gaps.
 
-All edge holes are loaded together. G14 expands two port families together;
-other reagents keep their existing one-family layout. Reaction fusion
+All edge holes are loaded together. Two active port families expand together
+where the top staging band fits them. Reaction fusion
 still waits until every lane is ready. No extra liquid or loading tips.
 """
 import geom,ops
@@ -31,8 +31,11 @@ def _arrange(S,nodes,W,H,columns=4,padding_limit=2):
     positions=[(16+(i%columns)*(W+12),4+(i//columns if keep_rows else rows-1-i//columns)*pitch_y)
                for i in range(len(nodes))]
     assert max(y+max(H,old_h) for x,y in positions)<=23
-    R.run(S,[(d,R.go(d,[('y',y)])) for d,(x,y) in zip(nodes,positions)])
-    R.run(S,[(d,R.go(d,[('x',x)])) for d,(x,y) in zip(nodes,positions)])
+    if getattr(S,'top_parallel_moves',False):
+        R.run(S,[(d,R.go(d,[('y',y),('x',x)])) for d,(x,y) in zip(nodes,positions)])
+    else:
+        R.run(S,[(d,R.go(d,[('y',y)])) for d,(x,y) in zip(nodes,positions)])
+        R.run(S,[(d,R.go(d,[('x',x)])) for d,(x,y) in zip(nodes,positions)])
     for d,(x,y) in zip(nodes,positions):
         before=len(d.target_cells());area=W*H
         assert area>=before and area-before<=padding_limit,('未批准的承接面积变化',d.name,before,area)
@@ -47,7 +50,9 @@ def deliver(S,reagent,vol,cols,tag,on_before_load=None,on_load=None,controlled=F
     import top_mother_timing as timing
     try:
         return _deliver(S,reagent,vol,cols,tag,on_before_load,on_load,controlled)
-    finally:timing.finish(S)
+    finally:
+        timing.finish(S)
+        S.top_parallel_moves=False
 
 
 def _deliver(S,reagent,vol,cols,tag,on_before_load=None,on_load=None,controlled=False):
@@ -80,6 +85,7 @@ def _deliver(S,reagent,vol,cols,tag,on_before_load=None,on_load=None,controlled=
     else:ops.hold_all(S,ops.T_DISP,geom.VOLT)
     S.step(geom.HOLD_MS,changed=[])
     for d in roots:d.receiving=False
+    S.top_parallel_moves=reagent!='G4'
     import top_mother_timing as timing
     timing.start(S,reagent,roots)
     S.pipeline_events=getattr(S,'pipeline_events',[])
@@ -87,21 +93,25 @@ def _deliver(S,reagent,vol,cols,tag,on_before_load=None,on_load=None,controlled=
     S.native_padding_events=getattr(S,'native_padding_events',[])
     S.pipeline_events.append(dict(kind='start',reagent=reagent,per_lane_ul=vol,
                                   initial_volumes=initial,step=S.nsteps))
-    # Reserve a right-hand parking strip for the other loaded mothers.
-    R.run(S,[(d,R.go(d,[('x',136+32*i)])) for i,d in reversed(list(enumerate(roots[1:])))])
     families=list(enumerate(roots,1))
+    paired=reagent in ('AMP','LIG','G16')
     groups=([families[i:i+2] for i in range(0,len(families),2)]
-            if reagent=='G14' or large_cdna else [[family] for family in families])
+            if reagent=='G14' or large_cdna or paired else [[family] for family in families])
+    # Active mothers go directly into their common cutting layout. Only
+    # genuinely later families need parking; G4 keeps its released path.
+    active_count=len(groups[0]) if reagent!='G4' else 1
+    parked=[(i,d) for i,d in enumerate(roots[1:]) if i+1>=active_count]
+    R.run(S,[(d,R.go(d,[('x',136+32*i)])) for i,d in reversed(parked)])
     for family_group in groups:
-        if reagent!='G14' and not large_cdna:
+        if reagent!='G14' and not large_cdna and len(family_group)==1:
             root=family_group[0][1]
             R.run(S,[(root,R.go(root,[('x',16),('y',4)]))])
         nodes=[root for k,root in family_group]
         while len(nodes)<n*len(family_group):
             area=len(nodes[0].target_cells());W,H=shapes[area]
-            # G14 only: two families share each binary level. The final
-            # sixteen mothers fit as two rows of eight; no leaf reshaping.
-            columns=8 if (reagent=='G14' and len(nodes)==16) or (large_cdna and len(nodes)==8) else 4
+            # Paired families share each level; wide arrangements keep the
+            # existing child shapes and six-cell gaps without leaf reshaping.
+            columns=8 if (paired and len(nodes)>=8) or (reagent=='G14' and len(nodes)==16) or (large_cdna and len(nodes)==8) else 4
             nodes=_arrange(S,nodes,W,H,columns,padding_limit=4 if large_cdna else 2)
             assert all(d.rect[2]>=d.rect[3] for d in nodes)
             nodes=[child for pair in partition(S,nodes,2,'x',6) for child in pair]
@@ -124,7 +134,7 @@ def _deliver(S,reagent,vol,cols,tag,on_before_load=None,on_load=None,controlled=
         locks={};gx=geom.gap_x(geom.reagent_gap(c))
         def route(d,ln):
             d.controlled_entry=True
-            if d not in lower:
+            if reagent=='G4' and d not in lower:
                 while any(S.drops.get(q.name) is q and q.rect[1]<27 for q in lower):yield 'wait'
             yield from R.go(d,[('x',geom.SAFE_X)])
             if d.rect[1]<geom.SAFE_Y:yield from R.go(d,[('y',geom.SAFE_Y)])
@@ -150,3 +160,4 @@ def _deliver(S,reagent,vol,cols,tag,on_before_load=None,on_load=None,controlled=
     S.step(geom.HOLD_MS,changed=[]);ops.merge_all(S,lanes,tag)
     S.pipeline_events.append(dict(kind='finish',reagent=reagent,step=S.nsteps,
         final_volumes={ln.r:S.get(ln.name).vol for ln in lanes}))
+    S.top_parallel_moves=False

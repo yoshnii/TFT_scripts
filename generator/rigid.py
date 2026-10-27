@@ -97,6 +97,8 @@ def tick(S, items, rule=None, allow=frozenset(), dur=geom.STEP_MS):
         if act == 'wait':
             d.pending=None
             continue
+        clock=getattr(S,'top_mother_clock',None)
+        if clock and clock.parallel_run and not clock.can_move(d):continue
         if isinstance(act, tuple): cand = tuple(act[1])
         else: dx, dy = DIRS[act]; cand = (d.rect[0] + dx, d.rect[1] + dy, d.rect[2], d.rect[3])
         al = allow | set(getattr(d, "allow", ()))
@@ -168,6 +170,10 @@ def run(S, items, rule=None, allow=frozenset(), on_done=None):
     """跑到所有液滴的 gen 结束。on_done(drop) 在某液滴结束时调用一次 (如并入大滴)。"""
     ops.settle_loaded(S)
     items = list(items); finished = set()
+    clock=getattr(S,'top_mother_clock',None)
+    independent=bool(clock and getattr(S,'top_parallel_moves',False)
+                     and any(getattr(d,'top_slow_mother',False) for d,_ in items))
+    if independent:clock.begin_run(S)
     while any(getattr(d, "pending", None) != "done" for d, _ in items):
         tick(S, items, rule, allow)
         for d, g in items:
@@ -175,6 +181,7 @@ def run(S, items, rule=None, allow=frozenset(), on_done=None):
                 finished.add(d.name)
                 if on_done: on_done(d)
     for d, _ in items: d.pending = None
+    if independent:clock.end_run(S)
 
 def go(d, targets):
     """产出把 d.rect 左上角平移到 targets=[("x", X) | ("y", Y)] 的方向序列。"""

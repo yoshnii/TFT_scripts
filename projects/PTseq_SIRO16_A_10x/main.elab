@@ -1,3 +1,3 @@
 <Script Name="main" Version="v0.0.0" Type="3" ChipsetType="ChipArea_192_256_96_SIRO" ActiveTec="1">
-    <Flow ID="1" Name="PTseq_16_A" Include="PTseq_16_A.elab" Repeats="1" Timeout="43346" />
+    <Flow ID="1" Name="PTseq_16_A" Include="PTseq_16_A.elab" Repeats="1" Timeout="41525" />
 </Script>

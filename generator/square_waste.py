@@ -36,7 +36,7 @@ def bites(S,items,blobs,kind,pellets=None,single_stop=False):
             pieces.append((ln,d))
         # Bead-carrying waste is never a channel-washing liquid. A separate
         # fresh-liquid wash is scheduled after the final bead-disposal flow.
-        plan=dict(plans[ticket],early_exit=(kind=='R04' and ticket<4 and getattr(S,'r05_parallel',False)))
+        plan=dict(plans[ticket],early_exit=(kind=='cleanup' or kind=='R04' and getattr(S,'r05_parallel',False)))
         ticket+=1
         tiles=W._send_pipeline(S,pieces,gx,blobs,plan,jobs)
         if plan['flush']:
