@@ -9,7 +9,7 @@ from scene import Drop, _overlap
 import ops
 
 
-def partition(S, parents, count=2, axis='x', gap=3, names=None):
+def partition(S, parents, count=2, axis='x', gap=3, names=None, frame_ms=None):
     """同体积、同面积原位分区；两半每帧同时向相反方向各移一格。
 
     奇数最小间隙向上取偶数，不以固定一半补足奇数间隙。
@@ -18,6 +18,8 @@ def partition(S, parents, count=2, axis='x', gap=3, names=None):
     parents=list(parents);groups=[];events=[];pairs=[];idx=0 if axis=='x' else 1
     assert count==2,'禁止多份预登记后逐缝剥离；每次只能对半分裂'
     assert axis in ('x','y')
+    frame_ms=tuple(frame_ms) if frame_ms is not None else (geom.STEP_MS,)*(1+(gap+1)//2)
+    assert len(frame_ms)==1+(gap+1)//2 and all(ms>0 for ms in frame_ms)
     S.split_events=getattr(S,'split_events',[])
     for i,p in enumerate(parents):
         x,y,w,h=p.rect;extent=(w,h)[idx]
@@ -48,9 +50,10 @@ def partition(S, parents, count=2, axis='x', gap=3, names=None):
                partition_frame=S.nsteps,partition_preserves_mother_cells=True,
                _parent_key=id(p),_child_keys=[id(d) for d in children],
                gaps=[],positions=[],separation_frames=[])
+        if frame_ms!=(geom.STEP_MS,)*len(frame_ms):e['requested_frame_ms']=list(frame_ms)
         groups.append(children);events.append(e);S.split_events.append(e)
     def record(changed):
-        S.step(geom.STEP_MS,changed=changed,touching=pairs)
+        S.step(frame_ms[len(events[0]['gaps'])],changed=changed,touching=pairs)
         for ds,e in zip(groups,events):
             gaps=[ds[j+1].rect[idx]-ds[j].rect[idx]-ds[j].rect[2+idx]
                   for j in range(count-1)]

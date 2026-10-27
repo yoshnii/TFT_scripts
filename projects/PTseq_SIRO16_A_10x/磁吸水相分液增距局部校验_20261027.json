@@ -1,0 +1,351 @@
+{
+  "status": "passed",
+  "baseline_commit": "09742cafa6f0e862540868b2edec5c027c14eb8c",
+  "baseline_sha256": "920ff6bfce8887f09cd3c9b4ff052bfea625abebb5bf68db35e7fdd3a4324afb",
+  "script_sha256": "b7dacf27b422a0f97465249a9356214a06511696fa0e744c021dcc8e6409febb",
+  "modified_section_ids": [
+    2013,
+    4013,
+    51000,
+    51002
+  ],
+  "cases": [
+    {
+      "segment": "R1",
+      "volume_per_lane_ul": 5.0,
+      "scene": {
+        "case": "R1 capture retained; later cuts widened",
+        "frames": 2494,
+        "equal_x_splits": 112,
+        "aspirated_ul": 80.0,
+        "static_geometry_passed": true,
+        "magnet_cut_lines_avoid_black_center": true
+      },
+      "unchanged_first_cut_frames": 10,
+      "first_cut_prefix_sha256": "23babf07c4d0d06e78fab5359c2ff4721c87f5168f497dedbc1307b0799e8cba",
+      "first_split_unchanged": true,
+      "cut_groups": [
+        {
+          "parents": 16,
+          "child_ul": 2.5,
+          "gaps": [
+            0,
+            2,
+            4
+          ],
+          "frame_ms": [
+            1000,
+            1000,
+            1000
+          ]
+        },
+        {
+          "parents": 16,
+          "child_ul": 1.25,
+          "gaps": [
+            0,
+            2,
+            4,
+            6
+          ],
+          "frame_ms": [
+            1000,
+            3000,
+            3000,
+            5000
+          ]
+        },
+        {
+          "parents": 16,
+          "child_ul": 0.625,
+          "gaps": [
+            0,
+            2,
+            4,
+            6
+          ],
+          "frame_ms": [
+            1000,
+            3000,
+            3000,
+            5000
+          ]
+        },
+        {
+          "parents": 16,
+          "child_ul": 0.625,
+          "gaps": [
+            0,
+            2,
+            4,
+            6
+          ],
+          "frame_ms": [
+            1000,
+            3000,
+            3000,
+            5000
+          ]
+        },
+        {
+          "parents": 16,
+          "child_ul": 1.25,
+          "gaps": [
+            0,
+            2,
+            4,
+            6
+          ],
+          "frame_ms": [
+            1000,
+            3000,
+            3000,
+            5000
+          ]
+        },
+        {
+          "parents": 16,
+          "child_ul": 0.625,
+          "gaps": [
+            0,
+            2,
+            4,
+            6
+          ],
+          "frame_ms": [
+            1000,
+            3000,
+            3000,
+            5000
+          ]
+        },
+        {
+          "parents": 16,
+          "child_ul": 0.625,
+          "gaps": [
+            0,
+            2,
+            4,
+            6
+          ],
+          "frame_ms": [
+            1000,
+            3000,
+            3000,
+            5000
+          ]
+        }
+      ],
+      "original_prefix_hash": "23babf07c4d0d06e78fab5359c2ff4721c87f5168f497dedbc1307b0799e8cba",
+      "packet_frames_checked": 54464,
+      "mother_frames_checked": 36944,
+      "batch_aspirations_ul": [
+        40.0,
+        40.0
+      ],
+      "outlet_recovery_tail_unchanged": true,
+      "held_half_shape_h_w": [
+        5,
+        10
+      ],
+      "held_half_carrier_cells": 50,
+      "temporary_carrier_cell_increase": 0
+    },
+    {
+      "segment": "C",
+      "volume_per_lane_ul": 6.16,
+      "scene": {
+        "case": "C capture retained; later cuts widened",
+        "frames": 2936,
+        "equal_x_splits": 112,
+        "aspirated_ul": 98.56,
+        "static_geometry_passed": true,
+        "magnet_cut_lines_avoid_black_center": true
+      },
+      "unchanged_first_cut_frames": 5,
+      "first_cut_prefix_sha256": "fe9b8a81f49001e750866d3889e1fd0088b2820dde9d5e16ce825f10eb7e8664",
+      "first_split_unchanged": true,
+      "cut_groups": [
+        {
+          "parents": 16,
+          "child_ul": 3.08,
+          "gaps": [
+            0,
+            2,
+            4
+          ],
+          "frame_ms": [
+            1000,
+            1000,
+            1000
+          ]
+        },
+        {
+          "parents": 16,
+          "child_ul": 1.54,
+          "gaps": [
+            0,
+            2,
+            4,
+            6
+          ],
+          "frame_ms": [
+            1000,
+            3000,
+            3000,
+            5000
+          ]
+        },
+        {
+          "parents": 16,
+          "child_ul": 0.77,
+          "gaps": [
+            0,
+            2,
+            4,
+            6
+          ],
+          "frame_ms": [
+            1000,
+            3000,
+            3000,
+            5000
+          ]
+        },
+        {
+          "parents": 16,
+          "child_ul": 0.77,
+          "gaps": [
+            0,
+            2,
+            4,
+            6
+          ],
+          "frame_ms": [
+            1000,
+            3000,
+            3000,
+            5000
+          ]
+        },
+        {
+          "parents": 16,
+          "child_ul": 1.54,
+          "gaps": [
+            0,
+            2,
+            4,
+            6
+          ],
+          "frame_ms": [
+            1000,
+            3000,
+            3000,
+            5000
+          ]
+        },
+        {
+          "parents": 16,
+          "child_ul": 0.77,
+          "gaps": [
+            0,
+            2,
+            4,
+            6
+          ],
+          "frame_ms": [
+            1000,
+            3000,
+            3000,
+            5000
+          ]
+        },
+        {
+          "parents": 16,
+          "child_ul": 0.77,
+          "gaps": [
+            0,
+            2,
+            4,
+            6
+          ],
+          "frame_ms": [
+            1000,
+            3000,
+            3000,
+            5000
+          ]
+        }
+      ],
+      "original_prefix_hash": "fe9b8a81f49001e750866d3889e1fd0088b2820dde9d5e16ce825f10eb7e8664",
+      "packet_frames_checked": 35992,
+      "mother_frames_checked": 62688,
+      "batch_aspirations_ul": [
+        49.28,
+        49.28
+      ],
+      "outlet_recovery_tail_unchanged": true,
+      "held_half_shape_h_w": [
+        6,
+        11
+      ],
+      "held_half_carrier_cells": 66,
+      "temporary_carrier_cell_increase": 1
+    }
+  ],
+  "timings": [
+    {
+      "section": "R05",
+      "id": 2013,
+      "before_seconds": 1309,
+      "after_seconds": 1335
+    },
+    {
+      "section": "R06",
+      "id": 51000,
+      "before_seconds": 1310,
+      "after_seconds": 1336
+    },
+    {
+      "section": "C05",
+      "id": 4013,
+      "before_seconds": 1470,
+      "after_seconds": 1504
+    },
+    {
+      "section": "C06",
+      "id": 51002,
+      "before_seconds": 1600,
+      "after_seconds": 1626
+    }
+  ],
+  "total_added_seconds": 112,
+  "symmetric_splits_checked": 224,
+  "first_cut_events_unchanged": 32,
+  "widened_cut_events": 192,
+  "cut_gap_sequence": [
+    0,
+    2,
+    4,
+    6
+  ],
+  "cut_frame_ms": [
+    1000,
+    3000,
+    3000,
+    5000
+  ],
+  "waiting_gap": 2,
+  "hole_gap": 1,
+  "final_packet_shape_h_w": [
+    4,
+    4
+  ],
+  "all_other_sections_unchanged": true,
+  "top_slow_cadence_unchanged": true,
+  "reagent_volumes_unchanged": true,
+  "magnet_capture_timings_unchanged": true,
+  "outlet_recovery_tails_unchanged": true,
+  "physical_validation": false,
+  "GUI_check": false
+}

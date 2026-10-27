@@ -60,8 +60,8 @@ def required(S,a,ra,b,rb):
 
 
 def local_cut_gap(S,a,ra,b,rb):
-    """Approved C05/C06 6.16µL exception; never applies outside one well."""
-    if (getattr(S,'c05_cut_gap',None)==2 and well(ra) is not None
+    """Approved captured-aqueous waiting gaps; never outside one well."""
+    if ((getattr(S,'c05_cut_gap',None)==2 or getattr(S,'aqueous_wait_gap',None)==2) and well(ra) is not None
             and well(ra)==well(rb) and a.vol>0 and b.vol>0
             and a.name.startswith('LIQ') and b.name.startswith('LIQ')):
         return 2

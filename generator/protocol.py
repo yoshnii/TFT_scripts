@@ -311,7 +311,7 @@ class Protocol:
             expanded_c=seg=='C' and all(abs(S.get(ln.name).vol-6.16)<1e-8 for ln in self.ALL)
             S.c05_cut_gap=2 if expanded_c else None
             try:rigid.supernatant_bites(S, self.ALL, self.blob, PELLET, final=True,collect_three=seg=='R1')
-            finally:S.r05_parallel=False;S.c05_cut_gap=None
+            finally:S.r05_parallel=False;S.c05_cut_gap=None;S.aqueous_wait_gap=None
             grouping='按F1–F4几何容量流水收集，整批到齐后吸液；'
             cmds.append(self.cmd("磁铁保持升起 · 分离 → 小矩形逐格切开移液 → 整排等齐汇液；"+grouping+"待手工吸出后续行，反应区只留磁珠"))
             self.flow(seg, title, cmds); return
