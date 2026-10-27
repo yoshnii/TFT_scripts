@@ -29,6 +29,8 @@ def in_channel(S,r):
 
 def required(S,a,ra,b,rb):
     if not getattr(S,'strict_transport',False):return geom.MIN_GAP
+    local=local_cut_gap(S,a,ra,b,rb)
+    if local is not None:return local
     if well(ra) is not None and well(rb) is not None:return geom.MIN_GAP
     # Approved C02-only door transition: a packet entering its reaction well
     # may pass a waiting guest in the adjacent well at the original clearance.
@@ -44,6 +46,7 @@ def required(S,a,ra,b,rb):
     # packets. Only inside the vertical channel above the Y172 band.
     if (moving(a) and moving(b) and getattr(a,'batch_round',None) is not None
             and getattr(a,'batch_round',None)==getattr(b,'batch_round',None)
+            and getattr(S,'c05_cut_gap',None)!=2
             and in_channel(S,ra) and in_channel(S,rb)):
         return TRAIN_GAP
     if moving(a) and moving(b):
@@ -56,6 +59,15 @@ def required(S,a,ra,b,rb):
     return geom.MIN_GAP
 
 
+def local_cut_gap(S,a,ra,b,rb):
+    """Approved C05/C06 6.16µL exception; never applies outside one well."""
+    if (getattr(S,'c05_cut_gap',None)==2 and well(ra) is not None
+            and well(ra)==well(rb) and a.vol>0 and b.vol>0
+            and a.name.startswith('LIQ') and b.name.startswith('LIQ')):
+        return 2
+    return None
+
+
 def queue_exit(S,d,gx,path):
     """Release deepest rows in order; only the active head lowers one cell.
 
@@ -65,7 +77,7 @@ def queue_exit(S,d,gx,path):
     if not getattr(S,'strict_transport',False):
         yield from path;return
     import rigid as R
-    if getattr(d,'batch_round',None) is not None:
+    if getattr(d,'batch_round',None) is not None and getattr(S,'c05_cut_gap',None)!=2:
         yield from _batch_exit(S,d,gx,path);return
     state=getattr(S,'waste_entry_state',None)
     if state is None:state=S.waste_entry_state=dict(issued=0,next=0)

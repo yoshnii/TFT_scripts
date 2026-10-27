@@ -63,7 +63,7 @@ def assert_half(S, lanes, side, tag='L', allow_590_cross=False):
         raise ValueError(side)
     for ln in lanes:
         d = S.get(f'{tag}{ln.id}')
-        exception = side=='right' and (abs(d.vol-5.00)<1e-7 or allow_590_cross and abs(d.vol-5.90)<1e-7)
+        exception = side=='right' and (abs(d.vol-5.00)<1e-7 or allow_590_cross and any(abs(d.vol-v)<1e-7 for v in (5.90,6.16)))
         if d.vol > 0:
             (geom.magnetic_shape(d.vol, exception) if side=='right' else geom.half_shape(d.vol))
         lo = ln.X0 + (geom.TEC_L if side == 'right' else 0)

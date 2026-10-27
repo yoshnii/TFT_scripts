@@ -17,6 +17,8 @@ def bites(S,items,blobs,kind,pellets=None,single_stop=False):
     if single_stop:assert sum(p['flush'] for p in plans)==1,'整步废液无法安全一次装入F1–F4'
     gx=geom.gap_x(geom.waste_gap(items[0][0].c));jobs={};ticket=0
     original={ln.id:d.vol for ln,d in items}
+    expanded_c=kind=='C04' and all(abs(d.vol-6.16)<1e-8 for ln,d in items)
+    gap=2 if expanded_c else geom.MIN_GAP
     S.waste_schedule_events=getattr(S,'waste_schedule_events',[])
     S.waste_schedule_events.append(dict(kind=kind,packet_areas=[16]*count,
         actual_packet_ul=items[0][1].vol/count,schedule=plans,step=S.nsteps,
@@ -36,6 +38,11 @@ def bites(S,items,blobs,kind,pellets=None,single_stop=False):
         tiles=W._send_pipeline(S,pieces,gx,blobs,plan,jobs)
         if plan['flush']:
             W._drain(S,lambda:not S.waste_pool.items);W.flush(S,blobs)
+        elif expanded_c:
+            # A second C05/C06 batch must not enter below a still-descending
+            # first batch. Clear the well column before its next cut/send;
+            # the approved two-cell gap is never used in the channel.
+            W._drain(S,lambda:all(S.drops.get(d.name) is not d or d.rect[1]>=W.TRANSPORT_Y for d in tiles))
         else:
             # 20261021 batch train: the next in-well split may start once this
             # whole batch has left its wells; channel entry of the next batch
@@ -53,7 +60,7 @@ def bites(S,items,blobs,kind,pellets=None,single_stop=False):
                     if q.name not in active and q.vol>0 and ln.Y0-1<=q.rect[1]<ln.Y0+5
                     and ln.X0<=q.rect[0]<ln.X0+36]
             half_gap=(geom.CUT_GAP+1)//2
-            minimum=max(ln.X0+half_gap,max(others,default=ln.X0-geom.MIN_GAP)+geom.MIN_GAP+half_gap)
+            minimum=max(ln.X0+half_gap,max(others,default=ln.X0-gap)+gap+half_gap)
             choices=[x for x in range(minimum,ln.X0+36-16-half_gap+1) if x+8!=ln.mag]
             assert choices,('区内切分站放不下',ln.id,others)
             positions[d.name]=min(choices)
@@ -62,7 +69,7 @@ def bites(S,items,blobs,kind,pellets=None,single_stop=False):
         # beneath S/B holes.
         converted=[]
         for (ln,_),d in zip(items,branches):
-            if d.rect[3]==6:
+            if d.rect[3]==6 or (expanded_c and len(d.target_cells())==65):
                 d.electrode_area=64;d.margin_budget=64-geom.cells(d.vol)
                 d.native_authorized_padding=True;d.rect=(d.rect[0],ln.Y0,16,4)
                 converted.append(d.name)
@@ -87,29 +94,48 @@ def bites(S,items,blobs,kind,pellets=None,single_stop=False):
         # sibling remains where it was split, instead of returning to X0.
         for side in (1,0):
             mothers=[pair[side] for pair in halves]
+            if expanded_c and side==1:
+                # 3.08µL held half (13×5) + 1.54µL sibling (7×5)
+                # + the 8×4 active mother and its outward cut fit exactly
+                # in the 36-cell well with two-cell waiting clearances.
+                siblings=[pair[0] for pair in halves]
+                for (ln,_),d in zip(items,siblings):
+                    d.electrode_area=35;d.margin_budget=35-geom.cells(d.vol)
+                    d.native_authorized_padding=True;d.rect=(*d.rect[:2],7,5)
+                S.step(geom.LONG_MS,changed=[d.name for d in siblings])
             active={d.name for d in mothers};targets={}
             for (ln,_),d in zip(items,mothers):
                 ends=[q.rect[0]+q.rect[2] for q in S.drops.values() if q.name not in active
                       and q.vol>0 and ln.Y0-1<=q.rect[1]<ln.Y0+5 and ln.X0<=q.rect[0]<ln.X0+36]
                 half_gap=(geom.CUT_GAP+1)//2
-                minimum=max(ln.X0+half_gap,max(ends,default=ln.X0-3)+3+half_gap)
+                minimum=max(ln.X0+half_gap,max(ends,default=ln.X0-gap)+gap+half_gap)
                 candidates=[x for x in range(minimum,ln.X0+36-8-half_gap+1) if x+4!=ln.mag]
                 assert candidates,('区内末级切分站放不下',ln.id,ends)
                 targets[d.name]=min(candidates)
             ops.move_rects(S,targets)
+            if expanded_c and side==0:
+                for d in mothers:
+                    d.electrode_area=32;d.margin_budget=32-geom.cells(d.vol)
+                    d.rect=(*d.rect[:2],8,4)
+                S.step(geom.LONG_MS,changed=[d.name for d in mothers])
             leaves=partition(S,mothers,2,'x',geom.CUT_GAP)
             send([pair[1] for pair in leaves])
             send([pair[0] for pair in leaves])
 
     roots=[d for ln,d in items]
     if count==8:
-        ops.move_rects(S,{d.name:ln.X0+10 for ln,d in items})
+        ops.move_rects(S,{d.name:ln.X0+(2 if expanded_c else 10) for ln,d in items})
         halves=partition(S,roots,2,'x',geom.CUT_GAP)
         held=[pair[0] for pair in halves]
         moves={d.name:ln.X0 for (ln,_),d in zip(items,held)}
         if kind=='R04' and getattr(S,'r05_parallel',False):
             moves.update({pair[1].name:ln.X0+15 for (ln,_),pair in zip(items,halves)})
         ops.move_rects(S,moves)
+        if expanded_c:
+            for (ln,_),d in zip(items,held):
+                d.electrode_area=65;d.margin_budget=65-geom.cells(d.vol)
+                d.native_authorized_padding=True;d.rect=(ln.X0,ln.Y0,13,5)
+            S.step(geom.LONG_MS,changed=[d.name for d in held])
         R.reshape_many(S,[(d,(ln.X0,geom.physical_zone(ln.c,ln.r)[1],10,6))
                           for (ln,_),d in zip(items,held) if len(d.target_cells())==60])
         quarter([pair[1] for pair in halves])

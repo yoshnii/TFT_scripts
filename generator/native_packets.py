@@ -83,8 +83,8 @@ def _configuration(reagent):
     # G4 only: approved +4 carrier cells per 1.6/.8/.4µL child.
     return {'G4':(2,8,.4,3,4,1),'AMP':(2,16,1.,4,5,2),
             'G14':(4,16,.625,3,5,4),'G8':(1,16,.7,4,4,1),
-            'LIG':(2,16,.7,4,4,2),'EDTA':(1,16,.2,2,2,1),
-            'G16':(2,16,.85,4,5,2)}[reagent]
+            'LIG':(2,16,.7,4,4,2),'EDTA':(1,16,.4,2,4,1),
+            'G16':(2,16,.88,4,5,2)}[reagent]
 
 
 def quarter_cdna(S,lanes,tag,away_tag):

@@ -20,7 +20,7 @@ class Drop:
     """静止液滴: 一个矩形 (X,Y,W,H)。"""
     def __init__(self, name, rect, vol):
         self.name, self.rect, self.vol = name, tuple(int(v) for v in rect), vol
-        self.margin_budget=2 if abs(vol-5.90)<1e-7 else 0
+        self.margin_budget=5 if abs(vol-6.16)<1e-7 else 2 if abs(vol-5.90)<1e-7 else 0
     @property
     def rect(self):return self._rect
     @rect.setter

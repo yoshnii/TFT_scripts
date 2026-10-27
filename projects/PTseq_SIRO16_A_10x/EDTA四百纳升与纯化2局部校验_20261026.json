@@ -1,0 +1,49 @@
+{
+  "status": "passed",
+  "scope": "B14–B16 and C01–C06, adjacent B13/C07 unchanged",
+  "baseline_commit": "c6ef71d2a385d3fed7bc1650822e7168f7aba04e",
+  "baseline_sha256": "e20539ebdb074b786bfb59edc0d42b616a06a70ccf286046868dc2031e0c7292",
+  "script_sha256": "8dcde9565f65c67a5fe4cfc3b56264b94792ccb79f1bb4dfb7d04f6bd009148e",
+  "edta_ul_per_lane": 0.4,
+  "terminated_ul_per_lane": 4.4,
+  "beads_ul_per_lane": 1.76,
+  "beads_ratio": 0.4,
+  "binding_ul_per_lane": 6.16,
+  "edta_leaf_ul": 0.4,
+  "bead_leaf_ul": 0.88,
+  "waste_leaf_ul": 0.77,
+  "root_carrier_cells": 128,
+  "actual_volume_cell_equivalent": 123.2,
+  "root_shape": [
+    32,
+    4
+  ],
+  "waste_leaf_shape": [
+    4,
+    4
+  ],
+  "waste_batches": 2,
+  "waste_ul_per_batch": 49.28,
+  "waste_ul_per_port": 12.32,
+  "scene": {
+    "case": "B14–C06 EDTA and 0.4× beads",
+    "frames": 4712,
+    "equal_x_splits": 157,
+    "aspirated_ul": 98.56,
+    "static_geometry_passed": true,
+    "magnet_cut_lines_avoid_black_center": true
+  },
+  "c05_c06_only_local_wait_gap": 2,
+  "minimum_hole_gap": 1,
+  "transport_gap": 6,
+  "cdna_and_A03_unchanged": true,
+  "all_other_flows_unchanged": true,
+  "mixing_timers_seconds": [
+    660,
+    288
+  ],
+  "binding_incubation_seconds": 180,
+  "capture_seconds": 120,
+  "chip_orientation_unchanged": true,
+  "physical_validation": false
+}

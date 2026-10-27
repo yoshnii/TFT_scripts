@@ -26,7 +26,9 @@ HOLE_X = {k: 54 * k for k in (1, 2, 3, 4)}  # E_k / F_k 的 X 中心
 def cells(ul): return int(round(ul / CELL_UL))
 def electrode_cells(ul):
     """体系级余量：5.90µL用120格；G14小滴的临时余量另由rigid显式登记。"""
-    return 120 if abs(ul-5.90)<1e-7 else cells(ul)
+    # 6.16µL binding liquid: 128 carrier cells allow eight identical 4×4
+    # outlet packets. Carrier padding never changes the actual liquid volume.
+    return 128 if abs(ul-6.16)<1e-7 else 120 if abs(ul-5.90)<1e-7 else cells(ul)
 
 def running_gap(ul):
     return RUN_GAP
@@ -35,8 +37,8 @@ def rect_len(ul, h): return max(1, math.ceil(cells(ul) / h))
 def lane_shape(ul):
     """一格孔距的5行安全带内，优先精确面积、长宽比小的完整矩形。"""
     n = electrode_cells(ul)
-    special={80:(16,5),100:(20,5),120:(24,5)}
-    if any(abs(ul-v)<1e-7 for v in (4.,5.,5.9)):return special[n]
+    special={80:(16,5),100:(20,5),120:(24,5),128:(32,4)}
+    if any(abs(ul-v)<1e-7 for v in (4.,5.,5.9,6.16)):return special[n]
     exact = [(w,n//w) for w in range(1,LANE_L+1)
              if n%w==0 and n//w<=LANE_H]
     if exact:
@@ -48,7 +50,7 @@ def lane_shape(ul):
 
 def magnetic_shape(ul, allow_590_cross=False):
     # 20261015：用户另行批准5.00µL为满足孔距跨中线；5.90µL既有例外继续保留。
-    if abs(ul-5.00)<1e-7 or (allow_590_cross and abs(ul-5.90)<1e-7):
+    if abs(ul-5.00)<1e-7 or (allow_590_cross and any(abs(ul-v)<1e-7 for v in (5.90,6.16))):
         return lane_shape(ul)
     return half_shape(ul)
 
@@ -91,7 +93,7 @@ def lane_target(c,r,ul,side=None):
     """整数完整矩形停靠；全孔检查，不把质心检查当作边界检查。"""
     x0,y0=physical_zone(c,r);n=electrode_cells(ul);gap=running_gap(ul)
     lo=x0+(TEC_L if side=='right' else 0);hi=x0+(TEC_L if side=='left' else LANE_L)
-    if side=='right' and ul in (5.,5.9):lo=x0
+    if side=='right' and any(abs(ul-v)<1e-7 for v in (5.,5.9,6.16)):lo=x0
     choices=[]
     for w in range(1,hi-lo+1):
         if n%w:continue

@@ -45,7 +45,7 @@ def bites(S,items,blobs,final=True,pellets=None,collect_three=False,collect_a05=
     assert all(d.vol>0 for ln,d in items),'磁珠必须加入真实载液后才能排走'
     n=len(items[0][1].target_cells());assert all(len(d.target_cells())==n for ln,d in items)
     if n==100:kind='R04';round_count=8;w,h=4,4
-    elif n==120:kind='C04';round_count=8;w,h=4,4
+    elif n in (120,128):kind='C04';round_count=8;w,h=4,4
     elif n==32 and collect_a05:kind='A05';round_count=2;w,h=4,4
     elif n in (30,60):kind='A05' if n==30 else 'cleanup';round_count=n//15;w,h=(3,5) if n==30 else (4,4)
     elif n==12:kind='barcode';round_count=1;w,h=3,4

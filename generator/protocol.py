@@ -23,7 +23,7 @@ NOMINAL_MIX_STEP_SECONDS = 0.75       # 保留修订前轮数对应的标称混�
 # 969ac87动作层全区往返（每格0.75s）的单轮时间，仅用于计时，不用于液滴几何。
 # 新安全带改变宽度时，仍保留已批准的标称时间，而非按新宽度缩短反应混匀。
 NOMINAL_MIX_ROUND_SECONDS = {2.00:42, 2.50:39, 2.60:34.5, 3.00:39,
-                             4.00:30, 4.20:33, 5.00:24, 5.90:24}
+                             4.00:30, 4.20:33, 4.40:33, 5.00:24, 5.90:24, 6.16:24}
 A03_MIX_SECONDS = 1800               # 969ac87：原生VM已设定的并行计时，不从旧生成器轮数反推。
 
 class Protocol:
@@ -296,7 +296,7 @@ class Protocol:
         cmds.append(self.hold(f"[外部磁控]磁铁未升起 · 室温结合孵育 {incubation}s · 全液滴保持上电", incubation))
         right_half = self.rigid
         ops.to_magnet_all(S,self.ALL,right_half=right_half,allow_590_cross=seg=='C')
-        cmds.append(self.cmd(("5.90µL实际液量不变：24×5完整承接框120格；一格孔距、允许跨中线" if seg=='C'
+        cmds.append(self.cmd((f"{S.get(self.ALL[0].name).vol:.2f}µL实际液量：{geom.lane_shape(S.get(self.ALL[0].name).vol)[0]}×{geom.lane_shape(S.get(self.ALL[0].name).vol)[1]}完整承接框；一格孔距、允许跨中线，仍在本反应区" if seg=='C'
                               else "5.00µL：20×5完整矩形；一格孔距、允许跨中线，仍在本反应区") if right_half else "移至磁铁位并拉长"))
         self.magnet('up',f'{seg} 全部液滴到右侧后捕获')
         capture=BEAD_CAPTURE_SECONDS[seg]
@@ -308,8 +308,10 @@ class Protocol:
         assert self.magnet_state=='up','排液期间磁铁必须保持升起'
         if self.rigid:
             S.r05_parallel=seg=='R1'
+            expanded_c=seg=='C' and all(abs(S.get(ln.name).vol-6.16)<1e-8 for ln in self.ALL)
+            S.c05_cut_gap=2 if expanded_c else None
             try:rigid.supernatant_bites(S, self.ALL, self.blob, PELLET, final=True,collect_three=seg=='R1')
-            finally:S.r05_parallel=False
+            finally:S.r05_parallel=False;S.c05_cut_gap=None
             grouping='按F1–F4几何容量流水收集，整批到齐后吸液；'
             cmds.append(self.cmd("磁铁保持升起 · 分离 → 小矩形逐格切开移液 → 整排等齐汇液；"+grouping+"待手工吸出后续行，反应区只留磁珠"))
             self.flow(seg, title, cmds); return
@@ -568,7 +570,7 @@ class Protocol:
 
     def build(self):
         if self.rigid:
-            geom.magnetic_shape(round(4.20+1.70,2),allow_590_cross=True)
+            geom.magnetic_shape(6.16,allow_590_cross=True)
         S = self.S
         # 段 A
         self.cdna_and_target_add()
@@ -601,12 +603,12 @@ class Protocol:
         self.add_reagent("B", "B07 加连接反应预混液 1.40µL (Buffer 1.00 + Ligase 0.40)", "LIG", 1.40)
         self.mix("B", "B08 往复混匀")
         self.thermal("B", "B09 连接反应 25℃10min→4℃", [(25, 600)], lid=75)
-        self.add_reagent("B", "B10 加 EDTA 终止液 0.20µL", "EDTA", 0.20)
+        self.add_reagent("B", "B10 加 EDTA 终止液 0.40µL", "EDTA", 0.40)
         self.mix('B', 'B10 EDTA终止后轻柔往复混匀（片上移液不等同枪头吹打）', cycles=20)
         # 刷新点 2
-        self.add_reagent("C", "C01 加磁珠(0.4××4.20µL) 1.70µL", "G16", 1.70)
+        self.add_reagent("C", "C01 加磁珠(0.4××4.40µL) 1.76µL", "G16", 1.76)
         self.bead_capture("C", "C02-C03 混匀孵育3min → 移至磁铁 → 磁吸", mix_cycles=BEAD_BIND_MIX['C'], mix_span=19)
-        self.supernatant_off("C", "C04 液相移离磁珠 → 排废全部5.90µL（不保留计划液相）")
+        self.supernatant_off("C", "C04 液相移离磁珠 → 排废全部6.16µL（不保留计划液相）")
         self.elute_offchip("C", "C05 纯化2第1次洗脱：EB 3.00µL → 成品离片", "G18", 3.00, 3.00, 1, final=False)
         self.elute_offchip("C", "C06 纯化2第2次洗脱：EB 3.00µL → 成品离片并汇聚 pooling", "G18", 3.00, 3.00, 2, final=True)
         return self.segs
