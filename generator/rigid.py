@@ -84,7 +84,7 @@ def piece_shape(cells):
     if h > 6: w, h = 4, math.ceil(cells / 4)          # 只能在空隙/空白带里用的高块
     return w, h
 
-def tick(S, items, rule=None, allow=frozenset(), dur=geom.STEP_MS):
+def tick(S, items, rule=None, allow=frozenset(), dur=geom.STEP_MS, record=True):
     """items: [(drop, gen)] 按优先级。gen 产出 "+X"/"-X"/"+Y"/"-Y" (平移 1 格) 或 ("reshape", rect) (原地形变)。
     每步: 每个液滴至多做一个动作; 目标矩形与其他液滴距离 < MIN_GAP 或 rule 不允许就原地等。全部液滴每步都通电。"""
     frame_dur=dur
@@ -160,8 +160,11 @@ def tick(S, items, rule=None, allow=frozenset(), dur=geom.STEP_MS):
         elif getattr(d,'dynamic_path',False):
             # 汇液框合并后边界会逐格移动；重新求停靠间距，不锁住旧目标。
             d.pending=None
-    S.step(frame_dur, changed=[d.name for d, _ in items], touching=[(d.name, a) for d, _ in items for a in getattr(d, "allow", ())])
-    S.stall = 0 if getattr(S, "moved", 0) else getattr(S, "stall", 0) + 1; S.moved = 0
+    changed=[d.name for d,_ in items if S.drops.get(d.name) is d]
+    touching=[(d.name,a) for d,_ in items if S.drops.get(d.name) is d for a in getattr(d,'allow',())]
+    if not record:return changed,touching,frame_dur
+    S.step(frame_dur, changed=changed, touching=touching)
+    S.stall = 0 if getattr(S, "moved", 0) or getattr(S,'top_delivery_advanced',False) else getattr(S, "stall", 0) + 1; S.moved = 0
     if S.stall > 60:
         info = [(d.name, d.pending, d.rect) for d, _ in items if d.pending not in (None, "done")]
         raise RuntimeError(f"排队死锁 @step{S.nsteps}: " + "; ".join(f"{n} 想{a} 在{r}" for n, a, r in info[:6]))

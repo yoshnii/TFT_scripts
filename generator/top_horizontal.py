@@ -31,8 +31,11 @@ def _arrange(S,nodes,W,H,columns=4,padding_limit=2):
     positions=[(16+(i%columns)*(W+12),4+(i//columns if keep_rows else rows-1-i//columns)*pitch_y)
                for i in range(len(nodes))]
     assert max(y+max(H,old_h) for x,y in positions)<=23
+    deferred=getattr(S,'top_deferred_parking',[])
     if getattr(S,'top_parallel_moves',False):
-        R.run(S,[(d,R.go(d,[('y',y),('x',x)])) for d,(x,y) in zip(nodes,positions)])
+        jobs=[(d,R.go(d,[('y',y),('x',x)])) for d,(x,y) in zip(nodes,positions)]
+        jobs.extend((d,R.go(d,[('x',x)])) for d,x in deferred)
+        R.run(S,jobs)
     else:
         R.run(S,[(d,R.go(d,[('y',y)])) for d,(x,y) in zip(nodes,positions)])
         R.run(S,[(d,R.go(d,[('x',x)])) for d,(x,y) in zip(nodes,positions)])
@@ -42,8 +45,55 @@ def _arrange(S,nodes,W,H,columns=4,padding_limit=2):
         assert W>=H and area%2==0
         d.electrode_area=area;d.margin_budget=area-geom.cells(d.vol)
         d.native_authorized_padding=d.margin_budget>0
-    R.reshape_many(S,[(d,(*d.rect[:2],W,H)) for d in nodes],dur=geom.LONG_MS)
+    if getattr(S,'top_delivery_pool',None):
+        while not all(R.rect_ok(S,d.name,(*d.rect[:2],W,H)) for d in nodes):
+            S.step(geom.STEP_MS,changed=[])
+    specs=[(d,(*d.rect[:2],W,H)) for d in nodes]
+    for d,_ in deferred:
+        assert len(d.target_cells())==W*H
+        specs.append((d,(*d.rect[:2],W,H)))
+    R.reshape_many(S,specs,dur=geom.LONG_MS)
+    S.top_deferred_parking=[]
     return nodes
+
+
+class DeliveryPool:
+    """Advance already-cut small drops while the next G14 mothers are prepared."""
+    def __init__(self,S):
+        self.previous_background=getattr(S,'background',None)
+        # A complete Protocol may retain its now-empty waste scheduler.
+        # Preserve that callback for later waste sections.
+        assert not getattr(getattr(S,'waste_pool',None),'items',[])
+        self.S=S;self.items=[];self.frames=0;self.moving_frames=0;self.overlap_frames=0
+        S.background=self.advance
+
+    def advance(self,S):
+        import rigid as R
+        active=[item for item in self.items if getattr(item[0],'pending',None)!='done']
+        if not active:
+            S.top_delivery_advanced=False
+            return [],[],0
+        moved=getattr(S,'moved',0);pipeline=getattr(S,'pipeline_active',False)
+        clock=getattr(S,'top_mother_clock',None)
+        foreground=bool(clock and any(getattr(d,'top_slow_mother',False)
+            and clock.previous.get(id(d),d.rect)!=d.rect for d in S.drops.values()))
+        S.moved=0;S.pipeline_active=True
+        try:
+            changed,touch,dur=R.tick(S,active,record=False)
+            S.top_delivery_advanced=bool(S.moved)
+        finally:S.moved=moved;S.pipeline_active=pipeline
+        self.frames+=1;self.moving_frames+=int(S.top_delivery_advanced)
+        self.overlap_frames+=int(foreground and S.top_delivery_advanced)
+        return changed,touch,dur
+
+    def finish(self):
+        S=self.S;stall=0
+        while any(getattr(d,'pending',None)!='done' for d,_ in self.items):
+            S.step(geom.STEP_MS,changed=[])
+            stall=0 if S.top_delivery_advanced else stall+1
+            assert stall<=60,'顶部小滴队列未能前进'
+        for d,_ in self.items:d.pending=None
+        S.background=self.previous_background;S.top_delivery_advanced=False
 
 
 def deliver(S,reagent,vol,cols,tag,on_before_load=None,on_load=None,controlled=False):
@@ -53,6 +103,10 @@ def deliver(S,reagent,vol,cols,tag,on_before_load=None,on_load=None,controlled=F
     finally:
         timing.finish(S)
         S.top_parallel_moves=False
+        if getattr(S,'top_delivery_pool',None):
+            S.background=S.top_delivery_pool.previous_background;S.top_delivery_pool=None
+        S.top_delivery_advanced=False
+        S.top_deferred_parking=[]
 
 
 def _deliver(S,reagent,vol,cols,tag,on_before_load=None,on_load=None,controlled=False):
@@ -101,7 +155,10 @@ def _deliver(S,reagent,vol,cols,tag,on_before_load=None,on_load=None,controlled=
     # genuinely later families need parking; G4 keeps its released path.
     active_count=len(groups[0]) if reagent!='G4' else 1
     parked=[(i,d) for i,d in enumerate(roots[1:]) if i+1>=active_count]
-    R.run(S,[(d,R.go(d,[('x',136+32*i)])) for i,d in reversed(parked)])
+    if reagent=='G14':S.top_deferred_parking=[(d,136+32*i) for i,d in reversed(parked)]
+    else:R.run(S,[(d,R.go(d,[('x',136+32*i)])) for i,d in reversed(parked)])
+    pool=S.top_delivery_pool=DeliveryPool(S) if reagent=='G14' else None
+    locks={};gx=geom.gap_x(geom.reagent_gap(c))
     for family_group in groups:
         if reagent!='G14' and not large_cdna and len(family_group)==1:
             root=family_group[0][1]
@@ -131,7 +188,6 @@ def _deliver(S,reagent,vol,cols,tag,on_before_load=None,on_load=None,controlled=
                     actual_ul=d.vol,shape=[w,h],cells=w*h,extra_cells=w*h-geom.cells(d.vol)))
                 packets.append((d,ops.Lane(c,row)))
         S.step(geom.HOLD_MS,changed=[])
-        locks={};gx=geom.gap_x(geom.reagent_gap(c))
         def route(d,ln):
             d.controlled_entry=True
             if reagent=='G4' and d not in lower:
@@ -151,8 +207,15 @@ def _deliver(S,reagent,vol,cols,tag,on_before_load=None,on_load=None,controlled=
                 yield ('merge_native',(d.rect[0],ln.Y0,w+host.rect[2],h),host.name,d.vol)
             locks.pop(ln.id)
         S.pipeline_active=True
-        try:R.run(S,[(d,route(d,ln)) for d,ln in packets])
+        try:
+            jobs=[(d,route(d,ln)) for d,ln in packets]
+            if pool:pool.items.extend(jobs)
+            else:R.run(S,jobs)
         finally:S.pipeline_active=False
+    if pool:
+        pool.finish()
+        S.pipeline_events.append(dict(kind='overlap_delivery',frames=pool.frames,
+            moving_frames=pool.moving_frames,mother_and_packet_moving_frames=pool.overlap_frames))
     for ln in lanes:
         assert abs(S.get(f'{tag}{ln.id}').vol-vol)<1e-8
         assert S.get(ln.name).vol==initial[ln.r]

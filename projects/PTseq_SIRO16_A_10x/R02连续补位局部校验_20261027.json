@@ -1,0 +1,240 @@
+{
+  "status": "passed",
+  "baseline_commit": "2b5f7252b2df5f4aa159c4c0c96d935de208b597",
+  "baseline_sha256": "6cd27edbc0e37df96a6b2b9a1e27882cd4d64c2f30816630af7b29ad70720d5f",
+  "script_sha256": "3a71f8fbfefcf5fe6ae401b9d07d69fe63d974d4830323c0d6ecd39032322915",
+  "modified_section_ids": [
+    50002
+  ],
+  "section": "R02",
+  "before_seconds": 2828,
+  "after_seconds": 2308,
+  "total_saved_seconds": 520,
+  "cumulative_saved_since_5445be1_seconds": 2341,
+  "evidence": {
+    "scene": {
+      "case": "R02 next family fills vacant top space",
+      "frames": 2277,
+      "equal_x_splits": 60,
+      "aspirated_ul": 0,
+      "static_geometry_passed": true,
+      "magnet_cut_lines_avoid_black_center": true
+    },
+    "overlap": {
+      "kind": "overlap_delivery",
+      "frames": 1418,
+      "moving_frames": 1416,
+      "mother_and_packet_moving_frames": 227
+    },
+    "raw_trace": [
+      {
+        "raw_frames": 21,
+        "elapsed_ms": 21000,
+        "single_cell_moves": 320,
+        "reshape_events": [],
+        "all_reshape_holds_at_least_4000ms": true
+      },
+      {
+        "raw_frames": 1,
+        "elapsed_ms": 1000,
+        "single_cell_moves": 0,
+        "reshape_events": [],
+        "all_reshape_holds_at_least_4000ms": true
+      },
+      {
+        "raw_frames": 2254,
+        "elapsed_ms": 2308000,
+        "single_cell_moves": 13952,
+        "reshape_events": [
+          {
+            "name": "DG14E1",
+            "frame": 120,
+            "at_ms": 121000,
+            "shape_w_h": [
+              24,
+              10
+            ],
+            "hold_ms": 4000
+          },
+          {
+            "name": "DG14E2",
+            "frame": 120,
+            "at_ms": 121000,
+            "shape_w_h": [
+              24,
+              10
+            ],
+            "hold_ms": 4000
+          },
+          {
+            "name": "DG14E3",
+            "frame": 120,
+            "at_ms": 121000,
+            "shape_w_h": [
+              24,
+              10
+            ],
+            "hold_ms": 4000
+          },
+          {
+            "name": "DG14E4",
+            "frame": 120,
+            "at_ms": 121000,
+            "shape_w_h": [
+              24,
+              10
+            ],
+            "hold_ms": 4000
+          },
+          {
+            "name": "DG14E1_0",
+            "frame": 268,
+            "at_ms": 279000,
+            "shape_w_h": [
+              24,
+              5
+            ],
+            "hold_ms": 4000
+          },
+          {
+            "name": "DG14E1_1",
+            "frame": 268,
+            "at_ms": 279000,
+            "shape_w_h": [
+              24,
+              5
+            ],
+            "hold_ms": 4000
+          },
+          {
+            "name": "DG14E2_0",
+            "frame": 268,
+            "at_ms": 279000,
+            "shape_w_h": [
+              24,
+              5
+            ],
+            "hold_ms": 4000
+          },
+          {
+            "name": "DG14E2_1",
+            "frame": 268,
+            "at_ms": 279000,
+            "shape_w_h": [
+              24,
+              5
+            ],
+            "hold_ms": 4000
+          },
+          {
+            "name": "DG14E3_0",
+            "frame": 1316,
+            "at_ms": 1351000,
+            "shape_w_h": [
+              24,
+              5
+            ],
+            "hold_ms": 4000
+          },
+          {
+            "name": "DG14E3_1",
+            "frame": 1316,
+            "at_ms": 1351000,
+            "shape_w_h": [
+              24,
+              5
+            ],
+            "hold_ms": 4000
+          },
+          {
+            "name": "DG14E4_0",
+            "frame": 1316,
+            "at_ms": 1351000,
+            "shape_w_h": [
+              24,
+              5
+            ],
+            "hold_ms": 4000
+          },
+          {
+            "name": "DG14E4_1",
+            "frame": 1316,
+            "at_ms": 1351000,
+            "shape_w_h": [
+              24,
+              5
+            ],
+            "hold_ms": 4000
+          }
+        ],
+        "all_reshape_holds_at_least_4000ms": true
+      }
+    ],
+    "initial_root_reshapes": [
+      {
+        "name": "DG14E1",
+        "frame": 120,
+        "at_ms": 121000,
+        "shape_w_h": [
+          24,
+          10
+        ],
+        "hold_ms": 4000
+      },
+      {
+        "name": "DG14E2",
+        "frame": 120,
+        "at_ms": 121000,
+        "shape_w_h": [
+          24,
+          10
+        ],
+        "hold_ms": 4000
+      },
+      {
+        "name": "DG14E3",
+        "frame": 120,
+        "at_ms": 121000,
+        "shape_w_h": [
+          24,
+          10
+        ],
+        "hold_ms": 4000
+      },
+      {
+        "name": "DG14E4",
+        "frame": 120,
+        "at_ms": 121000,
+        "shape_w_h": [
+          24,
+          10
+        ],
+        "hold_ms": 4000
+      }
+    ],
+    "all_ready_step": 2270,
+    "first_reaction_contact_step": 2274,
+    "true_ul_per_port": 10.0,
+    "true_ul_per_lane_added": 2.5,
+    "true_ul_per_lane_final": 5.0,
+    "leaf_count": 64,
+    "leaf_ul": 0.625,
+    "leaf_shape_w_h": [
+      3,
+      5
+    ],
+    "symmetric_splits": 60,
+    "per_mother_rest_ms": 3000,
+    "reshape_ms": 4000,
+    "ordinary_transport_gap": 6,
+    "carrier_area_plans_unchanged": true
+  },
+  "all_other_sections_unchanged": true,
+  "manual_receiving_gates_unchanged": true,
+  "actual_volumes_ratios_and_leaf_shapes_unchanged": true,
+  "thermal_magnet_incubation_unchanged": true,
+  "waste_collection_and_recovery_unchanged": true,
+  "workbook_unchanged": true,
+  "physical_validation": false,
+  "GUI_check": false
+}
