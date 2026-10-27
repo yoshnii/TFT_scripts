@@ -1,4 +1,4 @@
-"""B07 only: two 12x8 batches travel short-edge-first and dock at F1."""
+"""B07: overlap arrival, pooling and short-edge-first transport to F1."""
 import contour
 import geom
 import rigid as R
@@ -45,9 +45,8 @@ def accepts(pieces, plan):
 def send(S, pieces, gx, blobs, plan):
     import waste_grid as W
     assert gx == 46 and not blobs.get(1)
-    W._pool(S)
     pending = sorted(pieces, key=lambda item: -item[0].r)
-    state = {'entry': 0}
+    state = {'entry': 0, 'ready': set()}
     staged = []
 
     def stage(d, ticket, x, y):
@@ -63,31 +62,62 @@ def send(S, pieces, gx, blobs, plan):
                 released = True
         assert released
         yield from R.go(d, [('y', y)])
+        state['ready'].add(ticket)
 
     jobs = []
     for ticket, (_, d) in enumerate(pending):
-        x, y = 80 + (9 if getattr(S,'strict_transport',False) else 7) * (15-ticket), 172
+        slot=(7-ticket) if ticket<8 else (23-ticket)
+        x, y = 60 + (9 if getattr(S,'strict_transport',False) else 7) * slot, 180
+        d.barcode_stage_x=x
         d.S = S
         d.native_packet = d.waste_grid_packet = d.waste_pipeline_clearance = True
         d.allow = ()
         staged.append(d)
         from transport_spacing import queue_exit
         jobs.append((d, queue_exit(S,d,gx,stage(d,ticket,x,y))))
-    R.run(S, jobs, rule=R._door_rule(gx))
+    pool=W._pool(S)
+    pool.items.extend((d,g,R._door_rule(gx)) for d,g in jobs)
+    W._drain(S,lambda:set(range(4))<=state['ready'])
 
     S.waste_grid_events = getattr(S, 'waste_grid_events', [])
     S.barcode_batch_events = []
-    staged.sort(key=lambda d: d.rect[0])
+    staged.sort(key=lambda d: d.barcode_stage_x)
     host = None
+    def quarter(ds,prefix):
+        pairs=join_pairs(S,ds,prefix+'_PAIR')
+        q=join_pairs(S,pairs,prefix+'_QUARTER')[0]
+        assert q.rect[2:]==(12,4)
+        R.reshape_many(S,[(q,(*q.rect[:2],8,6))],dur=4000)
+        return q
+
+    S.barcode_overlap_events=[]
+    S.barcode_pipeline_events=[]
     for batch in range(2):
-        four_pairs = join_pairs(S, staged[batch*8:(batch+1)*8], f'B07_PAIR{batch}')
-        quarters = join_pairs(S, four_pairs, f'B07_QUARTER{batch}')
-        assert all(d.rect[2:] == (12,4) for d in quarters)
-        R.reshape_many(S, [(d, (*d.rect[:2],8,6)) for d in quarters], dur=4000)
-        half = join_pairs(S, quarters, f'B07_HALF{batch}')[0]
+        first=set(range(batch*8,batch*8+4))
+        W._drain(S,lambda:first<=state['ready'])
+        S.barcode_pipeline_events.append(dict(kind='prepare_quarter',batch=batch+1,
+            frame=S.nsteps,staged_tickets=sorted(state['ready'])))
+        far=quarter(staged[batch*8+4:batch*8+8],f'B07_FAR{batch}')
+        target=staged[batch*8].barcode_stage_x+8
+        pool.items.append((far,R.go(far,[('x',target)]),None))
+        all_eight=set(range(batch*8,batch*8+8))
+        W._drain(S,lambda:all_eight<=state['ready'])
+        before=far.rect[0]
+        near=quarter(staged[batch*8:batch*8+4],f'B07_NEAR{batch}')
+        S.barcode_overlap_events.append(dict(batch=batch+1,frame=S.nsteps,
+            far_quarter_cells_moved_during_near_preparation=before-far.rect[0]))
+        far.allow=(near.name,)
+        W._drain(S,lambda:far.rect[0]==target)
+        half=join(S,[near,far],f'B07_HALF{batch}')
+        S.step(geom.HOLD_MS)
         assert half.rect[2:] == (16,6) and half.vol == 4.8
         R.reshape(S, half, (*half.rect[:2],12,8), dur=4000)
         dock_x = 48 + 6*batch
+        if batch==0:
+            R.run(S,[(half,R.go(half,[('x',60)]))])
+            W._drain(S,lambda:all(d.rect[0]>=60 for d in staged[8:]))
+            S.barcode_pipeline_events.append(dict(kind='mouth_cleared',frame=S.nsteps,
+                remaining_drop_min_x=min(d.rect[0] for d in staged[8:])))
         half.allow = ('BLOB1',) if host else ()
         R.run(S, [(half,R.go(half,[('x',dock_x)]))])
         # Already at the final location: reshape here, never move the 6x16 bar.
@@ -110,4 +140,5 @@ def send(S, pieces, gx, blobs, plan):
         batch=i//8+1,long_axis_only_transport=True) for i in range(16))
     assert host.rect == BOX and host.target_cells() == contour.fill(BOX, 192)
     blobs[1] = host
+    W._drain(S,lambda:not S.waste_pool.items)
     return [d for _, d in pending]

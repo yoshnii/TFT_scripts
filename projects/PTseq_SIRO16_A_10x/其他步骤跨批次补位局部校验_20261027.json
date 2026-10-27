@@ -1,0 +1,265 @@
+{
+  "status": "passed",
+  "baseline_commit": "bad15f570c2a4473cee7e3a0753f10ba85ccf456",
+  "baseline_sha256": "3a71f8fbfefcf5fe6ae401b9d07d69fe63d974d4830323c0d6ecd39032322915",
+  "script_sha256": "6e9a8640b9f1f9aab198b8ab48b24cadc216929397bf65628c918aa5c9b05c3b",
+  "modified_section_ids": [
+    50004
+  ],
+  "section": "B07",
+  "before_seconds": 708,
+  "after_seconds": 643,
+  "total_saved_seconds": 65,
+  "cumulative_saved_since_5445be1_seconds": 2406,
+  "evidence": {
+    "scene": {
+      "case": "B07 across-batch pooling",
+      "frames": 586,
+      "equal_x_splits": 16,
+      "aspirated_ul": 9.6,
+      "static_geometry_passed": true,
+      "magnet_cut_lines_avoid_black_center": true
+    },
+    "batches": [
+      {
+        "batch": 1,
+        "frame": 383,
+        "actual_volume_ul": 4.8,
+        "transport_shape": [
+          12,
+          8
+        ],
+        "dock_column": [
+          48,
+          172,
+          6,
+          16
+        ],
+        "collected_rect": [
+          48,
+          172,
+          6,
+          16
+        ],
+        "collected_volume_ul": 4.8
+      },
+      {
+        "batch": 2,
+        "frame": 562,
+        "actual_volume_ul": 4.8,
+        "transport_shape": [
+          12,
+          8
+        ],
+        "dock_column": [
+          54,
+          172,
+          6,
+          16
+        ],
+        "collected_rect": [
+          48,
+          172,
+          12,
+          16
+        ],
+        "collected_volume_ul": 9.6
+      }
+    ],
+    "quarter_overlap": [
+      {
+        "batch": 1,
+        "frame": 224,
+        "far_quarter_cells_moved_during_near_preparation": 19
+      },
+      {
+        "batch": 2,
+        "frame": 472,
+        "far_quarter_cells_moved_during_near_preparation": 19
+      }
+    ],
+    "pipeline_events": [
+      {
+        "kind": "prepare_quarter",
+        "batch": 1,
+        "frame": 149,
+        "staged_tickets": [
+          0,
+          1,
+          2,
+          3
+        ]
+      },
+      {
+        "kind": "mouth_cleared",
+        "frame": 368,
+        "remaining_drop_min_x": 60
+      },
+      {
+        "kind": "prepare_quarter",
+        "batch": 2,
+        "frame": 397,
+        "staged_tickets": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11
+        ]
+      }
+    ],
+    "motion": {
+      "large_long_axis_moves": 194,
+      "simultaneous_moves": 72
+    },
+    "hold_trace": [
+      {
+        "raw_frames": 3,
+        "elapsed_ms": 3000,
+        "single_cell_moves": 64,
+        "reshape_events": [],
+        "all_reshape_holds_at_least_4000ms": true
+      },
+      {
+        "raw_frames": 561,
+        "elapsed_ms": 585000,
+        "single_cell_moves": 3073,
+        "reshape_events": [
+          {
+            "name": "B07_FAR0_QUARTER_0",
+            "frame": 167,
+            "at_ms": 167000,
+            "shape_w_h": [
+              8,
+              6
+            ],
+            "hold_ms": 4000
+          },
+          {
+            "name": "B07_NEAR0_QUARTER_0",
+            "frame": 219,
+            "at_ms": 222000,
+            "shape_w_h": [
+              8,
+              6
+            ],
+            "hold_ms": 4000
+          },
+          {
+            "name": "B07_HALF0",
+            "frame": 228,
+            "at_ms": 234000,
+            "shape_w_h": [
+              12,
+              8
+            ],
+            "hold_ms": 4000
+          },
+          {
+            "name": "B07_HALF0",
+            "frame": 377,
+            "at_ms": 386000,
+            "shape_w_h": [
+              6,
+              16
+            ],
+            "hold_ms": 4000
+          },
+          {
+            "name": "B07_FAR1_QUARTER_0",
+            "frame": 415,
+            "at_ms": 427000,
+            "shape_w_h": [
+              8,
+              6
+            ],
+            "hold_ms": 4000
+          },
+          {
+            "name": "B07_NEAR1_QUARTER_0",
+            "frame": 467,
+            "at_ms": 482000,
+            "shape_w_h": [
+              8,
+              6
+            ],
+            "hold_ms": 4000
+          },
+          {
+            "name": "B07_HALF1",
+            "frame": 476,
+            "at_ms": 494000,
+            "shape_w_h": [
+              12,
+              8
+            ],
+            "hold_ms": 4000
+          },
+          {
+            "name": "B07_HALF1",
+            "frame": 556,
+            "at_ms": 577000,
+            "shape_w_h": [
+              6,
+              16
+            ],
+            "hold_ms": 4000
+          }
+        ],
+        "all_reshape_holds_at_least_4000ms": true
+      }
+    ],
+    "original_split_unchanged": true,
+    "F1_last_22_frames_unchanged": true,
+    "batch_actual_ul": 4.8,
+    "total_waste_ul": 9.6,
+    "leaf_ul": 0.6,
+    "leaf_shape_w_h": [
+      3,
+      4
+    ],
+    "transport_shape_w_h": [
+      12,
+      8
+    ],
+    "final_pool_w_h": [
+      12,
+      16
+    ],
+    "reshape_hold_ms": 4000,
+    "independent_transport_gap": 6,
+    "bottom_staging_exception_gap": 4,
+    "first_batch_preparation_before_all_16_arrive": true
+  },
+  "scan": [
+    {
+      "sections": "A08/B03/B11/B15/C02",
+      "result": "already prepared in one parallel cohort; no separate next family"
+    },
+    {
+      "sections": "A06",
+      "result": "no additional timing benefit"
+    },
+    {
+      "sections": "R05/R06/R19/C15/C18",
+      "result": "arrival-order slot trial slower; retained baseline"
+    },
+    {
+      "sections": "C05/C06",
+      "result": "earlier all-column cut/send trial congested outlet; retained baseline"
+    }
+  ],
+  "all_other_sections_unchanged": true,
+  "volumes_ratios_and_waits_unchanged": true,
+  "workbook_unchanged": true,
+  "thermal_magnet_manual_boundaries_unchanged": true,
+  "physical_validation": false,
+  "GUI_check": false
+}
