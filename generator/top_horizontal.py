@@ -44,6 +44,13 @@ def _arrange(S,nodes,W,H,columns=4,padding_limit=2):
 
 
 def deliver(S,reagent,vol,cols,tag,on_before_load=None,on_load=None,controlled=False):
+    import top_mother_timing as timing
+    try:
+        return _deliver(S,reagent,vol,cols,tag,on_before_load,on_load,controlled)
+    finally:timing.finish(S)
+
+
+def _deliver(S,reagent,vol,cols,tag,on_before_load=None,on_load=None,controlled=False):
     import rigid as R
     from native_packets import partition
     ports,n,pv,capacity,shapes,(w,h),per_lane=PLANS[reagent]
@@ -73,6 +80,8 @@ def deliver(S,reagent,vol,cols,tag,on_before_load=None,on_load=None,controlled=F
     else:ops.hold_all(S,ops.T_DISP,geom.VOLT)
     S.step(geom.HOLD_MS,changed=[])
     for d in roots:d.receiving=False
+    import top_mother_timing as timing
+    timing.start(S,reagent,roots)
     S.pipeline_events=getattr(S,'pipeline_events',[])
     S.native_leaf_events=getattr(S,'native_leaf_events',[])
     S.native_padding_events=getattr(S,'native_padding_events',[])

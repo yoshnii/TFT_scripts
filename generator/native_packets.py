@@ -35,6 +35,7 @@ def partition(S, parents, count=2, axis='x', gap=3, names=None):
             d.native_authorized_padding=getattr(p,'native_authorized_padding',False)
             d.native_fractional_volume=getattr(p,'native_fractional_volume',False)
             d.compact_mother_clearance=getattr(p,'compact_mother_clearance',False)
+            d.top_slow_mother=getattr(p,'top_slow_mother',False)
             d.allow=tuple(getattr(p,'allow',()))
             children.append(d)
         assert abs(sum(d.vol for d in children)-p.vol)<1e-8
@@ -63,6 +64,8 @@ def partition(S, parents, count=2, axis='x', gap=3, names=None):
             for d,sign in zip(ds,(-1,1)):
                 rc=list(d.rect);rc[idx]+=sign;d.rect=rc;changed.append(d.name)
         record(changed)
+    clock=getattr(S,'top_mother_clock',None)
+    if clock:clock.finish_split(S,groups)
     return groups
 
 

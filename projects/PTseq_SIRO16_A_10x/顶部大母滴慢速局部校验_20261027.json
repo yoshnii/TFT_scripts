@@ -1,0 +1,10633 @@
+{
+  "status": "passed",
+  "baseline_commit": "2c00697345a79421717d0a92d2b4539a53135ecf",
+  "baseline_sha256": "8dcde9565f65c67a5fe4cfc3b56264b94792ccb79f1bb4dfb7d04f6bd009148e",
+  "script_sha256": "920ff6bfce8887f09cd3c9b4ff052bfea625abebb5bf68db35e7fdd3a4324afb",
+  "modified_section_ids": [
+    50001,
+    50002,
+    50003,
+    50005,
+    50006,
+    50007
+  ],
+  "cases": [
+    {
+      "reagent": "AMP",
+      "receiving_section": "A07",
+      "receiving_id": 1022,
+      "section": "A08",
+      "section_id": 50001,
+      "command_id": 1025,
+      "before_seconds": 1412,
+      "after_seconds": 2117,
+      "added_seconds": 705,
+      "pause_count": 235,
+      "geometry_and_frame_count_unchanged": true,
+      "all_small_rows_ready_before_merge": true
+    },
+    {
+      "reagent": "G14",
+      "receiving_section": "R01",
+      "receiving_id": 2000,
+      "section": "R02",
+      "section_id": 50002,
+      "command_id": 2003,
+      "before_seconds": 2132,
+      "after_seconds": 3008,
+      "added_seconds": 876,
+      "pause_count": 292,
+      "geometry_and_frame_count_unchanged": true,
+      "all_small_rows_ready_before_merge": true
+    },
+    {
+      "reagent": "G8",
+      "receiving_section": "B02",
+      "receiving_id": 3002,
+      "section": "B03",
+      "section_id": 50003,
+      "command_id": 3005,
+      "before_seconds": 519,
+      "after_seconds": 651,
+      "added_seconds": 132,
+      "pause_count": 44,
+      "geometry_and_frame_count_unchanged": true,
+      "all_small_rows_ready_before_merge": true
+    },
+    {
+      "reagent": "LIG",
+      "receiving_section": "B10",
+      "receiving_id": 3026,
+      "section": "B11",
+      "section_id": 50005,
+      "command_id": 3029,
+      "before_seconds": 1206,
+      "after_seconds": 1659,
+      "added_seconds": 453,
+      "pause_count": 151,
+      "geometry_and_frame_count_unchanged": true,
+      "all_small_rows_ready_before_merge": true
+    },
+    {
+      "reagent": "EDTA",
+      "receiving_section": "B14",
+      "receiving_id": 3041,
+      "section": "B15",
+      "section_id": 50006,
+      "command_id": 3044,
+      "before_seconds": 463,
+      "after_seconds": 589,
+      "added_seconds": 126,
+      "pause_count": 42,
+      "geometry_and_frame_count_unchanged": true,
+      "all_small_rows_ready_before_merge": true
+    },
+    {
+      "reagent": "G16",
+      "receiving_section": "C01",
+      "receiving_id": 4000,
+      "section": "C02",
+      "section_id": 50007,
+      "command_id": 4003,
+      "before_seconds": 1248,
+      "after_seconds": 1953,
+      "added_seconds": 705,
+      "pause_count": 235,
+      "geometry_and_frame_count_unchanged": true,
+      "all_small_rows_ready_before_merge": true
+    }
+  ],
+  "total_added_seconds": 2997,
+  "movement_cell_ms": 1000,
+  "movement_cells_per_group": 2,
+  "additional_rest_ms": 3000,
+  "reshape_ms": 4000,
+  "small_stage_carrier_cells": 30,
+  "small_stage_latches_fast": true,
+  "symmetric_split_count": 180,
+  "scenes": [
+    {
+      "case": "AMP slow mother timing",
+      "frames": 1429,
+      "equal_x_splits": 30,
+      "aspirated_ul": 0,
+      "static_geometry_passed": true,
+      "magnet_cut_lines_avoid_black_center": true
+    },
+    {
+      "case": "G14 slow mother timing",
+      "frames": 2140,
+      "equal_x_splits": 60,
+      "aspirated_ul": 0,
+      "static_geometry_passed": true,
+      "magnet_cut_lines_avoid_black_center": true
+    },
+    {
+      "case": "G8 slow mother timing",
+      "frames": 529,
+      "equal_x_splits": 15,
+      "aspirated_ul": 0,
+      "static_geometry_passed": true,
+      "magnet_cut_lines_avoid_black_center": true
+    },
+    {
+      "case": "LIG slow mother timing",
+      "frames": 1209,
+      "equal_x_splits": 30,
+      "aspirated_ul": 0,
+      "static_geometry_passed": true,
+      "magnet_cut_lines_avoid_black_center": true
+    },
+    {
+      "case": "EDTA slow mother timing",
+      "frames": 477,
+      "equal_x_splits": 15,
+      "aspirated_ul": 0,
+      "static_geometry_passed": true,
+      "magnet_cut_lines_avoid_black_center": true
+    },
+    {
+      "case": "G16 slow mother timing",
+      "frames": 1248,
+      "equal_x_splits": 30,
+      "aspirated_ul": 0,
+      "static_geometry_passed": true,
+      "magnet_cut_lines_avoid_black_center": true
+    }
+  ],
+  "pauses": [
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 34,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 36,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 38,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 40,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 42,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 44,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 46,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 48,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 50,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 52,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 54,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 56,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 58,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 60,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 62,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 64,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 66,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 68,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 70,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 73,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 75,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 77,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 79,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 81,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 83,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 85,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 87,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 89,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 91,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 93,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 95,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 97,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 99,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 106,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "split_end",
+      "extra_ms": 3000,
+      "frame": 107,
+      "moved_cells": [
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 110,
+      "moved_cells": [
+        1,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 112,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 114,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 116,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "segment_end",
+      "extra_ms": 3000,
+      "frame": 117,
+      "moved_cells": [
+        1
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 121,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "split_end",
+      "extra_ms": 3000,
+      "frame": 122,
+      "moved_cells": [
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 125,
+      "moved_cells": [
+        1,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 127,
+      "moved_cells": [
+        1,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 129,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 131,
+      "moved_cells": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 133,
+      "moved_cells": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 135,
+      "moved_cells": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 137,
+      "moved_cells": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 139,
+      "moved_cells": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 141,
+      "moved_cells": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "segment_end",
+      "extra_ms": 3000,
+      "frame": 142,
+      "moved_cells": [
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 144,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 146,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 148,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 150,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 152,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 154,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "segment_end",
+      "extra_ms": 3000,
+      "frame": 155,
+      "moved_cells": [
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 157,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 159,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 161,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 163,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 165,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 167,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "segment_end",
+      "extra_ms": 3000,
+      "frame": 168,
+      "moved_cells": [
+        1
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 173,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "split_end",
+      "extra_ms": 3000,
+      "frame": 174,
+      "moved_cells": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 176,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 178,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 180,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 182,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 184,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "segment_end",
+      "extra_ms": 3000,
+      "frame": 185,
+      "moved_cells": [
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 188,
+      "moved_cells": [
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 190,
+      "moved_cells": [
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 192,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 194,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 196,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "segment_end",
+      "extra_ms": 3000,
+      "frame": 197,
+      "moved_cells": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 199,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 201,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "segment_end",
+      "extra_ms": 3000,
+      "frame": 202,
+      "moved_cells": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 204,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 206,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "segment_end",
+      "extra_ms": 3000,
+      "frame": 207,
+      "moved_cells": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 209,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 211,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 213,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 215,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 217,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 219,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 221,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 223,
+      "moved_cells": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 225,
+      "moved_cells": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 227,
+      "moved_cells": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 229,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 231,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 233,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 235,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 237,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 239,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 243,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "split_end",
+      "extra_ms": 3000,
+      "frame": 244,
+      "moved_cells": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 738,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 740,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 742,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 744,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 746,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 748,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 750,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 752,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 754,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 756,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 758,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 760,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 762,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 764,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 766,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 768,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 770,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 772,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 774,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 776,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 778,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 780,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 782,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 784,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 786,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 788,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 790,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 792,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 794,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 796,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 798,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 800,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 802,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 804,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 806,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 808,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 810,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 812,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 814,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 816,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 818,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 820,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 822,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 824,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 826,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 828,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 830,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 832,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 834,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 836,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 838,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 840,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 842,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 844,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 846,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 848,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 850,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 852,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 854,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 856,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 863,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "split_end",
+      "extra_ms": 3000,
+      "frame": 864,
+      "moved_cells": [
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 867,
+      "moved_cells": [
+        1,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 869,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 871,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 873,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "segment_end",
+      "extra_ms": 3000,
+      "frame": 874,
+      "moved_cells": [
+        1
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 878,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "split_end",
+      "extra_ms": 3000,
+      "frame": 879,
+      "moved_cells": [
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 882,
+      "moved_cells": [
+        1,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 884,
+      "moved_cells": [
+        1,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 886,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 888,
+      "moved_cells": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 890,
+      "moved_cells": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 892,
+      "moved_cells": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 894,
+      "moved_cells": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 896,
+      "moved_cells": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 898,
+      "moved_cells": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "segment_end",
+      "extra_ms": 3000,
+      "frame": 899,
+      "moved_cells": [
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 901,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 903,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 905,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 907,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 909,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 911,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "segment_end",
+      "extra_ms": 3000,
+      "frame": 912,
+      "moved_cells": [
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 914,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 916,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 918,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 920,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 922,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 924,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "segment_end",
+      "extra_ms": 3000,
+      "frame": 925,
+      "moved_cells": [
+        1
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 930,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "split_end",
+      "extra_ms": 3000,
+      "frame": 931,
+      "moved_cells": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 933,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 935,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 937,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 939,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 941,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "segment_end",
+      "extra_ms": 3000,
+      "frame": 942,
+      "moved_cells": [
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 945,
+      "moved_cells": [
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 947,
+      "moved_cells": [
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 949,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 951,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 953,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "segment_end",
+      "extra_ms": 3000,
+      "frame": 954,
+      "moved_cells": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 956,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 958,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "segment_end",
+      "extra_ms": 3000,
+      "frame": 959,
+      "moved_cells": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 961,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 963,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "segment_end",
+      "extra_ms": 3000,
+      "frame": 964,
+      "moved_cells": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 966,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 968,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 970,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 972,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 974,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 976,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 978,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 980,
+      "moved_cells": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 982,
+      "moved_cells": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 984,
+      "moved_cells": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 986,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 988,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 990,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 992,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 994,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 996,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1000,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "AMP",
+      "reason": "split_end",
+      "extra_ms": 3000,
+      "frame": 1001,
+      "moved_cells": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 25,
+      "moved_cells": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 27,
+      "moved_cells": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 29,
+      "moved_cells": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 31,
+      "moved_cells": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 33,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 35,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 37,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 39,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 41,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 43,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 45,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 47,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 49,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 51,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 53,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 55,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 57,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 59,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 63,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 65,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 67,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 69,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 71,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 73,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 75,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 77,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 79,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 81,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 83,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 85,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 87,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 89,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 91,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 93,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 95,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 97,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 99,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 101,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 103,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 105,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 107,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 109,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 111,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 113,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 115,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 117,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 119,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 121,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 123,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 125,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 127,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 129,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 131,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 133,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 135,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 137,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 139,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 141,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 143,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 145,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 150,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "split_end",
+      "extra_ms": 3000,
+      "frame": 151,
+      "moved_cells": [
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 154,
+      "moved_cells": [
+        1,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 156,
+      "moved_cells": [
+        1,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 158,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 160,
+      "moved_cells": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 162,
+      "moved_cells": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 164,
+      "moved_cells": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 166,
+      "moved_cells": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 168,
+      "moved_cells": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 170,
+      "moved_cells": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 172,
+      "moved_cells": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 174,
+      "moved_cells": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "segment_end",
+      "extra_ms": 3000,
+      "frame": 175,
+      "moved_cells": [
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 177,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 179,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 181,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 183,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 185,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 187,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 189,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 191,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "segment_end",
+      "extra_ms": 3000,
+      "frame": 192,
+      "moved_cells": [
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 194,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 196,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 198,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 200,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 202,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 204,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 206,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 208,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "segment_end",
+      "extra_ms": 3000,
+      "frame": 209,
+      "moved_cells": [
+        1
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 214,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "split_end",
+      "extra_ms": 3000,
+      "frame": 215,
+      "moved_cells": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 217,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 219,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 221,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 223,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 225,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "segment_end",
+      "extra_ms": 3000,
+      "frame": 226,
+      "moved_cells": [
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 229,
+      "moved_cells": [
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 231,
+      "moved_cells": [
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 233,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 235,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 237,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "segment_end",
+      "extra_ms": 3000,
+      "frame": 238,
+      "moved_cells": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 240,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 242,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "segment_end",
+      "extra_ms": 3000,
+      "frame": 243,
+      "moved_cells": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 245,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 247,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "segment_end",
+      "extra_ms": 3000,
+      "frame": 248,
+      "moved_cells": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 250,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 252,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 254,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 256,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 258,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 260,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 262,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 264,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 266,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 268,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 270,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 272,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 274,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 276,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 278,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 280,
+      "moved_cells": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 282,
+      "moved_cells": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 284,
+      "moved_cells": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 286,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 288,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 290,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 292,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 294,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 296,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 300,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "split_end",
+      "extra_ms": 3000,
+      "frame": 301,
+      "moved_cells": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1101,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1103,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1105,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1107,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1109,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1111,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1113,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1115,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1117,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1119,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1121,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1123,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1125,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1127,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1129,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1131,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1133,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1135,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1137,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1139,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1141,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1143,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1145,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1147,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1149,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1151,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1153,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1155,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1157,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1159,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1161,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1163,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1165,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1167,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1169,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1171,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1173,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1175,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1177,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1179,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1181,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1183,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1185,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1187,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1189,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1191,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1193,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1195,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1197,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1199,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1201,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1203,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1205,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1207,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1209,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1211,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1213,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1215,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1217,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1219,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1221,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1223,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1225,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1227,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1229,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1231,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1233,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1235,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1237,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1239,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1241,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1243,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1245,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1247,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1249,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1251,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1256,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "split_end",
+      "extra_ms": 3000,
+      "frame": 1257,
+      "moved_cells": [
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1260,
+      "moved_cells": [
+        1,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1262,
+      "moved_cells": [
+        1,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1264,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1266,
+      "moved_cells": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1268,
+      "moved_cells": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1270,
+      "moved_cells": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1272,
+      "moved_cells": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1274,
+      "moved_cells": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1276,
+      "moved_cells": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1278,
+      "moved_cells": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1280,
+      "moved_cells": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "segment_end",
+      "extra_ms": 3000,
+      "frame": 1281,
+      "moved_cells": [
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1283,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1285,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1287,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1289,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1291,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1293,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1295,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1297,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "segment_end",
+      "extra_ms": 3000,
+      "frame": 1298,
+      "moved_cells": [
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1300,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1302,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1304,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1306,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1308,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1310,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1312,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1314,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "segment_end",
+      "extra_ms": 3000,
+      "frame": 1315,
+      "moved_cells": [
+        1
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1320,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "split_end",
+      "extra_ms": 3000,
+      "frame": 1321,
+      "moved_cells": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1323,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1325,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1327,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1329,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1331,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "segment_end",
+      "extra_ms": 3000,
+      "frame": 1332,
+      "moved_cells": [
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1335,
+      "moved_cells": [
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1337,
+      "moved_cells": [
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1339,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1341,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1343,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "segment_end",
+      "extra_ms": 3000,
+      "frame": 1344,
+      "moved_cells": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1346,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1348,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "segment_end",
+      "extra_ms": 3000,
+      "frame": 1349,
+      "moved_cells": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1351,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1353,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "segment_end",
+      "extra_ms": 3000,
+      "frame": 1354,
+      "moved_cells": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1356,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1358,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1360,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1362,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1364,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1366,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1368,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1370,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1372,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1374,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1376,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1378,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1380,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1382,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1384,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1386,
+      "moved_cells": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1388,
+      "moved_cells": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1390,
+      "moved_cells": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1392,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1394,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1396,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1398,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1400,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1402,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 1406,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G14",
+      "reason": "split_end",
+      "extra_ms": 3000,
+      "frame": 1407,
+      "moved_cells": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "G8",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 24,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G8",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 26,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G8",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 28,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G8",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 30,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G8",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 32,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G8",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 34,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G8",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 36,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G8",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 38,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G8",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 40,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G8",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 42,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G8",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 44,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G8",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 46,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G8",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 48,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G8",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 50,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G8",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 52,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G8",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 59,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G8",
+      "reason": "split_end",
+      "extra_ms": 3000,
+      "frame": 60,
+      "moved_cells": [
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "G8",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 63,
+      "moved_cells": [
+        1,
+        2
+      ]
+    },
+    {
+      "reagent": "G8",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 65,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G8",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 67,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G8",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 69,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G8",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 71,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G8",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 73,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G8",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 75,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G8",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 77,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G8",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 79,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G8",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 81,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G8",
+      "reason": "segment_end",
+      "extra_ms": 3000,
+      "frame": 82,
+      "moved_cells": [
+        1
+      ]
+    },
+    {
+      "reagent": "G8",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 87,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G8",
+      "reason": "split_end",
+      "extra_ms": 3000,
+      "frame": 88,
+      "moved_cells": [
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "G8",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 91,
+      "moved_cells": [
+        1,
+        2
+      ]
+    },
+    {
+      "reagent": "G8",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 93,
+      "moved_cells": [
+        1,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G8",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 95,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G8",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 97,
+      "moved_cells": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G8",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 99,
+      "moved_cells": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G8",
+      "reason": "segment_end",
+      "extra_ms": 3000,
+      "frame": 100,
+      "moved_cells": [
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "G8",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 102,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G8",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 104,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G8",
+      "reason": "segment_end",
+      "extra_ms": 3000,
+      "frame": 105,
+      "moved_cells": [
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "G8",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 107,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G8",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 109,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G8",
+      "reason": "segment_end",
+      "extra_ms": 3000,
+      "frame": 110,
+      "moved_cells": [
+        1
+      ]
+    },
+    {
+      "reagent": "G8",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 114,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G8",
+      "reason": "split_end",
+      "extra_ms": 3000,
+      "frame": 115,
+      "moved_cells": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 26,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 28,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 30,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 32,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 34,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 36,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 38,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 40,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 42,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 44,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 46,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 48,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 50,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 52,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 54,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 56,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 58,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 60,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 63,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 65,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 67,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 69,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 71,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 73,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 75,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 77,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 79,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 81,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 83,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 85,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 87,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 89,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 91,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 98,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "split_end",
+      "extra_ms": 3000,
+      "frame": 99,
+      "moved_cells": [
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 102,
+      "moved_cells": [
+        1,
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 104,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 106,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 108,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 110,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 112,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 114,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 116,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 118,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 120,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "segment_end",
+      "extra_ms": 3000,
+      "frame": 121,
+      "moved_cells": [
+        1
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 126,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "split_end",
+      "extra_ms": 3000,
+      "frame": 127,
+      "moved_cells": [
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 130,
+      "moved_cells": [
+        1,
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 132,
+      "moved_cells": [
+        1,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 134,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 136,
+      "moved_cells": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 138,
+      "moved_cells": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "segment_end",
+      "extra_ms": 3000,
+      "frame": 139,
+      "moved_cells": [
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 141,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 143,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "segment_end",
+      "extra_ms": 3000,
+      "frame": 144,
+      "moved_cells": [
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 146,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 148,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "segment_end",
+      "extra_ms": 3000,
+      "frame": 149,
+      "moved_cells": [
+        1
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 153,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "split_end",
+      "extra_ms": 3000,
+      "frame": 154,
+      "moved_cells": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 624,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 626,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 628,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 630,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 632,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 634,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 636,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 638,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 640,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 642,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 644,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 646,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 648,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 650,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 652,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 654,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 656,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 658,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 660,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 662,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 664,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 666,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 668,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 670,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 672,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 674,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 676,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 678,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 680,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 682,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 684,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 686,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 688,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 690,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 692,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 694,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 696,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 698,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 700,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 702,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 704,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 706,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 708,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 710,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 712,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 714,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 716,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 718,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 720,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 722,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 724,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 726,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 728,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 730,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 732,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 734,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 736,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 738,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 740,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 742,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 749,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "split_end",
+      "extra_ms": 3000,
+      "frame": 750,
+      "moved_cells": [
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 753,
+      "moved_cells": [
+        1,
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 755,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 757,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 759,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 761,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 763,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 765,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 767,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 769,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 771,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "segment_end",
+      "extra_ms": 3000,
+      "frame": 772,
+      "moved_cells": [
+        1
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 777,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "split_end",
+      "extra_ms": 3000,
+      "frame": 778,
+      "moved_cells": [
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 781,
+      "moved_cells": [
+        1,
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 783,
+      "moved_cells": [
+        1,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 785,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 787,
+      "moved_cells": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 789,
+      "moved_cells": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "segment_end",
+      "extra_ms": 3000,
+      "frame": 790,
+      "moved_cells": [
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 792,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 794,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "segment_end",
+      "extra_ms": 3000,
+      "frame": 795,
+      "moved_cells": [
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 797,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 799,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "segment_end",
+      "extra_ms": 3000,
+      "frame": 800,
+      "moved_cells": [
+        1
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 804,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "LIG",
+      "reason": "split_end",
+      "extra_ms": 3000,
+      "frame": 805,
+      "moved_cells": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "EDTA",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 22,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "EDTA",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 24,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "EDTA",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 26,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "EDTA",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 28,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "EDTA",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 30,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "EDTA",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 32,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "EDTA",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 34,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "EDTA",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 36,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "EDTA",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 38,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "EDTA",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 40,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "EDTA",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 42,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "EDTA",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 44,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "EDTA",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 46,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "EDTA",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 48,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "EDTA",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 50,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "EDTA",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 56,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "EDTA",
+      "reason": "split_end",
+      "extra_ms": 3000,
+      "frame": 57,
+      "moved_cells": [
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "EDTA",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 60,
+      "moved_cells": [
+        1,
+        2
+      ]
+    },
+    {
+      "reagent": "EDTA",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 62,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "EDTA",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 64,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "EDTA",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 66,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "EDTA",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 68,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "EDTA",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 70,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "EDTA",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 72,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "EDTA",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 74,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "EDTA",
+      "reason": "segment_end",
+      "extra_ms": 3000,
+      "frame": 75,
+      "moved_cells": [
+        1
+      ]
+    },
+    {
+      "reagent": "EDTA",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 80,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "EDTA",
+      "reason": "split_end",
+      "extra_ms": 3000,
+      "frame": 81,
+      "moved_cells": [
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "EDTA",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 84,
+      "moved_cells": [
+        1,
+        2
+      ]
+    },
+    {
+      "reagent": "EDTA",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 86,
+      "moved_cells": [
+        1,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "EDTA",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 88,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "EDTA",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 90,
+      "moved_cells": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "EDTA",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 92,
+      "moved_cells": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "EDTA",
+      "reason": "segment_end",
+      "extra_ms": 3000,
+      "frame": 93,
+      "moved_cells": [
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "EDTA",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 95,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "EDTA",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 97,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "EDTA",
+      "reason": "segment_end",
+      "extra_ms": 3000,
+      "frame": 98,
+      "moved_cells": [
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "EDTA",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 100,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "EDTA",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 102,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "EDTA",
+      "reason": "segment_end",
+      "extra_ms": 3000,
+      "frame": 103,
+      "moved_cells": [
+        1
+      ]
+    },
+    {
+      "reagent": "EDTA",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 107,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "EDTA",
+      "reason": "split_end",
+      "extra_ms": 3000,
+      "frame": 108,
+      "moved_cells": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 17,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 19,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 21,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 23,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 25,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 27,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 29,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 31,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 33,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 35,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 37,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 39,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 41,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 43,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 45,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 47,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 49,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 51,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 53,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 56,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 58,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 60,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 62,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 64,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 66,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 68,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 70,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 72,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 74,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 76,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 78,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 80,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 82,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 89,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "split_end",
+      "extra_ms": 3000,
+      "frame": 90,
+      "moved_cells": [
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 93,
+      "moved_cells": [
+        1,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 95,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 97,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 99,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "segment_end",
+      "extra_ms": 3000,
+      "frame": 100,
+      "moved_cells": [
+        1
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 104,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "split_end",
+      "extra_ms": 3000,
+      "frame": 105,
+      "moved_cells": [
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 108,
+      "moved_cells": [
+        1,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 110,
+      "moved_cells": [
+        1,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 112,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 114,
+      "moved_cells": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 116,
+      "moved_cells": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 118,
+      "moved_cells": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 120,
+      "moved_cells": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 122,
+      "moved_cells": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 124,
+      "moved_cells": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "segment_end",
+      "extra_ms": 3000,
+      "frame": 125,
+      "moved_cells": [
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 127,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 129,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 131,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 133,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 135,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 137,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "segment_end",
+      "extra_ms": 3000,
+      "frame": 138,
+      "moved_cells": [
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 140,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 142,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 144,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 146,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 148,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 150,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "segment_end",
+      "extra_ms": 3000,
+      "frame": 151,
+      "moved_cells": [
+        1
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 156,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "split_end",
+      "extra_ms": 3000,
+      "frame": 157,
+      "moved_cells": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 159,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 161,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 163,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 165,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 167,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "segment_end",
+      "extra_ms": 3000,
+      "frame": 168,
+      "moved_cells": [
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 171,
+      "moved_cells": [
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 173,
+      "moved_cells": [
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 175,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 177,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 179,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "segment_end",
+      "extra_ms": 3000,
+      "frame": 180,
+      "moved_cells": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 182,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 184,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "segment_end",
+      "extra_ms": 3000,
+      "frame": 185,
+      "moved_cells": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 187,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 189,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "segment_end",
+      "extra_ms": 3000,
+      "frame": 190,
+      "moved_cells": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 192,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 194,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 196,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 198,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 200,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 202,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 204,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 206,
+      "moved_cells": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 208,
+      "moved_cells": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 210,
+      "moved_cells": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 212,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 214,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 216,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 218,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 220,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 222,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 226,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "split_end",
+      "extra_ms": 3000,
+      "frame": 227,
+      "moved_cells": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 639,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 641,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 643,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 645,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 647,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 649,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 651,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 653,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 655,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 657,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 659,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 661,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 663,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 665,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 667,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 669,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 671,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 673,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 675,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 677,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 679,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 681,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 683,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 685,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 687,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 689,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 691,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 693,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 695,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 697,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 699,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 701,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 703,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 705,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 707,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 709,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 711,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 713,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 715,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 717,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 719,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 721,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 723,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 725,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 727,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 729,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 731,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 733,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 735,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 737,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 739,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 741,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 743,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 745,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 747,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 749,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 751,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 753,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 755,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 757,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 764,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "split_end",
+      "extra_ms": 3000,
+      "frame": 765,
+      "moved_cells": [
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 768,
+      "moved_cells": [
+        1,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 770,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 772,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 774,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "segment_end",
+      "extra_ms": 3000,
+      "frame": 775,
+      "moved_cells": [
+        1
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 779,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "split_end",
+      "extra_ms": 3000,
+      "frame": 780,
+      "moved_cells": [
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 783,
+      "moved_cells": [
+        1,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 785,
+      "moved_cells": [
+        1,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 787,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 789,
+      "moved_cells": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 791,
+      "moved_cells": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 793,
+      "moved_cells": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 795,
+      "moved_cells": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 797,
+      "moved_cells": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 799,
+      "moved_cells": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "segment_end",
+      "extra_ms": 3000,
+      "frame": 800,
+      "moved_cells": [
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 802,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 804,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 806,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 808,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 810,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 812,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "segment_end",
+      "extra_ms": 3000,
+      "frame": 813,
+      "moved_cells": [
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 815,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 817,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 819,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 821,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 823,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 825,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "segment_end",
+      "extra_ms": 3000,
+      "frame": 826,
+      "moved_cells": [
+        1
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 831,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "split_end",
+      "extra_ms": 3000,
+      "frame": 832,
+      "moved_cells": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 834,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 836,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 838,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 840,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 842,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "segment_end",
+      "extra_ms": 3000,
+      "frame": 843,
+      "moved_cells": [
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 846,
+      "moved_cells": [
+        1,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 848,
+      "moved_cells": [
+        1,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 850,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 852,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 854,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "segment_end",
+      "extra_ms": 3000,
+      "frame": 855,
+      "moved_cells": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 857,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 859,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "segment_end",
+      "extra_ms": 3000,
+      "frame": 860,
+      "moved_cells": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 862,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 864,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "segment_end",
+      "extra_ms": 3000,
+      "frame": 865,
+      "moved_cells": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 867,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 869,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 871,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 873,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 875,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 877,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 879,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 881,
+      "moved_cells": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 883,
+      "moved_cells": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 885,
+      "moved_cells": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 887,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 889,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 891,
+      "moved_cells": [
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 893,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 895,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 897,
+      "moved_cells": [
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "two_moves",
+      "extra_ms": 3000,
+      "frame": 901,
+      "moved_cells": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "reagent": "G16",
+      "reason": "split_end",
+      "extra_ms": 3000,
+      "frame": 902,
+      "moved_cells": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    }
+  ],
+  "receiving_sections_unchanged": true,
+  "A02_A03_unchanged": true,
+  "geometry_volumes_areas_split_ratios_unchanged": true,
+  "all_other_flows_unchanged": true,
+  "physical_validation": false,
+  "GUI_check": false
+}

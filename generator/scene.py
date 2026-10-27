@@ -211,6 +211,9 @@ class Scene:
                     from transport_spacing import required
                     gap=required(self,self.drops[n1],r1,self.drops[n2],r2)
                     assert _gap(r1, r2) >= gap, f"间距<{gap} {n1}{r1} ~ {n2}{r2} @step{self.nsteps}"
-        self.relays.append(Relay(codes, dur, amp)); self.nsteps += 1
+        relay=Relay(codes,dur,amp)
+        clock=getattr(self,'top_mother_clock',None)
+        if clock:clock.record(self,relay)
+        self.relays.append(relay); self.nsteps += 1
     def flush(self):
         r, self.relays = self.relays, []; return r
