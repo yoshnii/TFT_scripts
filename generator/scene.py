@@ -199,14 +199,22 @@ class Scene:
             assert geom.reaction_holes_ok(r,limit),f"液滴距反应孔不足{limit}格 {n} {r} @step{self.nsteps}"
             edge_limit=1 if getattr(d,'receiving',False) or getattr(d,'port_dock',False) or r[1]+r[3]==188 else limit
             assert all(geom.well_gap(r,h)>=edge_limit for h in geom.EDGE_WELLS),f"边缘孔距不足{edge_limit}格 {n} {r} @step{self.nsteps}"
-            codes.append(geom.emit(r))
+            receiver=self.drops.get(getattr(d,'waste_receiver',None))
+            if receiver is not None and getattr(receiver,'fixed_waste_receiver',False):
+                # The receiver already energizes the overlapping cells. Only
+                # the still-external transport electrodes need separate codes.
+                outside=d.target_cells()-receiver.target_cells()
+                codes.extend(geom.emit(rc) for rc in contour.rectangles(outside))
+            else:codes.append(geom.emit(r))
         chk = set(self.drops)  # 后台合排/形变也必须纳入全场碰撞校验。
         tset = {frozenset(p) for p in touching}
         for n1 in chk:
             for r1 in self.drops[n1].rects():
                 for n2, r2 in allr:
                     if n2 == n1:continue
-                    assert not _overlap(r1, r2), f"重叠 {n1}{r1} ~ {n2}{r2} @step{self.nsteps}"
+                    if _overlap(r1,r2):
+                        from fixed_waste_collect import handoff
+                        assert frozenset((n1,n2)) in tset and handoff(self,self.drops[n1],self.drops[n2]), f"重叠 {n1}{r1} ~ {n2}{r2} @step{self.nsteps}"
                     if frozenset((n1,n2)) in tset:continue
                     from transport_spacing import required
                     gap=required(self,self.drops[n1],r1,self.drops[n2],r2)

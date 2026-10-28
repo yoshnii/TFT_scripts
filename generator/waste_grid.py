@@ -93,12 +93,17 @@ def flush(S,blobs):
     import rigid as R
     items=[(k,blobs[k]) for k in PORTS if blobs.get(k)]
     if not items:return
+    fixed=all(getattr(d,'fixed_waste_receiver',False) for k,d in items)
     # 只逐格平移到孔中央，不改变已经自然拼成的矩形。
-    R.run(S,[(d,R.go(d,[('x',geom.HOLE_X[k]-d.rect[2]//2)])) for k,d in items])
+    if fixed:
+        assert all(d.rect[0]==geom.HOLE_X[k]-d.rect[2]//2 for k,d in items)
+    else:R.run(S,[(d,R.go(d,[('x',geom.HOLE_X[k]-d.rect[2]//2)])) for k,d in items])
     for k,d in items:
         W,H=d.rect[2:]
         assert area(d)==W*H and max(W,H)/min(W,H)<=2.5 and d.rect[1]+H==DOCK_BOTTOM
-    S.step(geom.HOLD_MS,changed=[])
+    # Keep the released complete-pool hold: four seconds for 16x16,
+    # three for B07's 12x16, including the final entry/absorption frames.
+    S.step(2000 if fixed and all(d.rect[2:]==(16,16) for k,d in items) else geom.HOLD_MS,changed=[])
     # Only approved released shapes use the overlapping-hole aspiration tail.
     # Keep other experimental layouts and their routing behavior unchanged.
     progressive = all(d.rect[2:] in ((16,16),(12,16)) for k,d in items)
@@ -108,7 +113,7 @@ def flush(S,blobs):
     else:final_rects = [d.rect for k,d in items]
     info=dict(hole='/'.join(f'F{k}' for k,d in items),volume_ul=round(sum(d.vol for k,d in items),3),
               port_volumes={f'F{k}':d.vol for k,d in items},drop_names=[d.name for k,d in items],
-              rects=[list(rc) for rc in final_rects],kind='原形小矩形自然拼接汇液',
+              rects=[list(rc) for rc in final_rects],kind='固定最终框逐滴汇入' if fixed else '原形小矩形自然拼接汇液',
               hole_overlap_recovery=progressive,
               progressive_recovery=progressive,final_recovery_electrodes=[],
               operator_action='覆盖F孔后配合手工吸液、逐侧撤电；末帧完全撤除孔口电极，吸净后运行下一组')
@@ -320,6 +325,9 @@ def _send_pipeline(S,pieces,gx,blobs,plan,jobs):
     import rigid as R
     import compact_collect
     import fixed_barcode_collect
+    import fixed_waste_collect
+    if fixed_waste_collect.accepts(pieces,plan):
+        return fixed_waste_collect.send(S,pieces,gx,blobs,plan,jobs)
     if fixed_barcode_collect.accepts(pieces,plan):
         return fixed_barcode_collect.send(S,pieces,gx,blobs,plan)
     if compact_collect.accepts(pieces,plan):
