@@ -152,10 +152,14 @@ def _deliver(S,reagent,vol,cols,tag,on_before_load=None,on_load=None,controlled=
     groups=([families[i:i+2] for i in range(0,len(families),2)]
             if reagent=='G14' or large_cdna or paired else [[family] for family in families])
     # Active mothers go directly into their common cutting layout. Only
-    # genuinely later families need parking; G4 keeps its released path.
-    active_count=len(groups[0]) if reagent!='G4' else 1
+    # genuinely later families need parking. Both G4 mothers are active.
+    active_count=len(groups[0])
     parked=[(i,d) for i,d in enumerate(roots[1:]) if i+1>=active_count]
-    if reagent=='G14':S.top_deferred_parking=[(d,136+32*i) for i,d in reversed(parked)]
+    if reagent=='G14':
+        # Active four-mother layout ends at X148; the outward cut adds
+        # three cells and six-cell clearance require X157. X158 finishes
+        # the slow mother's two-cell rhythm without an odd terminal rest.
+        S.top_deferred_parking=[(d,158 if i==1 else 136+32*i) for i,d in reversed(parked)]
     else:R.run(S,[(d,R.go(d,[('x',136+32*i)])) for i,d in reversed(parked)])
     pool=S.top_delivery_pool=DeliveryPool(S) if reagent=='G14' else None
     locks={};gx=geom.gap_x(geom.reagent_gap(c))
