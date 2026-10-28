@@ -74,11 +74,12 @@ def bites(S,items,blobs,final=True,pellets=None,collect_three=False,collect_a05=
     for index in range(round_count):
         while len(stacks[items[0][0].id][-1].target_cells())>w*h:
             active=[(ln,stacks[ln.id][-1]) for ln,d in items]
-            targets={d.name:(d.rect[0] if kind=='A05' and n==32 else ln.X0+36-d.rect[2])
+            wide_cdna = kind=='A05' and n==32
+            targets={d.name:(ln.X0+18 if wide_cdna else ln.X0+36-d.rect[2])
                      for ln,d in active}
-            assert all(targets[d.name]>=d.rect[0] for ln,d in active),'不得将出口母滴退回左侧切割站'
+            assert wide_cdna or all(targets[d.name]>=d.rect[0] for ln,d in active),'不得将出口母滴退回左侧切割站'
             R.run(S,[(d,R.go(d,[('x',targets[d.name])])) for ln,d in active])
-            groups=partition(S,[d for ln,d in active],2,'x',geom.CUT_GAP)
+            groups=partition(S,[d for ln,d in active],2,'x',12 if wide_cdna else geom.CUT_GAP)
             for (ln,d),children in zip(active,groups):stacks[ln.id][-1:]=children
             if len(groups[0][1].target_cells())>w*h:
                 # 只给尚需再分的右支让空间；移动左兄弟而不是退回待切母滴。
@@ -99,7 +100,7 @@ def bites(S,items,blobs,final=True,pellets=None,collect_three=False,collect_a05=
         if plan['flush']:
             W._drain(S,lambda:not S.waste_pool.items)
             W.flush(S,blobs)
-        else:W._drain(S,lambda:all(S.drops.get(d.name) is not d or d.rect[1]>=W.TRANSPORT_Y for d in tiles))
+        else:W._drain(S,lambda:all(S.drops.get(d.name) is not d or d.rect[0]>=gx for d in tiles))
     assert not any(stacks.values())
     if pellets:
         for ln,d in items:

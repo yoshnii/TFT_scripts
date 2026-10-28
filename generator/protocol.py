@@ -592,8 +592,8 @@ class Protocol:
                                    per_lane_ul=1.20, lanes="A1-A16（各自barcode，每道加同配比预混液1.20µL，16道合计19.20µL；等分弃0.60µL、保留0.60µL）", batch=1, batches=1))
         S.step(geom.HOLD_MS,changed=[])
         ops.settle_loaded(S)
-        rigid.bisect_many(S, [S.get(f'K{ln.id}') for ln in self.ALL],
-                          names=[(f'K{ln.id}', f'BKWA{ln.id}') for ln in self.ALL])
+        from native_packets import bisect_barcode
+        bisect_barcode(S,self.ALL)
         c2=self.cmd('各道同配比1.20µL接头预混液原位等分：0.60µL保留、0.60µL弃液，逐格拉开')
         rigid.egress_pieces(S,[(ln,S.get(f'BKWA{ln.id}')) for ln in self.ALL],self.blob)
         c3=self.cmd('接头等分后的0.60µL/道经废液通道排出（不走公共进液通道）')

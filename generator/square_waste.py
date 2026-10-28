@@ -41,16 +41,10 @@ def bites(S,items,blobs,kind,pellets=None,single_stop=False):
         tiles=W._send_pipeline(S,pieces,gx,blobs,plan,jobs)
         if plan['flush']:
             W._drain(S,lambda:not S.waste_pool.items);W.flush(S,blobs)
-        elif expanded_c:
-            # A second C05/C06 batch must not enter below a still-descending
-            # first batch. Clear the well column before its next cut/send;
-            # the approved two-cell gap is never used in the channel.
-            W._drain(S,lambda:all(S.drops.get(d.name) is not d or d.rect[1]>=W.TRANSPORT_Y for d in tiles))
         else:
-            # 20261021 batch train: the next in-well split may start once this
-            # whole batch has left its wells; channel entry of the next batch
-            # normally waits for Y172; R05 alone may pre-start at Y164,
-            # retaining all actual single-cell clearance checks.
+            # Prepare the next cut as soon as this batch leaves its wells.
+            # Fixed-receiver traffic refills individual vacancies; strict
+            # C05/C06 transport still checks six cells at every actual move.
             W._drain(S,lambda:all(S.drops.get(d.name) is not d or d.rect[0]>=gx for d in tiles))
 
     def quarter(branches):

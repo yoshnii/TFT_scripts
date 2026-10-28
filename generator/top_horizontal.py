@@ -175,7 +175,9 @@ def _deliver(S,reagent,vol,cols,tag,on_before_load=None,on_load=None,controlled=
             columns=8 if (paired and len(nodes)>=8) or (reagent=='G14' and len(nodes)==16) or (large_cdna and len(nodes)==8) else 4
             nodes=_arrange(S,nodes,W,H,columns,padding_limit=4 if large_cdna else 2)
             assert all(d.rect[2]>=d.rect[3] for d in nodes)
-            nodes=[child for pair in partition(S,nodes,2,'x',6) for child in pair]
+            final_cut = reagent in ('G14','LIG','EDTA') and W*H == 2*w*h
+            times=(1000,1000,1000,3000) if final_cut else None
+            nodes=[child for pair in partition(S,nodes,2,'x',6,frame_ms=times) for child in pair]
         assert all(d.rect[2:]==(w,h) and abs(d.vol-pv)<1e-8 for d in nodes)
         lower=[d for d in nodes if d.rect[1]>min(q.rect[1] for q in nodes)]
         packets=[]
@@ -191,7 +193,9 @@ def _deliver(S,reagent,vol,cols,tag,on_before_load=None,on_load=None,controlled=
                 S.native_leaf_events.append(dict(reagent=reagent,name=d.name,row=row,
                     actual_ul=d.vol,shape=[w,h],cells=w*h,extra_cells=w*h-geom.cells(d.vol)))
                 packets.append((d,ops.Lane(c,row)))
-        S.step(geom.HOLD_MS,changed=[])
+        # The final cut already holds the fully separated leaves for 3s.
+        # Do not add a duplicate one-second staging frame on these paths.
+        if reagent not in ('G14','LIG','EDTA'):S.step(geom.HOLD_MS,changed=[])
         def route(d,ln):
             d.controlled_entry=True
             if reagent=='G4' and d not in lower:

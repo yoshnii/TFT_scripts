@@ -69,11 +69,19 @@ def absorb(S,job,d):
         actual_ul=host.vol,rect=list(host.rect)))
 
 
-def path(S,job,d,ticket,gx):
+def path(S,job,d,ticket,gx,at_head=False,dispatch=None):
     import waste_grid as W
-    yield from R.go(d,[('x',gx),('y',164)])
+    if not at_head:yield from R.go(d,[('x',gx),('y',164)])
     while job['mouth']!=ticket:yield 'wait'
     if job['receiver'] is None:
+        # Near pools must not open across the route of still-passing drops
+        # destined for a farther pool. Keep the original far-to-near order.
+        while dispatch and (any(j['port']>job['port'] and j['issued']<j['expected'] for j in dispatch)
+                or any(getattr(q,'waste_fk',0)>job['port']
+                       and getattr(q,'continuous_waste_exit',False)
+                       and q.rect[0]<job['rect'][0]+job['rect'][2]+6
+                       for q in S.drops.values())):
+            yield 'wait'
         while not can_open(S,job):yield 'wait'
         open_receiver(S,job)
     host=job['receiver'];left,top,width,height=host.rect
@@ -96,6 +104,17 @@ def path(S,job,d,ticket,gx):
     if not released:job['mouth']+=1
 
 
+def continuous_path(S,dispatch,d,gx):
+    """Assign equal-volume packets in their actual arrival order at Y164."""
+    yield from R.go(d,[('x',gx),('y',164)])
+    job=next(j for j in dispatch if j['issued']<j['expected'])
+    ticket=job['issued'];job['issued']+=1;d.waste_fk=job['port']
+    S.waste_arrival_events=getattr(S,'waste_arrival_events',[])
+    S.waste_arrival_events.append(dict(packet=d.name,port=job['port'],ticket=ticket,
+        batch=d.batch_round,frame=S.nsteps,actual_ul=d.vol))
+    yield from path(S,job,d,ticket,gx,at_head=True,dispatch=dispatch)
+
+
 def send(S,pieces,gx,blobs,plan,jobs):
     import waste_grid as W
     pool=W._pool(S);pending=sorted(pieces,key=lambda item:-item[0].r)
@@ -108,15 +127,22 @@ def send(S,pieces,gx,blobs,plan,jobs):
         count=len(pending),ports=plan['ports'],collection_group=plan['stop'],
         flush_after=plan['flush'],whole_port_pipeline=True,packed=True,
         minimum_ports=plan['minimum_ports'],fixed_final_receiver=True))
+    for key,spec in plan['specs'].items():
+        if key not in jobs:jobs[key]=make_job(S,spec,blobs)
+    dispatch=sorted((jobs[key] for key in plan['specs']),key=lambda j:-j['port'])
+    # Admission order may change across rounds, but every packet in this
+    # collection stop has the same real volume and shape. Per-hole counts,
+    # real totals and aspiration boundaries therefore remain unchanged.
+    packet_signature=(pending[0][1].vol,pending[0][1].rect[2:])
+    for j in dispatch:
+        assert j.setdefault('packet_signature',packet_signature)==packet_signature
     for (ln,d),(key,row,pos) in zip(pending,plan['assign']):
-        if key not in jobs:jobs[key]=make_job(S,plan['specs'][key],blobs)
-        job=jobs[key];ticket=job['issued'];job['issued']+=1
-        assert ticket<job['expected']
         d.S=S;d.allow=();d.waste_grid_packet=d.waste_pipeline_clearance=True
+        d.continuous_waste_exit=True
         d.pre_advance_exit=True;d.early_exit=plan.get('early_exit',False)
-        d.batch_round=batch;d.tile_area=len(d.target_cells());d.waste_fk=job['port']
+        d.batch_round=batch;d.tile_area=len(d.target_cells())
         members.append(d)
         from transport_spacing import queue_exit
-        pool.items.append((d,queue_exit(S,d,gx,path(S,job,d,ticket,gx)),R._door_rule(gx)))
+        pool.items.append((d,queue_exit(S,d,gx,continuous_path(S,dispatch,d,gx)),R._door_rule(gx)))
     S.step(geom.HOLD_MS,changed=[])
     return members

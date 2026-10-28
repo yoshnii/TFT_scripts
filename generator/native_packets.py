@@ -127,6 +127,14 @@ def quarter_cdna(S,lanes,tag,away_tag):
     S.step(geom.HOLD_MS)
 
 
+def bisect_barcode(S,lanes):
+    """B07: shift the 6x4 mother right, then open both halves to a 12-cell gap."""
+    lanes=list(lanes)
+    ops.move_rects(S,{f'K{ln.id}':ln.X0+24 for ln in lanes})
+    return partition(S,[S.get(f'K{ln.id}') for ln in lanes],2,'x',12,
+                     [(f'K{ln.id}',f'BKWA{ln.id}') for ln in lanes])
+
+
 def deliver(S,reagent,vol,cols,tag,on_before_load=None,on_load=None,controlled=False):
     if reagent!='G4' or abs(vol-.1)<1e-8 or abs(vol-.4)<1e-8:
         from top_horizontal import deliver as horizontal_deliver

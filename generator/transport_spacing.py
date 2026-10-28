@@ -69,7 +69,7 @@ def local_cut_gap(S,a,ra,b,rb):
 
 
 def queue_exit(S,d,gx,path):
-    """Release deepest rows in order; only the active head lowers one cell.
+    """Use local admission for fixed receivers; retain ordered legacy routing.
 
     A four-high packet can use the sixth physical well row before entering the
     corridor, giving six cells to the unchanged packet in the preceding row.
@@ -77,6 +77,46 @@ def queue_exit(S,d,gx,path):
     if not getattr(S,'strict_transport',False):
         yield from path;return
     import rigid as R
+    if getattr(d,'continuous_waste_exit',False):
+        # No batch-wide gate: actual rectangle/door checks admit a packet
+        # whenever its local corridor is free. Receiver order is assigned
+        # later, at the common channel head, so packets cannot queue behind
+        # an earlier ticket physically trapped upstream.
+        strict_six=getattr(S,'c05_cut_gap',None)==2
+        # C05/C06 left leaves can wait farther inside the well. This lets
+        # an upper row refill without its sideways entrance blocking a lower
+        # waiting row. Right leaves have a held sibling there, so retain
+        # their original deepest-first, one-row-down entrance.
+        inset=strict_six and d.rect[0]<=gx-6-d.rect[2]-3
+        lower=(strict_six and not inset and well(d.rect) is not None and d.rect[3]<=4)
+        stage=gx-6-d.rect[2]-(3 if inset else 0)
+        if d.rect[0]<stage:yield from R.go(d,[('x',stage)])
+        # Do not nose into the clearance of an approaching channel packet.
+        # Reserve enough vertical space for this horizontal entrance to finish
+        # before the upstream packet reaches it; same-round side-by-side
+        # entrances retain their approved train pitch.
+        def entrance_clear():
+            travel=gx-d.rect[0]
+            y=d.rect[1]+int(lower)
+            for q in S.drops.values():
+                if q is d or not getattr(q,'continuous_waste_exit',False):continue
+                if q.rect[0]>gx:continue
+                clearance=TRAIN_GAP if q.batch_round==d.batch_round and getattr(S,'c05_cut_gap',None)!=2 else 6
+                if q.rect[0]<=stage and not getattr(q,'waste_entering',False):
+                    if not inset and q.batch_round==d.batch_round and q.rect[1]>d.rect[1] and q.rect[1]-y-d.rect[3]<clearance:return False
+                    continue
+                if q.batch_round==d.batch_round and q.rect[0]<gx:
+                    if q.rect[1]>=y+d.rect[3]+clearance or q.rect[1]+q.rect[3]<=y-clearance:continue
+                    return False
+                if q.rect[1]>=y+d.rect[3]+clearance:continue
+                if q.rect[1]+q.rect[3]<=y-travel-clearance:continue
+                return False
+            return True
+        while not entrance_clear():yield 'wait'
+        d.waste_entering=True
+        if lower:yield from R.go(d,[('y',d.rect[1]+1)])
+        yield from path
+        return
     if getattr(d,'batch_round',None) is not None and getattr(S,'c05_cut_gap',None)!=2:
         yield from _batch_exit(S,d,gx,path);return
     state=getattr(S,'waste_entry_state',None)
