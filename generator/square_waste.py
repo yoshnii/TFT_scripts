@@ -32,7 +32,12 @@ def bites(S,items,blobs,kind,pellets=None,single_stop=False):
         ready_quarter(S,items,branches,plans,ticket,gx,blobs,jobs,kind,expanded_c,gap,cut_gap,cut_times)
         ticket+=4
     roots=[d for ln,d in items]
-    if count==8:
+    if captured and kind=='R04' and getattr(S,'r05_parallel',False):
+        from wide_r05 import first_half
+        held=first_half(S,items,blobs,plans,jobs,gx)
+        ticket=4
+        quarter(held)
+    elif count==8:
         ops.move_rects(S,{d.name:ln.X0+(2 if expanded_c else 10) for ln,d in items})
         halves=partition(S,roots,2,'x',geom.CUT_GAP)
         # The first large split retains its published gap and 1000ms timing.
