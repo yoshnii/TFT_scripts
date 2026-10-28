@@ -71,6 +71,10 @@ def bites(S,items,blobs,final=True,pellets=None,collect_three=False,collect_a05=
             if q.name not in item_names and q.vol>0 and q.rect[1]>=ln.Y0
             and q.rect[1]<ln.Y0+5 and ln.X0<=q.rect[0]<ln.X0+36),default=ln.X0-geom.CUT_GAP)
         if kind in ('R04','C04'):d.native_fractional_volume=True
+    retained_background=None
+    if kind=='A05' and n==32 or kind=='barcode':
+        from retained_ready import start
+        retained_background=start(S,items,'' if kind=='A05' else 'K',27 if kind=='A05' else 16)
     for index in range(round_count):
         while len(stacks[items[0][0].id][-1].target_cells())>w*h:
             active=[(ln,stacks[ln.id][-1]) for ln,d in items]
@@ -102,6 +106,7 @@ def bites(S,items,blobs,final=True,pellets=None,collect_three=False,collect_a05=
             W.flush(S,blobs)
         else:W._drain(S,lambda:all(S.drops.get(d.name) is not d or d.rect[0]>=gx for d in tiles))
     assert not any(stacks.values())
+    if retained_background:S.background=retained_background
     if pellets:
         for ln,d in items:
             p=pellets[ln.id];S.remove(p.name);p.name=ln.name;p.allow=();p.magnet_only=True;S.add(p)

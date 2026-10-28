@@ -62,6 +62,10 @@ def partition(S, parents, count=2, axis='x', gap=3, names=None, frame_ms=None):
             e['separation_frames'].append(S.nsteps-1)
     record([d.name for ds in groups for d in ds])
     for _ in range((gap+1)//2):
+        clock=getattr(S,'top_mother_clock',None)
+        if clock and clock.parallel_run:
+            while any(not clock.can_move(d) for ds in groups for d in ds):
+                S.step(1000,changed=[],touching=pairs)
         changed=[]
         for ds in groups:
             for d,sign in zip(ds,(-1,1)):

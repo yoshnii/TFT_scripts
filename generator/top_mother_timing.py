@@ -73,7 +73,11 @@ class MotherClock:
         for key,d in current.items():
             old=self.previous.get(key,d.rect)
             distance=abs(d.rect[0]-old[0])+abs(d.rect[1]-old[1])
-            assert d.rect[2:]==old[2:] and distance<=1
+            if d.rect[2:]!=old[2:]:
+                assert distance==0 and self.can_move(d),'形变前母滴未完成停留'
+                self.run_counts[key]=0
+                continue
+            assert distance<=1
             if distance:
                 assert self.elapsed_ms>=self.ready.get(key,0),'大母滴未完成3秒停留'
                 count=self.run_counts.get(key,0)+1
@@ -100,7 +104,15 @@ class MotherClock:
         self.parallel_run=False;self.ready={};self.run_counts={};self.counts={}
 
     def finish_split(self,S,groups):
-        self.rest(S,'split_end')
+        if self.parallel_run:
+            for children in groups:
+                for d in children:
+                    key=id(d)
+                    if self.run_counts.get(key):
+                        self.ready[key]=max(self.ready.get(key,0),self.elapsed_ms+REST_MS)
+                        self.run_counts[key]=0
+            while any(not self.can_move(d) for children in groups for d in children):S.step(1000,changed=[])
+        else:self.rest(S,'split_end')
         for children in groups:
             for d in children:
                 if len(d.target_cells())<=SMALL_CELLS:d.top_slow_mother=False

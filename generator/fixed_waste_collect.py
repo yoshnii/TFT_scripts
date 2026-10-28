@@ -115,7 +115,7 @@ def continuous_path(S,dispatch,d,gx):
     yield from path(S,job,d,ticket,gx,at_head=True,dispatch=dispatch)
 
 
-def send(S,pieces,gx,blobs,plan,jobs):
+def send(S,pieces,gx,blobs,plan,jobs,record=True):
     import waste_grid as W
     pool=W._pool(S);pending=sorted(pieces,key=lambda item:-item[0].r)
     assert len(pending)==len(plan['assign'])
@@ -144,5 +144,5 @@ def send(S,pieces,gx,blobs,plan,jobs):
         members.append(d)
         from transport_spacing import queue_exit
         pool.items.append((d,queue_exit(S,d,gx,continuous_path(S,dispatch,d,gx)),R._door_rule(gx)))
-    S.step(geom.HOLD_MS,changed=[])
+    if record:S.step(geom.HOLD_MS,changed=[])
     return members

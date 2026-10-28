@@ -13,7 +13,7 @@ REPORT='R02连续补位局部校验_20261027.json'
 
 class FrameTrace:
     def __init__(self,p):
-        self.rows=[];self.objects={};self.proofs=[]
+        self.rows=[];self.steps=[];self.objects={};self.proofs=[]
         record=p.S._record;command=p.cmd
         def capture(*args,**kwargs):
             record(*args,**kwargs)
@@ -21,7 +21,7 @@ class FrameTrace:
             for d in p.S.drops.values():
                 self.objects[id(d)]=d
                 state[id(d)]=(d.name,d.rect,d.vol)
-            self.rows.append((p.S.relays[-1],state))
+            self.rows.append((p.S.relays[-1],state));self.steps.append(p.S.nsteps-1)
         def checked(name):
             active={id(r) for r in p.S.relays}
             rows=[(r,s) for r,s in self.rows if id(r) in active]

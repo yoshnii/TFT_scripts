@@ -30,6 +30,8 @@ def in_reaction(r):
 def rect_ok(S, name, r, allow=frozenset()):
     """r 在片内, 且与其他液滴 (allow 里的除外) 间距 ≥ MIN_GAP。"""
     if not (0 <= r[0] and r[0] + r[2] <= geom.GRID_W and 0 <= r[1] and r[1] + r[3] <= geom.GRID_H): return False
+    for names,reserved in getattr(S,'ready_cut_reservations',()):
+        if name not in names and (_overlap(r,reserved) or _gap(r,reserved)<6):return False
     d=S.drops.get(name)
     gap=geom.LOAD_GAP if getattr(d,'receiving',False) or getattr(d,'port_dock',False) else (getattr(S,'clearance_context',None) or getattr(d,'port_gap',None) or geom.running_gap(d.vol))
     if not geom.keep_out_ok(r) or geom.between_lanes(r) or not geom.reaction_holes_ok(r,gap): return False
