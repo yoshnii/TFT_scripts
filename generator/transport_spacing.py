@@ -60,7 +60,17 @@ def required(S,a,ra,b,rb):
 
 
 def local_cut_gap(S,a,ra,b,rb):
-    """Approved captured-aqueous waiting gaps; never outside one well."""
+    """Captured-liquid preparation gaps, including the scoped R05 channels."""
+    if (getattr(S,'r05_channel_expansion',False) and a.vol>0 and b.vol>0
+            and getattr(a,'r05_prep_row',None) is not None
+            and a.r05_prep_row==getattr(b,'r05_prep_row',None)):
+        X,Y=geom.physical_zone(*a.r05_prep_row)
+        # A cut leaf waiting inside the original well keeps the existing
+        # local gap. A packet that actually enters either channel does not.
+        local=lambda d,r:not getattr(d,'native_packet',False) or well(r)==d.r05_prep_row
+        if local(a,ra) and local(b,rb) and all(
+                X-geom.CH_W<=x and x+w<=X+36+geom.CH_W and Y<=y and y+h<=Y+6
+                for x,y,w,h in (ra,rb)):return 2
     if ((getattr(S,'c05_cut_gap',None)==2 or getattr(S,'aqueous_wait_gap',None)==2) and well(ra) is not None
             and well(ra)==well(rb) and a.vol>0 and b.vol>0
             and a.name.startswith('LIQ') and b.name.startswith('LIQ')):

@@ -38,6 +38,7 @@ def partition(S, parents, count=2, axis='x', gap=3, names=None, frame_ms=None):
             d.native_fractional_volume=getattr(p,'native_fractional_volume',False)
             d.compact_mother_clearance=getattr(p,'compact_mother_clearance',False)
             d.top_slow_mother=getattr(p,'top_slow_mother',False)
+            if hasattr(p,'r05_prep_row'):d.r05_prep_row=p.r05_prep_row
             d.allow=tuple(getattr(p,'allow',()))
             children.append(d)
         assert abs(sum(d.vol for d in children)-p.vol)<1e-8

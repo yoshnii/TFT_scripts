@@ -1,4 +1,4 @@
-"""R05 only: maximize symmetric opening inside each 36-cell reaction well.
+"""R05 only: maximize symmetric openings using its two adjacent channels.
 
 The single approved temporary carrier exception is 32→30→32 cells for
 one waiting 1.25µL half. Real liquid remains 1.25µL throughout.
@@ -10,18 +10,27 @@ from native_packets import partition
 
 def station(S,ln,d):
     X,Y=geom.physical_zone(ln.c,ln.r);w,h=d.rect[2:]
+    extra=geom.CH_W if getattr(S,'r05_channel_expansion',False) else 0
+    lo,hi=X-extra,X+36+extra
     others=[q for q in S.drops.values() if q is not d and q.vol>0
-            and X<=q.rect[0] and q.rect[0]+q.rect[2]<=X+36
-            and Y<=q.rect[1] and q.rect[1]+q.rect[3]<=Y+6]
-    for gap in range((36-w)//2*2,1,-2):
+            and (extra or X<=q.rect[0] and q.rect[0]+q.rect[2]<=X+36
+                 and Y<=q.rect[1] and q.rect[1]+q.rect[3]<=Y+6)]
+    def clearance(rc,q):
+        if not getattr(q,'native_packet',False):return 2
+        # Preserve the already-approved bottom preparation clearance. A
+        # packet in the actual vertical transport corridor still needs six.
+        if min(rc[1],q.rect[1])>=162 and max(rc[1],q.rect[1])>=172:
+            return getattr(S,'outlet_staging_gap',None) or 6
+        return 6
+    for gap in range((hi-lo-w)//2*2,1,-2):
         delta=gap//2;options=[]
-        for x in range(X+delta,X+36-w-delta+1):
+        for x in range(lo+delta,hi-w-delta+1):
             if x+w//2==ln.mag:continue
             candidates=[(x,Y+1,w,h)]
             for k in range(delta+1):
                 candidates.extend(((x-k,Y+1,w//2,h),(x+w//2+k,Y+1,w//2,h)))
             if not all(geom.reaction_holes_ok(rc,1) and geom.keep_out_ok(rc)
-                       and all(not _overlap(rc,q.rect) and _gap(rc,q.rect)>=2 for q in others)
+                       and all(not _overlap(rc,q.rect) and _gap(rc,q.rect)>=clearance(rc,q) for q in others)
                        for rc in candidates):continue
             options.append(x)
         if options:return min(options,key=lambda x:abs(x-d.rect[0])),gap
@@ -37,6 +46,8 @@ def cut(S,items,first=False):
     times=([1000]*(gap//2+1) if first else
            [1000]+[5000 if g==gap else 3000 if g in (2,4) else 1000 for g in range(2,gap+1,2)])
     pairs=partition(S,[d for ln,d in items],2,'x',gap,frame_ms=times)
+    if getattr(S,'r05_channel_expansion',False):
+        for e in S.split_events[-len(items):]:e['r05_channel_expansion']=True
     S.r05_wide_events=getattr(S,'r05_wide_events',[])
     S.r05_wide_events.append(dict(gap=gap,parents=[d.name for ln,d in items],
         stations=[x for x,g in plans],frame_ms=times,actual_parent_ul=items[0][1].vol,
@@ -45,6 +56,15 @@ def cut(S,items,first=False):
 
 
 def first_half(S,items,blobs,plans,jobs,gx):
+    S.r05_channel_expansion=True
+    for ln,d in items:d.r05_prep_row=(ln.c,ln.r)
+    try:return _first_half(S,items,blobs,plans,jobs,gx)
+    finally:
+        S.r05_channel_expansion=False
+        for d in S.drops.values():d.__dict__.pop('r05_prep_row',None)
+
+
+def _first_half(S,items,blobs,plans,jobs,gx):
     import fixed_waste_collect as F
     import waste_grid as W
     roots=[d for ln,d in items]
@@ -85,6 +105,9 @@ def first_half(S,items,blobs,plans,jobs,gx):
     S.step(4000,changed=[d.name for d in pending])
     leaves=cut(S,[(ln,d) for (ln,_),d in zip(items,pending)])
     send([p[1] for p in leaves],2);send([p[0] for p in leaves],3)
+    # Return only the retained half to the published R06 input. This moves
+    # during the last small packets' transport, after those leave the wells.
+    R.run(S,[(d,R.go(d,[('x',ln.X0)])) for (ln,_),d in zip(items,held)])
     W._drain(S,lambda:not S.waste_pool.items);W.flush(S,blobs)
     assert all(d.rect==(ln.X0,ln.Y0,10,5) and d.vol==2.5 for (ln,_),d in zip(items,held))
     return held
