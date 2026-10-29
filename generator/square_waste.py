@@ -36,7 +36,13 @@ def bites(S,items,blobs,kind,pellets=None,single_stop=False):
         from wide_r05 import first_half
         held=first_half(S,items,blobs,plans,jobs,gx)
         ticket=4
-        quarter(held)
+        from captured_channels import quarter as channel_quarter
+        channel_quarter(S,items,held,plans,4,gx,blobs,jobs,'R06')
+        ticket=8
+    elif captured and expanded_c:
+        from captured_channels import c05_c06
+        c05_c06(S,items,blobs,plans,jobs,gx)
+        ticket=8
     elif count==8:
         ops.move_rects(S,{d.name:ln.X0+(2 if expanded_c else 10) for ln,d in items})
         halves=partition(S,roots,2,'x',geom.CUT_GAP)

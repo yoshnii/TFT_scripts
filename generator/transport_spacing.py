@@ -61,6 +61,14 @@ def required(S,a,ra,b,rb):
 
 def local_cut_gap(S,a,ra,b,rb):
     """Captured-liquid preparation gaps, including the scoped R05 channels."""
+    if (getattr(S,'captured_channel_stage',None) in ('R06','C05','C06') and a.vol>0 and b.vol>0
+            and getattr(a,'captured_prep_row',None) is not None
+            and a.captured_prep_row==getattr(b,'captured_prep_row',None)):
+        X,Y=geom.physical_zone(*a.captured_prep_row)
+        local=lambda d,r:not getattr(d,'native_packet',False) or well(r)==d.captured_prep_row
+        if local(a,ra) and local(b,rb) and all(
+                X-geom.CH_W<=x and x+w<=X+36+geom.CH_W and Y<=y and y+h<=Y+6
+                for x,y,w,h in (ra,rb)):return 2
     if (getattr(S,'r05_channel_expansion',False) and a.vol>0 and b.vol>0
             and getattr(a,'r05_prep_row',None) is not None
             and a.r05_prep_row==getattr(b,'r05_prep_row',None)):

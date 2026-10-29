@@ -89,7 +89,7 @@ def plan_batch(w,h,count):
 
 def area(d):return len(d.target_cells())
 
-def flush(S,blobs):
+def flush(S,blobs,full_mask_ms=None):
     import rigid as R
     items=[(k,blobs[k]) for k in PORTS if blobs.get(k)]
     if not items:return
@@ -103,7 +103,8 @@ def flush(S,blobs):
         assert area(d)==W*H and max(W,H)/min(W,H)<=2.5 and d.rect[1]+H==DOCK_BOTTOM
     # Keep the released complete-pool hold: four seconds for 16x16,
     # three for B07's 12x16, including the final entry/absorption frames.
-    S.step(2000 if fixed and all(d.rect[2:]==(16,16) for k,d in items) else geom.HOLD_MS,changed=[])
+    full_hold=2000 if fixed and all(d.rect[2:]==(16,16) for k,d in items) else geom.HOLD_MS
+    S.step(max(full_hold,full_mask_ms or 0),changed=[])
     # Only approved released shapes use the overlapping-hole aspiration tail.
     # Keep other experimental layouts and their routing behavior unchanged.
     progressive = all(d.rect[2:] in ((16,16),(12,16)) for k,d in items)

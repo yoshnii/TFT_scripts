@@ -39,7 +39,7 @@ def seed(relay,volumes):
     return p
 
 
-def validate_scene(p,title,initial_mass=None,expected_waste=None,r05_channel_events=False):
+def validate_scene(p,title,initial_mass=None,expected_waste=None,r05_channel_events=False,captured_channel_events=False):
     events=getattr(p.S,'split_events',[])
     from native_packets import validate_symmetric_split
     for event in events:
@@ -48,6 +48,7 @@ def validate_scene(p,title,initial_mass=None,expected_waste=None,r05_channel_eve
             row=int(re.match(r'LIQA(\d+)',event['parent'])[1]);ln=p.ALL[row-1]
             assert event['positions'][0][1][0]!=ln.mag,('切口碰磁珠中心',event)
             extra=geom.CH_W if r05_channel_events and event.get('r05_channel_expansion',False) else 0
+            if captured_channel_events and event.get('captured_channel_stage') in ('R06','C05','C06'):extra=geom.CH_W
             for frame in event['positions']:
                 for x,y,w,h in frame:
                     assert ln.X0-extra<=x and x+w<=ln.X0+36+extra
