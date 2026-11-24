@@ -19,45 +19,76 @@ PLANS={
 }
 
 
-def cut_sites(nodes, width, height, columns, scene):
-    """Choose ordered sites that minimize the longest mother's horizontal trip."""
+def nearest_positions(nodes, widths, gap, right, cutting_width):
+    """Minimize the longest move, preserving left-to-right order and each footprint."""
+    origins = [d.rect[0] for d in nodes]
+    ceilings = [right - max(width, cutting_width) - 3 for width in widths]
+
+    def fit(distance):
+        positions = []
+        left = geom.SAFE_X + 3  # leave room for the left half to open
+        for origin, width, ceiling in zip(origins, widths, ceilings):
+            x = max(left, origin - distance)
+            if x > min(ceiling, origin + distance):
+                return None
+            positions.append(x)
+            left = x + width + gap
+        return positions
+
+    low, high = 0, geom.GRID_W
+    while low < high:
+        distance = (low + high) // 2
+        if fit(distance) is None:
+            low = distance + 1
+        else:
+            high = distance
+    positions = fit(low)
+    assert positions is not None, '顶部可用空间不足'
+    for i in reversed(range(len(nodes))):
+        ceiling = ceilings[i]
+        if i + 1 < len(nodes):
+            ceiling = min(ceiling, positions[i+1] - widths[i] - gap)
+        positions[i] = max(positions[i], min(origins[i], ceiling))
+    return positions
+
+
+def cut_sites(nodes, width, height, columns, scene, *, lower_leaders=False):
     columns = min(columns, len(nodes))
-    rows = (len(nodes) + columns - 1) // columns
-    row_pitch = max(height, max(d.rect[3] for d in nodes)) + 6
-    keep_rows = columns == 8 and len({d.rect[1] for d in nodes}) > 1
-    spacing = width + 12  # two three-cell outward sweeps and a six-cell gap
-    sites = []
-    for row in range(rows):
-        current = [d.rect[0] for d in nodes[row*columns:(row+1)*columns]]
-        y = 4 + (row if keep_rows else rows-1-row) * row_pitch
-        if not getattr(scene, 'nearby_cut_sites', False):
-            sites.extend((16+i*spacing, y) for i in range(len(current)))
-            continue
-        right = scene.cut_right_limit - width - 3
-        def feasible(distance):
-            left = 13  # leftmost child stays at or beyond SAFE_X
-            positions = []
-            for origin in current:
-                x = max(left, origin-distance)
-                if x > min(right, origin+distance):
-                    return None
-                positions.append(x)
-                left = x + spacing
-            return positions
-        low, high = 0, geom.GRID_W
-        while low < high:
-            middle = (low+high)//2
-            if feasible(middle) is None:
-                low = middle + 1
-            else:
-                high = middle
-        positions = feasible(low)
-        assert positions is not None, '顶部没有足够空间供这组母滴同时切分'
-        for i in reversed(range(len(positions))):
-            ceiling = right if i+1 == len(positions) else positions[i+1]-spacing
-            positions[i] = max(positions[i], min(current[i], ceiling))
-        sites.extend((x, y) for x in positions)
-    return sites
+    banks = [nodes[i:i+columns] for i in range(0, len(nodes), columns)]
+    pitch = max(height, max(d.rect[3] for d in nodes)) + 6
+    if lower_leaders:
+        # First mother in each four-mother subtree gets an open exit underneath.
+        assert len(nodes) == 8 and len({d.rect[1] for d in nodes}) == 1
+        banks = [nodes[::4], [d for i,d in enumerate(nodes) if i % 4]]
+    initial_rows = {d.rect[1] for d in nodes}
+    locations = {}
+    for i,bank in enumerate(banks):
+        y = bank[0].rect[1] if len(initial_rows) > 1 else 4 + (len(banks)-1-i)*pitch
+        if getattr(scene,'nearby_cut_sites',False):
+            xs = nearest_positions(bank, [width]*len(bank), 12, scene.cut_right_limit, width)
+        else:
+            xs = [16+j*(width+12) for j in range(len(bank))]
+        for d,x in zip(bank,xs):
+            assert y + max(height,d.rect[3]) <= 23
+            locations[d.name] = (x,y)
+    return [locations[d.name] for d in nodes]
+
+
+def stagger_before_cut(S, nodes, width, height):
+    """Make room for the next two cuts by moving alternate shallow carriers down."""
+    import rigid as R
+    nodes = sorted(nodes, key=lambda d:d.rect[0])
+    lower, upper = nodes[::2], nodes[1::2]
+    y = nodes[0].rect[1] + height + 6
+    assert y + height <= 23 and all(len(d.target_cells()) == width*height for d in nodes)
+    widths = [width if i % 2 == 0 else d.rect[2] for i,d in enumerate(nodes)]
+    xs = nearest_positions(nodes, widths, 6, S.cut_right_limit, width)
+    jobs = [(d,R.go(d,[('x',x)])) for d,x in zip(nodes,xs) if d.rect[0] != x]
+    if jobs:
+        R.run(S,jobs)
+    R.reshape_many(S, [(d,(*d.rect[:2],width,height)) for d in lower], dur=geom.LONG_MS)
+    R.run(S, [(d,R.go(d,[('y',y)])) for d in lower])
+    R.reshape_many(S, [(d,(*d.rect[:2],width,height)) for d in upper], dur=geom.LONG_MS)
 
 
 def _arrange(S,nodes,W,H,columns=4,padding_limit=2):
@@ -65,14 +96,13 @@ def _arrange(S,nodes,W,H,columns=4,padding_limit=2):
     nodes=sorted(nodes,key=lambda d:(d.rect[1],d.rect[0]))
     positions=cut_sites(nodes,W,H,columns,S)
     assert max(y+max(H,d.rect[3]) for d,(x,y) in zip(nodes,positions))<=23
-    deferred=getattr(S,'top_deferred_parking',[])
+    waiting=getattr(S,'top_waiting_roots',[])
     if getattr(S,'top_parallel_moves',False):
-        jobs=[(d,R.go(d,[('y',y),('x',x)])) for d,(x,y) in zip(nodes,positions)]
-        jobs.extend((d,R.go(d,[('x',x)])) for d,x in deferred)
-        R.run(S,jobs)
+        jobs=[(d,R.go(d,[('y',y),('x',x)])) for d,(x,y) in zip(nodes,positions) if d.rect[:2]!=(x,y)]
+        if jobs:R.run(S,jobs)
     else:
-        R.run(S,[(d,R.go(d,[('y',y)])) for d,(x,y) in zip(nodes,positions)])
-        R.run(S,[(d,R.go(d,[('x',x)])) for d,(x,y) in zip(nodes,positions)])
+        R.run(S,[(d,R.go(d,[('y',y)])) for d,(x,y) in zip(nodes,positions) if d.rect[1]!=y])
+        R.run(S,[(d,R.go(d,[('x',x)])) for d,(x,y) in zip(nodes,positions) if d.rect[0]!=x])
     if getattr(S,'top_delivery_pool',None):
         while not all(R.rect_ok(S,d.name,(*d.rect[:2],W,H)) for d in nodes):
             S.step(geom.STEP_MS,changed=[])
@@ -83,11 +113,11 @@ def _arrange(S,nodes,W,H,columns=4,padding_limit=2):
         d.electrode_area=area;d.margin_budget=area-geom.cells(d.vol)
         d.native_authorized_padding=d.margin_budget>0
     specs=[(d,(*d.rect[:2],W,H)) for d in nodes]
-    for d,_ in deferred:
+    for d in waiting:
         assert len(d.target_cells())==W*H
         specs.append((d,(*d.rect[:2],W,H)))
     R.reshape_many(S,specs,dur=geom.LONG_MS)
-    S.top_deferred_parking=[]
+    S.top_waiting_roots=[]
     return nodes
 
 
@@ -141,7 +171,7 @@ def deliver(S,reagent,vol,cols,tag,on_before_load=None,on_load=None,controlled=F
         if getattr(S,'top_delivery_pool',None):
             S.background=S.top_delivery_pool.previous_background;S.top_delivery_pool=None
         S.top_delivery_advanced=False
-        S.top_deferred_parking=[]
+        S.top_waiting_roots=[]
         if getattr(S,'host_motion',None):
             S.background=S.host_motion.previous;S.host_motion=None
         S.concurrent_host_targets={}
@@ -194,16 +224,8 @@ def _deliver(S,reagent,vol,cols,tag,on_before_load=None,on_load=None,controlled=
     paired=reagent in ('AMP','LIG','G16')
     groups=([families[i:i+2] for i in range(0,len(families),2)]
             if reagent=='G14' or large_cdna or paired else [[family] for family in families])
-    # Active mothers go directly into their common cutting layout. Only
-    # genuinely later families need parking. Both G4 mothers are active.
-    active_count=len(groups[0])
-    parked=[(i,d) for i,d in enumerate(roots[1:]) if i+1>=active_count]
-    if reagent=='G14':
-        # Active four-mother layout ends at X148; the outward cut adds
-        # three cells and six-cell clearance require X157. X158 finishes
-        # the slow mother's two-cell rhythm without an odd terminal rest.
-        S.top_deferred_parking=[(d,158 if i==1 else 136+32*i) for i,d in reversed(parked)]
-    else:R.run(S,[(d,R.go(d,[('x',136+32*i)])) for i,d in reversed(parked)])
+    # E3/E4 reshape together with E1/E2 and wait on their loading footprints.
+    S.top_waiting_roots = roots[len(groups[0]):] if reagent=='G14' else []
     pool=S.top_delivery_pool=DeliveryPool(S) if reagent=='G14' or getattr(S,'cross_stage_leaves',False) else None
     locks={};gx=geom.gap_x(geom.reagent_gap(c))
     def route(d,ln,lower=(),staging=False):
@@ -211,6 +233,12 @@ def _deliver(S,reagent,vol,cols,tag,on_before_load=None,on_load=None,controlled=
         d.controlled_entry=True
         if reagent=='G4' and d not in lower:
             while any(S.drops.get(q.name) is q and q.rect[1]<27 for q in lower):yield 'wait'
+        if reagent=='G16' and d.port==2:
+            # Deep wells use E1. Admit E2 behind the last E1 packet in the narrow inlet.
+            while any(q.name.startswith('DG16E1') or
+                      (getattr(q,'native_packet',False) and getattr(q,'port',None)==1 and q.rect[1]<23)
+                      for q in S.drops.values()):
+                yield 'wait'
         yield from R.go(d,[('x',geom.SAFE_X)])
         if d.rect[1]<geom.SAFE_Y:yield from R.go(d,[('y',geom.SAFE_Y)])
         yield from R.go(d,[('x',gx),('y',ln.Y0)])
@@ -235,13 +263,22 @@ def _deliver(S,reagent,vol,cols,tag,on_before_load=None,on_load=None,controlled=
         if reagent=='G14' and group_index:
             # The two parked mothers are cut where they wait. Their children
             # travel left while the previous family's small packets drain.
-            R.run(S,[(d,R.go(d,[('x',d.rect[0]+2)])) for d in nodes])
+            from scene import _gap
+            while any(_gap((d.rect[0]-3,d.rect[1],d.rect[2]+6,d.rect[3]),q.rect)<6
+                      for d in nodes for q in S.drops.values() if q not in nodes):
+                S.step(geom.STEP_MS,changed=[])
             nodes=[c for pair in partition(S,nodes,2,'x',6) for c in pair]
         while len(nodes)<n*len(family_group):
             area=len(nodes[0].target_cells());W,H=shapes[area]
             # Paired families share each level; wide arrangements keep the
             # existing child shapes and six-cell gaps without leaf reshaping.
             columns=8 if (paired and len(nodes)>=8) or (reagent=='G14' and len(nodes)==16) or (large_cdna and len(nodes)==8) else 4
+            two_banks = len({d.rect[1] for d in nodes}) > 1
+            if (paired or reagent=='G14') and len(nodes)>=4 and not two_banks and H<=5 and nodes[0].rect[3]>H and W*H>2*w*h:
+                stagger_before_cut(S,nodes,W,H)
+                two_banks=True
+            if two_banks:
+                columns=len(nodes)//2
             final_cut = reagent in ('G14','LIG','EDTA') and W*H == 2*w*h
             times=(1000,1000,1000,3000) if final_cut else None
             streaming=getattr(S,'cross_stage_leaves',False) and (reagent!='G4' or large_cdna) and W*H==2*w*h
@@ -250,7 +287,9 @@ def _deliver(S,reagent,vol,cols,tag,on_before_load=None,on_load=None,controlled=
                 # whichever cut/transport job happens to finish first.
                 ordered=sorted(nodes,key=lambda d:(d.rect[1],d.rect[0]));cs=min(columns,len(ordered))
                 virtual=[]
-                for d,(x,y) in zip(ordered,cut_sites(ordered,W,H,cs,S)):
+                leaders = (large_cdna or reagent in ('G8','EDTA')) and len(ordered)==8
+                sites = cut_sites(ordered,W,H,cs,S,lower_leaders=leaders)
+                for d,(x,y) in zip(ordered,sites):
                     virtual.extend([(d.name+'_0',x-3,y),(d.name+'_1',x+W//2+3,y)])
                 destinations={}
                 for k,root in family_group:
@@ -266,9 +305,9 @@ def _deliver(S,reagent,vol,cols,tag,on_before_load=None,on_load=None,controlled=
                         pool.items.append((d,route(d,ops.Lane(c,row),staging=True)))
                     S.pipeline_events.append(dict(kind='leaves_released_before_tree_done',step=S.nsteps,count=len(leaves)))
                 from ready_top import cut_level
-                nodes=cut_level(S,nodes,W,H,columns,4 if large_cdna else 2,times,on_ready=release)
+                nodes=cut_level(S,nodes,W,H,columns,4 if large_cdna else 2,times,on_ready=release,sites=sites)
                 break
-            if reagent!='G14' or getattr(S,'top_deferred_parking',[]):
+            if reagent!='G14' or getattr(S,'top_waiting_roots',[]):
                 nodes=_arrange(S,nodes,W,H,columns,padding_limit=4 if large_cdna else 2)
                 nodes=[child for pair in partition(S,nodes,2,'x',6,frame_ms=times) for child in pair]
             else:

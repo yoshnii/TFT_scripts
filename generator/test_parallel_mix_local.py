@@ -1,6 +1,7 @@
 """Compare final native files, the generated timer policy and the approved exemptions."""
 import hashlib
 import json
+import subprocess
 import unittest
 import xml.etree.ElementTree as ET
 
@@ -51,7 +52,11 @@ class ParallelMixRelease(unittest.TestCase):
                 self.assertLess(int(b.get('Timeout')),int(a.get('Timeout')))
                 self.assertEqual([c.attrib|{'Timeout':''} for c in a],[c.attrib|{'Timeout':''} for c in b])
         self.assertTrue({'R09','R14','C17','A10'}.isdisjoint(expected))
-        self.assertEqual(self.proof['script_sha256'],hashlib.sha256((PROJECT/'PTseq_16_A.elab').read_bytes()).hexdigest())
+        # The later loading release retains the ten-round timers but replaces seven transport flows.
+        loading=json.loads((PROJECT/'顶部分液原位与错排校验_20261124.json').read_text())
+        snapshot=subprocess.check_output(['git','show',loading['baseline']+':projects/'+PROJECT.name+'/PTseq_16_A.elab'],cwd=PROJECT)
+        self.assertEqual(self.proof['script_sha256'],hashlib.sha256(snapshot).hexdigest())
+        self.assertEqual(loading['script_sha256'],hashlib.sha256((PROJECT/'PTseq_16_A.elab').read_bytes()).hexdigest())
         self.assertEqual(int(ET.parse(PROJECT/'main.elab').getroot()[0].get('Timeout')),
                          sum(int(f.get('Timeout'))*int(f.get('Repeats')) for f in self.new))
 

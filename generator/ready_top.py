@@ -8,12 +8,17 @@ import rigid as R
 from scene import _gap, _overlap
 
 
-def cut_level(S,nodes,W,H,columns,padding_limit,times=None,on_ready=None):
+def cut_level(S,nodes,W,H,columns,padding_limit,times=None,on_ready=None,sites=None):
     from native_packets import partition
     nodes=sorted(nodes,key=lambda d:(d.rect[1],d.rect[0]))
     from top_horizontal import cut_sites
-    targets={d.name:target for d,target in zip(nodes,cut_sites(nodes,W,H,columns,S))}
+    if sites is None:
+        sites=cut_sites(nodes,W,H,columns,S)
+    targets={d.name:target for d,target in zip(nodes,sites)}
     jobs=[(d,R.go(d,[('y',targets[d.name][1]),('x',targets[d.name][0])])) for d in nodes]
+    for d in nodes:
+        if d.rect[:2]==targets[d.name]:
+            d.pending='done'
     old_background=getattr(S,'background',None)
     clock=getattr(S,'top_mother_clock',None)
     if clock:clock.begin_run(S)
