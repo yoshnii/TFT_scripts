@@ -146,6 +146,10 @@ def path(S,job,d,ticket,gx,at_head=False,dispatch=None):
 def continuous_path(S,dispatch,d,gx):
     """Assign equal-volume packets in their actual arrival order at Y164."""
     yield from R.go(d,[('x',gx),('y',164)])
+    sink=getattr(S,'bottom_sink',None)
+    if sink is not None:
+        yield from sink.finish_path(S,d,gx)
+        return
     job=next(j for j in dispatch if j['issued']<j['expected'])
     lanes=(172,182) if job['port']!=1 and job['packet_signature'][1]==(4,4) and any(abs(job['packet_signature'][0]-v)<1e-8 for v in (.625,.75)) else (172,)
     lane=lanes[job['issued']%len(lanes)]
@@ -168,7 +172,7 @@ def send(S,pieces,gx,blobs,plan,jobs,record=True):
     S.waste_batch_events.append(dict(tile_shape=list(pending[0][1].rect[2:]),
         count=len(pending),ports=plan['ports'],collection_group=plan['stop'],
         flush_after=plan['flush'],whole_port_pipeline=True,packed=True,
-        minimum_ports=plan['minimum_ports'],fixed_final_receiver=True))
+        minimum_ports=plan['minimum_ports'],fixed_final_receiver=getattr(S,'bottom_sink',None) is None))
     for key,spec in plan['specs'].items():
         if key not in jobs:jobs[key]=make_job(S,spec,blobs)
     dispatch=sorted((jobs[key] for key in plan['specs']),key=lambda j:-j['port'])

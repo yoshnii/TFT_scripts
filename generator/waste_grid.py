@@ -91,6 +91,11 @@ def area(d):return len(d.target_cells())
 
 def flush(S,blobs,full_mask_ms=None):
     import rigid as R
+    sink=getattr(S,'bottom_sink',None)
+    if sink is not None:
+        assert not any(blobs.values())
+        sink.end_section(S)
+        return
     items=[(k,blobs[k]) for k in PORTS if blobs.get(k)]
     if not items:return
     fixed=all(getattr(d,'fixed_waste_receiver',False) for k,d in items)
