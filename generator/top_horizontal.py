@@ -39,15 +39,15 @@ def _arrange(S,nodes,W,H,columns=4,padding_limit=2):
     else:
         R.run(S,[(d,R.go(d,[('y',y)])) for d,(x,y) in zip(nodes,positions)])
         R.run(S,[(d,R.go(d,[('x',x)])) for d,(x,y) in zip(nodes,positions)])
+    if getattr(S,'top_delivery_pool',None):
+        while not all(R.rect_ok(S,d.name,(*d.rect[:2],W,H)) for d in nodes):
+            S.step(geom.STEP_MS,changed=[])
     for d,(x,y) in zip(nodes,positions):
         before=len(d.target_cells());area=W*H
         assert area>=before and area-before<=padding_limit,('未批准的承接面积变化',d.name,before,area)
         assert W>=H and area%2==0
         d.electrode_area=area;d.margin_budget=area-geom.cells(d.vol)
         d.native_authorized_padding=d.margin_budget>0
-    if getattr(S,'top_delivery_pool',None):
-        while not all(R.rect_ok(S,d.name,(*d.rect[:2],W,H)) for d in nodes):
-            S.step(geom.STEP_MS,changed=[])
     specs=[(d,(*d.rect[:2],W,H)) for d in nodes]
     for d,_ in deferred:
         assert len(d.target_cells())==W*H
@@ -70,9 +70,10 @@ class DeliveryPool:
     def advance(self,S):
         import rigid as R
         active=[item for item in self.items if getattr(item[0],'pending',None)!='done']
+        previous=self.previous_background(S) if self.previous_background else ([],[],0)
         if not active:
             S.top_delivery_advanced=False
-            return [],[],0
+            return previous
         moved=getattr(S,'moved',0);pipeline=getattr(S,'pipeline_active',False)
         clock=getattr(S,'top_mother_clock',None)
         foreground=bool(clock and any(getattr(d,'top_slow_mother',False)
@@ -84,7 +85,7 @@ class DeliveryPool:
         finally:S.moved=moved;S.pipeline_active=pipeline
         self.frames+=1;self.moving_frames+=int(S.top_delivery_advanced)
         self.overlap_frames+=int(foreground and S.top_delivery_advanced)
-        return changed,touch,dur
+        return previous[0]+changed,previous[1]+touch,max(previous[2],dur)
 
     def finish(self):
         S=self.S;stall=0
@@ -107,6 +108,9 @@ def deliver(S,reagent,vol,cols,tag,on_before_load=None,on_load=None,controlled=F
             S.background=S.top_delivery_pool.previous_background;S.top_delivery_pool=None
         S.top_delivery_advanced=False
         S.top_deferred_parking=[]
+        if getattr(S,'host_motion',None):
+            S.background=S.host_motion.previous;S.host_motion=None
+        S.concurrent_host_targets={}
 
 
 def _deliver(S,reagent,vol,cols,tag,on_before_load=None,on_load=None,controlled=False):
@@ -133,10 +137,13 @@ def _deliver(S,reagent,vol,cols,tag,on_before_load=None,on_load=None,controlled=
         roots.append(d)
     S.step(geom.HOLD_MS,changed=[d.name for d in roots])
     info=dict(hole='/'.join(f'E{k}' for k in range(1,ports+1)),reagent=reagent,
-        volume_ul=round(vol*16,10),per_lane_ul=vol,lanes=f'A1-A16',
+        volume_ul=round(vol*len(lanes),10),per_lane_ul=vol,lanes=f'A1-A16',
         port_volumes={f'E{k}':d.vol for k,d in enumerate(roots,1)},batch=1,batches=1)
     if on_load:on_load(info)
     else:ops.hold_all(S,ops.T_DISP,geom.VOLT)
+    if getattr(S,'concurrent_host_targets',None):
+        from host_motion import HostMotion
+        S.host_motion=HostMotion(S,S.concurrent_host_targets)
     S.step(geom.HOLD_MS,changed=[])
     for d in roots:d.receiving=False
     S.top_parallel_moves=reagent!='G4'
@@ -161,8 +168,28 @@ def _deliver(S,reagent,vol,cols,tag,on_before_load=None,on_load=None,controlled=
         # the slow mother's two-cell rhythm without an odd terminal rest.
         S.top_deferred_parking=[(d,158 if i==1 else 136+32*i) for i,d in reversed(parked)]
     else:R.run(S,[(d,R.go(d,[('x',136+32*i)])) for i,d in reversed(parked)])
-    pool=S.top_delivery_pool=DeliveryPool(S) if reagent=='G14' else None
+    pool=S.top_delivery_pool=DeliveryPool(S) if reagent=='G14' or getattr(S,'cross_stage_leaves',False) else None
     locks={};gx=geom.gap_x(geom.reagent_gap(c))
+    def route(d,ln,lower=(),staging=False):
+        if staging and reagent not in ('G14','LIG','EDTA'):yield ('hold',d.rect,geom.HOLD_MS)
+        d.controlled_entry=True
+        if reagent=='G4' and d not in lower:
+            while any(S.drops.get(q.name) is q and q.rect[1]<27 for q in lower):yield 'wait'
+        yield from R.go(d,[('x',geom.SAFE_X)])
+        if d.rect[1]<geom.SAFE_Y:yield from R.go(d,[('y',geom.SAFE_Y)])
+        yield from R.go(d,[('x',gx),('y',ln.Y0)])
+        while S.get(ln.name).rect[0]!=getattr(S,'concurrent_host_targets',{}).get(ln.name,S.get(ln.name).rect[0]):yield 'wait'
+        while ln.id in locks:yield 'wait'
+        locks[ln.id]=True;host=S.drops.get(f'{tag}{ln.id}')
+        if host is None:
+            x=S.get(ln.name).rect[0]-geom.PREFERRED_GAP-w
+            yield from R.go(d,[('x',x)])
+            S.remove(d.name);d.name=f'{tag}{ln.id}';S.add(d)
+        else:
+            d.allow=(host.name,)
+            yield from R.go(d,[('x',host.rect[0]-w)])
+            yield ('merge_native',(d.rect[0],ln.Y0,w+host.rect[2],h),host.name,d.vol)
+        locks.pop(ln.id)
     for group_index,family_group in enumerate(groups):
         if reagent!='G14' and not large_cdna and len(family_group)==1:
             root=family_group[0][1]
@@ -180,19 +207,47 @@ def _deliver(S,reagent,vol,cols,tag,on_before_load=None,on_load=None,controlled=
             columns=8 if (paired and len(nodes)>=8) or (reagent=='G14' and len(nodes)==16) or (large_cdna and len(nodes)==8) else 4
             final_cut = reagent in ('G14','LIG','EDTA') and W*H == 2*w*h
             times=(1000,1000,1000,3000) if final_cut else None
+            streaming=getattr(S,'cross_stage_leaves',False) and (reagent!='G4' or large_cdna) and W*H==2*w*h
+            if streaming:
+                # Destinations are fixed by the old final layout, not by
+                # whichever cut/transport job happens to finish first.
+                ordered=sorted(nodes,key=lambda d:(d.rect[1],d.rect[0]));cs=min(columns,len(ordered))
+                rows_count=(len(ordered)+cs-1)//cs;old_h=max(d.rect[3] for d in ordered)
+                pitch=max(H,old_h)+6;keep=cs==8 and len({d.rect[1] for d in ordered})>1
+                virtual=[]
+                for i,d in enumerate(ordered):
+                    x=16+i%cs*(W+12);y=4+(i//cs if keep else rows_count-1-i//cs)*pitch
+                    virtual.extend([(d.name+'_0',x-3,y),(d.name+'_1',x+W//2+3,y)])
+                destinations={}
+                for k,root in family_group:
+                    leaves=sorted([q for q in virtual if q[0].startswith(root.name+'_')],key=lambda q:(-q[2],q[1]))
+                    count=n//per_lane;hi=max(ln.r for ln in lanes)-(k-1)*count
+                    rows=[r for r in range(hi,hi-count,-1) for _ in range(per_lane)]
+                    for i,(q,row) in enumerate(zip(leaves,rows)):destinations[q[0]]=(k,row,i)
+                def release(leaves):
+                    for d in leaves:
+                        k,row,i=destinations[d.name];S.remove(d.name);d.name=f'{tag}E{k}_{row}_{i}';S.add(d)
+                        d.port=k;d.row=row;d.native_packet=True;d.native_leaf_shape=(w,h);d.c02_entry_exception=reagent=='G16'
+                        S.native_leaf_events.append(dict(reagent=reagent,name=d.name,row=row,actual_ul=d.vol,shape=[w,h],cells=w*h,extra_cells=w*h-geom.cells(d.vol)))
+                        pool.items.append((d,route(d,ops.Lane(c,row),staging=True)))
+                    S.pipeline_events.append(dict(kind='leaves_released_before_tree_done',step=S.nsteps,count=len(leaves)))
+                from ready_top import cut_level
+                nodes=cut_level(S,nodes,W,H,columns,4 if large_cdna else 2,times,on_ready=release)
+                break
             if reagent!='G14' or getattr(S,'top_deferred_parking',[]):
                 nodes=_arrange(S,nodes,W,H,columns,padding_limit=4 if large_cdna else 2)
                 nodes=[child for pair in partition(S,nodes,2,'x',6,frame_ms=times) for child in pair]
             else:
                 from ready_top import cut_level
                 nodes=cut_level(S,nodes,W,H,columns,4 if large_cdna else 2,times)
+        if getattr(S,'cross_stage_leaves',False) and (reagent!='G4' or large_cdna):continue
         assert all(d.rect[2:]==(w,h) and abs(d.vol-pv)<1e-8 for d in nodes)
         lower=[d for d in nodes if d.rect[1]>min(q.rect[1] for q in nodes)]
         packets=[]
         for k,root in family_group:
             leaves=[d for d in nodes if d.name.startswith(root.name+'_')]
             assert len(leaves)==n
-            count=n//per_lane;hi=16-(k-1)*count
+            count=n//per_lane;hi=max(ln.r for ln in lanes)-(k-1)*count
             rows=[r for r in range(hi,hi-count,-1) for _ in range(per_lane)]
             for i,(d,row) in enumerate(zip(sorted(leaves,key=lambda q:(-q.rect[1],q.rect[0])),rows)):
                 S.remove(d.name);d.name=f'{tag}E{k}_{row}_{i}';S.add(d)
@@ -204,27 +259,9 @@ def _deliver(S,reagent,vol,cols,tag,on_before_load=None,on_load=None,controlled=
         # The final cut already holds the fully separated leaves for 3s.
         # Do not add a duplicate one-second staging frame on these paths.
         if reagent not in ('G14','LIG','EDTA'):S.step(geom.HOLD_MS,changed=[])
-        def route(d,ln):
-            d.controlled_entry=True
-            if reagent=='G4' and d not in lower:
-                while any(S.drops.get(q.name) is q and q.rect[1]<27 for q in lower):yield 'wait'
-            yield from R.go(d,[('x',geom.SAFE_X)])
-            if d.rect[1]<geom.SAFE_Y:yield from R.go(d,[('y',geom.SAFE_Y)])
-            yield from R.go(d,[('x',gx),('y',ln.Y0)])
-            while ln.id in locks:yield 'wait'
-            locks[ln.id]=True;host=S.drops.get(f'{tag}{ln.id}')
-            if host is None:
-                x=S.get(ln.name).rect[0]-geom.PREFERRED_GAP-w
-                yield from R.go(d,[('x',x)])
-                S.remove(d.name);d.name=f'{tag}{ln.id}';S.add(d)
-            else:
-                d.allow=(host.name,)
-                yield from R.go(d,[('x',host.rect[0]-w)])
-                yield ('merge_native',(d.rect[0],ln.Y0,w+host.rect[2],h),host.name,d.vol)
-            locks.pop(ln.id)
         S.pipeline_active=True
         try:
-            jobs=[(d,route(d,ln)) for d,ln in packets]
+            jobs=[(d,route(d,ln,lower)) for d,ln in packets]
             if pool:pool.items.extend(jobs)
             else:R.run(S,jobs)
         finally:S.pipeline_active=False
@@ -235,8 +272,12 @@ def _deliver(S,reagent,vol,cols,tag,on_before_load=None,on_load=None,controlled=
     for ln in lanes:
         assert abs(S.get(f'{tag}{ln.id}').vol-vol)<1e-8
         assert S.get(ln.name).vol==initial[ln.r]
+    if getattr(S,'host_motion',None):
+        assert not S.host_motion.items
+        S.host_motion_events=S.host_motion.events
     S.pipeline_events.append(dict(kind='all_ready',rows=list(range(1,17)),step=S.nsteps))
-    S.step(geom.HOLD_MS,changed=[]);ops.merge_all(S,lanes,tag)
+    S.step(geom.HOLD_MS,changed=[])
+    ops.merge_all(S,lanes,tag)
     S.pipeline_events.append(dict(kind='finish',reagent=reagent,step=S.nsteps,
         final_volumes={ln.r:S.get(ln.name).vol for ln in lanes}))
     S.top_parallel_moves=False

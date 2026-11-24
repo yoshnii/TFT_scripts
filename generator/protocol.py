@@ -33,6 +33,8 @@ class Protocol:
         self.odd_l = [l for l in self.ALL if l.odd]; self.even_l = [l for l in self.ALL if not l.odd]
         self.rigid = len(self.cols) == 1 and ops.DISPENSE_MODE == "drops"          # 单列: 刚体液珠模型 (rigid.py)
         self.S.strict_transport=self.rigid
+        self.S.cross_stage_hosts=self.rigid
+        self.S.cross_stage_leaves=self.rigid
         self.S.outlet_staging_gap=4 if self.rigid else None  # 用户批准：仅孔旁汇液准备区。
         self.deliver = rigid.deliver_drops if self.rigid else ops.deliver_slug
         self.S.manual_aspirations = [] if self.rigid else None
@@ -94,7 +96,11 @@ class Protocol:
         if total in (4.,5.,5.9):
             H={4.:4,5.:5,5.9:4}[total]
             rigid.reshape_many(S,[(S.get(ln.name),(min(S.get(ln.name).rect[0],ln.X0+36-geom.cells(S.get(ln.name).vol)//H),geom.physical_zone(ln.c,ln.r)[1]+1,geom.cells(S.get(ln.name).vol)//H,H)) for ln in self.ALL])
-        if park: ops.park_all(S, self.ALL, "reagent"); cmds.append(self.cmd("常驻液滴让开进液端"))
+        if park:
+            if getattr(S,'cross_stage_hosts',False):
+                S.concurrent_host_targets={ln.name:ln.park_x('reagent',S.get(ln.name).rect[2]) for ln in self.ALL}
+                cmds.append(self.cmd('常驻液滴暂驻 · 加液后与试剂准备并行定位'))
+            else:ops.park_all(S,self.ALL,'reagent');cmds.append(self.cmd('常驻液滴让开进液端'))
         for ph, lab, lanes in self.phases():
             cols = [c for c in self.cols if geom.odd(c) == (ph == 1)]
             if self.rigid:

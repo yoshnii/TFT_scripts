@@ -8,7 +8,7 @@ import rigid as R
 from scene import _gap, _overlap
 
 
-def cut_level(S,nodes,W,H,columns,padding_limit,times=None):
+def cut_level(S,nodes,W,H,columns,padding_limit,times=None,on_ready=None):
     from native_packets import partition
     nodes=sorted(nodes,key=lambda d:(d.rect[1],d.rect[0]))
     columns=min(columns,len(nodes));rows=(len(nodes)+columns-1)//columns
@@ -38,14 +38,14 @@ def cut_level(S,nodes,W,H,columns,padding_limit,times=None):
     S.background=background
     try:
         while remaining:
-            ready=[d for d in remaining if getattr(d,'pending',None)=='done' and (not clock or clock.can_move(d)) and clear(d)]
+            ready=[d for d in remaining if getattr(d,'pending',None)=='done' and (not clock or clock.can_move(d)) and clear(d) and (on_ready is None or not any(targets[q.name][1]==targets[d.name][1] and targets[q.name][0]<targets[d.name][0] for q in remaining if q is not d))]
             travelling=[d for d in remaining if d not in ready and getattr(d,'pending',None)!='done']
-            if ready and travelling:
+            if ready and travelling and on_ready is None:
                 remaining_ms=max((abs(d.rect[0]-targets[d.name][0])+abs(d.rect[1]-targets[d.name][1]))*(2500 if clock and getattr(d,'top_slow_mother',False) else 1000) for d in travelling)
                 if remaining_ms<18000:ready=[]
             if not ready:
                 S.step(1000,changed=[]);stall+=1
-                assert stall<1500,('顶部就绪切分未能前进',[d.name for d in remaining])
+                assert stall<1500,('顶部就绪切分未能前进',[(d.name,d.rect,getattr(d,'pending',None),targets[d.name]) for d in remaining],[(d.name,d.rect,getattr(d,'pending',None)) for d in S.drops.values() if getattr(d,'native_packet',False)])
                 continue
             stall=0;active_names={d.name for d in ready}
             reservations=[]
@@ -64,6 +64,7 @@ def cut_level(S,nodes,W,H,columns,padding_limit,times=None):
             children.extend(c for pair in pairs for c in pair)
             for d in ready:remaining.remove(d)
             active_names=set();S.ready_cut_reservations=[]
+            if on_ready:on_ready([c for pair in pairs for c in pair])
         if clock:clock.end_run(S)
     finally:
         S.background=old_background;S.ready_cut_reservations=[]
