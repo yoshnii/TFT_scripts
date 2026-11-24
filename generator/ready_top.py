@@ -11,11 +11,8 @@ from scene import _gap, _overlap
 def cut_level(S,nodes,W,H,columns,padding_limit,times=None,on_ready=None):
     from native_packets import partition
     nodes=sorted(nodes,key=lambda d:(d.rect[1],d.rect[0]))
-    columns=min(columns,len(nodes));rows=(len(nodes)+columns-1)//columns
-    old_h=max(d.rect[3] for d in nodes);pitch=max(H,old_h)+6
-    keep_rows=columns==8 and len({d.rect[1] for d in nodes})>1
-    targets={d.name:(16+i%columns*(W+12),4+(i//columns if keep_rows else rows-1-i//columns)*pitch)
-             for i,d in enumerate(nodes)}
+    from top_horizontal import cut_sites
+    targets={d.name:target for d,target in zip(nodes,cut_sites(nodes,W,H,columns,S))}
     jobs=[(d,R.go(d,[('y',targets[d.name][1]),('x',targets[d.name][0])])) for d in nodes]
     old_background=getattr(S,'background',None)
     clock=getattr(S,'top_mother_clock',None)
@@ -38,7 +35,15 @@ def cut_level(S,nodes,W,H,columns,padding_limit,times=None,on_ready=None):
     S.background=background
     try:
         while remaining:
-            ready=[d for d in remaining if getattr(d,'pending',None)=='done' and (not clock or clock.can_move(d)) and clear(d) and (on_ready is None or not any(targets[q.name][1]==targets[d.name][1] and targets[q.name][0]<targets[d.name][0] for q in remaining if q is not d))]
+            ready=[d for d in remaining if getattr(d,'pending',None)=='done' and (not clock or clock.can_move(d)) and clear(d)]
+            if on_ready is not None:
+                # Only the ready prefix can drain to the left without trapping an unfinished mother.
+                blocked = {}
+                for d in remaining:
+                    x,y=targets[d.name]
+                    if d not in ready:blocked[y]=min(blocked.get(y,geom.GRID_W),x)
+                ready=[d for d in ready if targets[d.name][0]<blocked.get(targets[d.name][1],geom.GRID_W)]
+
             travelling=[d for d in remaining if d not in ready and getattr(d,'pending',None)!='done']
             if ready and travelling and on_ready is None:
                 remaining_ms=max((abs(d.rect[0]-targets[d.name][0])+abs(d.rect[1]-targets[d.name][1]))*(2500 if clock and getattr(d,'top_slow_mother',False) else 1000) for d in travelling)

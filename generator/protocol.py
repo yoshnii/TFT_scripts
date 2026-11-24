@@ -26,6 +26,8 @@ NOMINAL_MIX_ROUND_SECONDS = {2.00:42, 2.50:39, 2.60:34.5, 3.00:39,
                              4.00:30, 4.20:33, 4.40:33, 5.00:24, 5.90:24, 6.16:24}
 A03_MIX_SECONDS = 1800               # 969ac87：原生VM已设定的并行计时，不从旧生成器轮数反推。
 
+STANDARD_MIX_ROUNDS = 10
+
 class Protocol:
     def __init__(self, cols=(1, 2, 3, 4, 5, 6)):
         self.S, self.blob, self.segs = Scene(), {}, {}
@@ -124,7 +126,7 @@ class Protocol:
         if left: ops.merge_all(S, left, f"T{reagent}"); cmds.append(self.cmd(f"{reagent} 与各道液滴合并"))
         self.flow(seg, title, cmds)
         S.clearance_context=None
-    def mix(self, seg, title, cycles=ops.MIXN, span=None, seconds=None, spec=None, initial=(), complete_rounds=None, cleanup_channels=False):
+    def mix(self, seg, title, cycles=ops.MIXN, span=None, seconds=None, spec=None, initial=(), complete_rounds=None, cleanup_channels=False, incubation_rock=False):
         """左端定位后只输出一轮闭合往返，与Delay同时启动并同步结束。
 
         首末电极和Scene终态一致；TRUE+Sync沿用VM结构，不证明执行器只在整轮结束时停机。
@@ -133,6 +135,10 @@ class Protocol:
         """
         assert cycles > 0
         S = self.S
+        standard_mix = self.rigid and not (incubation_rock or cleanup_channels)
+        if standard_mix:
+            cycles = complete_rounds = STANDARD_MIX_ROUNDS
+            seconds = None
         whole_region = spec is None
         if spec is None:
             spec = {ln.name: (ln.X0, ln.X0 + geom.LANE_L - S.get(ln.name).rect[2]) for ln in self.ALL}
@@ -164,8 +170,13 @@ class Protocol:
         if complete_rounds is not None:
             assert seconds is None and complete_rounds > 0
             duration = math.ceil(complete_rounds * sum(r.dur for r in hv.relays) / 1000)
+        if standard_mix:
+            # The native exporter pads each closed path to a whole second.
+            duration = STANDARD_MIX_ROUNDS * hv.timeout
         assert duration > 0 and int(duration) == duration
-        timer = Cmd(f'混匀计时 {duration}s（同步结束）', 'Delay', 'CMD_DELAY', duration)
+        timer_name = (f'混匀{cycles}次 · 计时 {duration}s（同步结束）' if standard_mix
+                      else f'混匀计时 {duration}s（同步结束）')
+        timer = Cmd(timer_name, 'Delay', 'CMD_DELAY', duration)
         timer.pre = (hv, 'SS')
         hv.mix_timing = dict(intended_cycles=cycles, nominal_seconds=nominal,
                              timer_seconds=duration, complete_round_ms=sum(r.dur for r in hv.relays),
@@ -389,7 +400,7 @@ class Protocol:
             for at in (120,240):
                 wait = self.hold(f'磁铁保持下降 · 洗脱孵育等待 {at-elapsed:g}s', at-elapsed)
                 elapsed += self.mix(seg, title + f' · 孵育第{at}s轻晃', cycles=2, initial=[wait],
-                                    seconds=49 if abs(vol-3.)<1e-8 else None)
+                                    seconds=49 if abs(vol-3.)<1e-8 else None, incubation_rock=True)
                 assert elapsed<=incubation,'轻晃动作超过洗脱孵育窗口'
                 periodic.append(dict(start_seconds=at,cycles=2,end_seconds=elapsed))
             tail=self.hold(f'第{round_no}次：洗脱孵育剩余等待 {incubation-elapsed:g}s', incubation-elapsed)
@@ -399,7 +410,7 @@ class Protocol:
                 blocks,tail,title+' · 洗脱孵育300s（第120/240s轻晃）')]
         else:
             periodic=[];cmds.append(self.hold(f'第{round_no}次：室温洗脱孵育 {incubation}s · 全液滴保持上电', incubation))
-        self.elution_events.append(dict(stage=seg,round=round_no,initial_mix_cycles=resus_cycles,
+        self.elution_events.append(dict(stage=seg,round=round_no,initial_mix_cycles=STANDARD_MIX_ROUNDS if self.rigid else resus_cycles,
                                         incubation_seconds=incubation,periodic_mixing=periodic))
         ops.to_magnet_all(S,self.ALL,right_half=True)
         cmds.append(self.cmd(f'第{round_no}次：固定形状逐格移回磁铁侧，再升磁铁'))
@@ -434,7 +445,7 @@ class Protocol:
         ops.merge_all(S,self.ALL,'E')
         cmds=[self.cmd('排珠载液逐格覆盖磁珠 · 磁铁仍升起 · 每道真实液量3.00µL')]
         self.magnet('down',f'{seg} 两次产物吸出且额外3.00µL载液覆盖磁珠后，重悬排珠')
-        cleanup_cycles = 2 if seg == 'C' else BEAD_ELUTE_MIX
+        cleanup_cycles = STANDARD_MIX_ROUNDS if self.rigid else (2 if seg == 'C' else BEAD_ELUTE_MIX)
         self.mix(seg, f'{title} · 磁珠清理重悬（额外3.00µL载液）', cleanup_cycles, initial=cmds,
                  complete_rounds=2 if seg == 'C' else None,cleanup_channels=False)
         cmds = []

@@ -1,0 +1,460 @@
+{
+  "baseline": "6035d416004cf4fd93d10d72209dbce942431797",
+  "transport_seconds_saved": 2746,
+  "mix_seconds_saved": 270,
+  "old_seconds": 38463,
+  "new_seconds": 35447,
+  "transport": {
+    "A03": [
+      492,
+      390
+    ],
+    "A08": [
+      1321,
+      1121
+    ],
+    "R02": [
+      2164,
+      1623
+    ],
+    "B03": [
+      616,
+      464
+    ],
+    "B11": [
+      1163,
+      873
+    ],
+    "B15": [
+      552,
+      409
+    ],
+    "C02": [
+      1153,
+      953
+    ],
+    "R05": [
+      1226,
+      1038
+    ],
+    "R06": [
+      1218,
+      1043
+    ],
+    "C05": [
+      1435,
+      1341
+    ],
+    "C06": [
+      1452,
+      1373
+    ],
+    "R19": [
+      1160,
+      966
+    ],
+    "C15": [
+      1160,
+      966
+    ],
+    "C18": [
+      1160,
+      966
+    ]
+  },
+  "mixing": {
+    "A04": {
+      "single_round_seconds": 57,
+      "old_timer_seconds": 1800,
+      "new_timer_seconds": 570
+    },
+    "A09": {
+      "single_round_seconds": 53,
+      "old_timer_seconds": 312,
+      "new_timer_seconds": 530
+    },
+    "R03": {
+      "single_round_seconds": 33,
+      "old_timer_seconds": 480,
+      "new_timer_seconds": 330
+    },
+    "R08": {
+      "single_round_seconds": 49,
+      "old_timer_seconds": 288,
+      "new_timer_seconds": 490
+    },
+    "R13": {
+      "single_round_seconds": 49,
+      "old_timer_seconds": 288,
+      "new_timer_seconds": 490
+    },
+    "R18": {
+      "single_round_seconds": 49,
+      "old_timer_seconds": 468,
+      "new_timer_seconds": 490
+    },
+    "B04": {
+      "single_round_seconds": 57,
+      "old_timer_seconds": 336,
+      "new_timer_seconds": 570
+    },
+    "B09": {
+      "single_round_seconds": 47,
+      "old_timer_seconds": 276,
+      "new_timer_seconds": 470
+    },
+    "B12": {
+      "single_round_seconds": 41,
+      "old_timer_seconds": 240,
+      "new_timer_seconds": 410
+    },
+    "B16": {
+      "single_round_seconds": 29,
+      "old_timer_seconds": 660,
+      "new_timer_seconds": 290
+    },
+    "C03": {
+      "single_round_seconds": 9,
+      "old_timer_seconds": 288,
+      "new_timer_seconds": 90
+    },
+    "C08": {
+      "single_round_seconds": 49,
+      "old_timer_seconds": 468,
+      "new_timer_seconds": 490
+    },
+    "C11": {
+      "single_round_seconds": 49,
+      "old_timer_seconds": 468,
+      "new_timer_seconds": 490
+    },
+    "C14": {
+      "single_round_seconds": 49,
+      "old_timer_seconds": 98,
+      "new_timer_seconds": 490
+    }
+  },
+  "exceptions": [
+    "C17",
+    "R09",
+    "R14"
+  ],
+  "script_sha256": "822eac08aad9702b03a2347845223aa0d6f951355c2addbdd34f926648992015",
+  "top": [
+    {
+      "reagent": "G4",
+      "overlap": {
+        "raw_frames": 382,
+        "host_and_reagent_motion_frames": 12,
+        "delivery_before_all_cuts_finished_frames": 0,
+        "two_bottom_corridors_occupied_frames": 0
+      },
+      "cut_dwell": {
+        "splits": 14,
+        "per_child_gap_and_final_holds_passed": true
+      },
+      "geometry": {
+        "case": "G4 cross-stage",
+        "frames": 383,
+        "equal_x_splits": 14,
+        "aspirated_ul": 0,
+        "static_geometry_passed": true,
+        "magnet_cut_lines_avoid_black_center": true
+      },
+      "all_ready_frame": 376,
+      "contact_frame": 380
+    },
+    {
+      "reagent": "AMP",
+      "overlap": {
+        "raw_frames": 1093,
+        "host_and_reagent_motion_frames": 3,
+        "delivery_before_all_cuts_finished_frames": 93,
+        "two_bottom_corridors_occupied_frames": 0
+      },
+      "cut_dwell": {
+        "splits": 30,
+        "per_child_gap_and_final_holds_passed": true
+      },
+      "geometry": {
+        "case": "AMP cross-stage",
+        "frames": 1094,
+        "equal_x_splits": 30,
+        "aspirated_ul": 0,
+        "static_geometry_passed": true,
+        "magnet_cut_lines_avoid_black_center": true
+      },
+      "all_ready_frame": 1087,
+      "contact_frame": 1091
+    },
+    {
+      "reagent": "G14",
+      "overlap": {
+        "raw_frames": 1560,
+        "host_and_reagent_motion_frames": 9,
+        "delivery_before_all_cuts_finished_frames": 564,
+        "two_bottom_corridors_occupied_frames": 0
+      },
+      "cut_dwell": {
+        "splits": 60,
+        "per_child_gap_and_final_holds_passed": true
+      },
+      "geometry": {
+        "case": "G14 cross-stage",
+        "frames": 1561,
+        "equal_x_splits": 60,
+        "aspirated_ul": 0,
+        "static_geometry_passed": true,
+        "magnet_cut_lines_avoid_black_center": true
+      },
+      "all_ready_frame": 1554,
+      "contact_frame": 1558
+    },
+    {
+      "reagent": "G8",
+      "overlap": {
+        "raw_frames": 424,
+        "host_and_reagent_motion_frames": 10,
+        "delivery_before_all_cuts_finished_frames": 14,
+        "two_bottom_corridors_occupied_frames": 0
+      },
+      "cut_dwell": {
+        "splits": 15,
+        "per_child_gap_and_final_holds_passed": true
+      },
+      "geometry": {
+        "case": "G8 cross-stage",
+        "frames": 425,
+        "equal_x_splits": 15,
+        "aspirated_ul": 0,
+        "static_geometry_passed": true,
+        "magnet_cut_lines_avoid_black_center": true
+      },
+      "all_ready_frame": 418,
+      "contact_frame": 422
+    },
+    {
+      "reagent": "LIG",
+      "overlap": {
+        "raw_frames": 805,
+        "host_and_reagent_motion_frames": 10,
+        "delivery_before_all_cuts_finished_frames": 47,
+        "two_bottom_corridors_occupied_frames": 0
+      },
+      "cut_dwell": {
+        "splits": 30,
+        "per_child_gap_and_final_holds_passed": true
+      },
+      "geometry": {
+        "case": "LIG cross-stage",
+        "frames": 806,
+        "equal_x_splits": 30,
+        "aspirated_ul": 0,
+        "static_geometry_passed": true,
+        "magnet_cut_lines_avoid_black_center": true
+      },
+      "all_ready_frame": 799,
+      "contact_frame": 803
+    },
+    {
+      "reagent": "EDTA",
+      "overlap": {
+        "raw_frames": 380,
+        "host_and_reagent_motion_frames": 9,
+        "delivery_before_all_cuts_finished_frames": 4,
+        "two_bottom_corridors_occupied_frames": 0
+      },
+      "cut_dwell": {
+        "splits": 15,
+        "per_child_gap_and_final_holds_passed": true
+      },
+      "geometry": {
+        "case": "EDTA cross-stage",
+        "frames": 381,
+        "equal_x_splits": 15,
+        "aspirated_ul": 0,
+        "static_geometry_passed": true,
+        "magnet_cut_lines_avoid_black_center": true
+      },
+      "all_ready_frame": 374,
+      "contact_frame": 378
+    },
+    {
+      "reagent": "G16",
+      "overlap": {
+        "raw_frames": 925,
+        "host_and_reagent_motion_frames": 7,
+        "delivery_before_all_cuts_finished_frames": 93,
+        "two_bottom_corridors_occupied_frames": 0
+      },
+      "cut_dwell": {
+        "splits": 30,
+        "per_child_gap_and_final_holds_passed": true
+      },
+      "geometry": {
+        "case": "G16 cross-stage",
+        "frames": 926,
+        "equal_x_splits": 30,
+        "aspirated_ul": 0,
+        "static_geometry_passed": true,
+        "magnet_cut_lines_avoid_black_center": true
+      },
+      "all_ready_frame": 919,
+      "contact_frame": 923
+    }
+  ],
+  "waste": [
+    {
+      "ids": [
+        1019
+      ],
+      "cuts": {
+        "splits": 48,
+        "per_child_gap_and_final_holds_passed": true
+      },
+      "admissions": 32,
+      "static_geometry": {
+        "case": "A06",
+        "frames": 518,
+        "equal_x_splits": 48,
+        "aspirated_ul": 24.0,
+        "static_geometry_passed": true,
+        "magnet_cut_lines_avoid_black_center": true
+      },
+      "cut_gaps": []
+    },
+    {
+      "ids": [
+        2013,
+        51000
+      ],
+      "cuts": {
+        "splits": 112,
+        "per_child_gap_and_final_holds_passed": true
+      },
+      "admissions": 128,
+      "static_geometry": {
+        "case": "R captured",
+        "frames": 1944,
+        "equal_x_splits": 112,
+        "aspirated_ul": 80.0,
+        "static_geometry_passed": true,
+        "magnet_cut_lines_avoid_black_center": true
+      },
+      "cut_gaps": [
+        24,
+        16,
+        16,
+        24,
+        28,
+        26,
+        36
+      ]
+    },
+    {
+      "ids": [
+        4013,
+        51002
+      ],
+      "cuts": {
+        "splits": 112,
+        "per_child_gap_and_final_holds_passed": true
+      },
+      "admissions": 128,
+      "static_geometry": {
+        "case": "C captured",
+        "frames": 2571,
+        "equal_x_splits": 112,
+        "aspirated_ul": 98.56,
+        "static_geometry_passed": true,
+        "magnet_cut_lines_avoid_black_center": true
+      },
+      "cut_gaps": [
+        12,
+        14,
+        14,
+        22,
+        28,
+        26,
+        36
+      ]
+    },
+    {
+      "ids": [
+        50004
+      ],
+      "cuts": {
+        "splits": 16,
+        "per_child_gap_and_final_holds_passed": true
+      },
+      "admissions": 16,
+      "static_geometry": {
+        "case": "B07",
+        "frames": 200,
+        "equal_x_splits": 16,
+        "aspirated_ul": 9.6,
+        "static_geometry_passed": true,
+        "magnet_cut_lines_avoid_black_center": true
+      },
+      "cut_gaps": []
+    },
+    {
+      "ids": [
+        2068
+      ],
+      "cuts": {
+        "splits": 48,
+        "per_child_gap_and_final_holds_passed": true
+      },
+      "admissions": 64,
+      "static_geometry": {
+        "case": "R19",
+        "frames": 929,
+        "equal_x_splits": 48,
+        "aspirated_ul": 48.0,
+        "static_geometry_passed": true,
+        "magnet_cut_lines_avoid_black_center": true
+      },
+      "cut_gaps": []
+    },
+    {
+      "ids": [
+        4048
+      ],
+      "cuts": {
+        "splits": 48,
+        "per_child_gap_and_final_holds_passed": true
+      },
+      "admissions": 64,
+      "static_geometry": {
+        "case": "C15",
+        "frames": 929,
+        "equal_x_splits": 48,
+        "aspirated_ul": 48.0,
+        "static_geometry_passed": true,
+        "magnet_cut_lines_avoid_black_center": true
+      },
+      "cut_gaps": []
+    },
+    {
+      "ids": [
+        75020
+      ],
+      "cuts": {
+        "splits": 48,
+        "per_child_gap_and_final_holds_passed": true
+      },
+      "admissions": 64,
+      "static_geometry": {
+        "case": "C18",
+        "frames": 929,
+        "equal_x_splits": 48,
+        "aspirated_ul": 48.0,
+        "static_geometry_passed": true,
+        "magnet_cut_lines_avoid_black_center": true
+      },
+      "cut_gaps": []
+    }
+  ],
+  "wet_run": false
+}

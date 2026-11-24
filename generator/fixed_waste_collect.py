@@ -69,10 +69,49 @@ def absorb(S,job,d):
         actual_ul=host.vol,rect=list(host.rect)))
 
 
+def approach_during_collection(S, job, d, lane, gx):
+    """Approach the dock while farther packets are still crossing its footprint."""
+    left, top, width, _ = job['rect']
+    from_above = left < gx + geom.CH_W + geom.PREFERRED_GAP
+
+    def open_if_clear():
+        if job['receiver'] is not None:
+            return True
+        # Dispatch assigns all packets farthest port first. Pending far packets
+        # can still cross this dock until their complete footprint clears it.
+        passing = any(getattr(q, 'waste_fk', 0) > job['port']
+                      and getattr(q, 'continuous_waste_exit', False)
+                      and q.rect[0] < left + width + 6 for q in S.drops.values())
+        if passing or not can_open(S, job):
+            return False
+        open_receiver(S, job)
+        return True
+
+    open_if_clear()
+    if not from_above:
+        for action in R.go(d, [('y', lane), ('x', left-d.rect[2]-6)]):
+            if job['receiver'] is None:
+                open_if_clear()
+            yield action
+    while not open_if_clear():
+        yield 'wait'
+    host = job['receiver']
+    d.waste_receiver = host.name
+    d.allow = (host.name,)
+    if from_above:
+        yield from R.go(d, [('y', top)])
+    yield from R.go(d, [('x', left)])
+    absorb(S, job, d)
+
+
 def path(S,job,d,ticket,gx,at_head=False,dispatch=None):
     if not at_head:yield from R.go(d,[('x',gx),('y',164)])
     lane=getattr(d,'bottom_lane_y',172)
     while job['lane_mouth'][lane]!=ticket:yield 'wait'
+    if dispatch and len(dispatch) >= 3:
+        job['lane_mouth'][lane] += 1
+        yield from approach_during_collection(S, job, d, lane, gx)
+        return
     if job['receiver'] is None:
         # Near pools must not open across the route of still-passing drops
         # destined for a farther pool. Keep the original far-to-near order.

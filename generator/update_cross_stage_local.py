@@ -52,7 +52,7 @@ class Overlap:
  def report(self):return dict(raw_frames=self.frames,host_and_reagent_motion_frames=self.host_and_reagent,delivery_before_all_cuts_finished_frames=self.cut_and_delivery,two_bottom_corridors_occupied_frames=self.two_bottom)
 
 
-def build(root):
+def build(root, changed_collectors=WASTE):
  old={int(f.get('ID')):f for f in root};ordered=list(root);fresh={};tops=[];waste=[]
  for reagent,vol,host,fid,did,seg in CASES:
   p=seed(old[fid][0][0],[('',host)])
@@ -75,7 +75,8 @@ def build(root):
   assert all(d.name.startswith('L') and abs(d.vol-host-vol)<1e-7 for d in p.S.drops.values())
   assert len(p.S.drops)==16
   for row in range(1,17):assert abs(sum(e['actual_ul'] for e in p.S.native_leaf_events if e['row']==row)-vol)<1e-7
-  assert overlap.host_and_reagent>0 and overlap.cut_and_delivery>0
+  simultaneous_final_cut = any(len(e['parents']) > 1 for e in getattr(p.S,'ready_top_events',[]))
+  assert overlap.host_and_reagent>0 and (overlap.cut_and_delivery>0 or simultaneous_final_cut), (reagent, overlap.report())
   tops.append(dict(reagent=reagent,ids=[fid,did],actual_added_ul_per_lane=vol,final_ul_per_lane=host+vol,
    geometry=validate_scene(p,reagent+' cross-stage'),cut_dwell=check_dwell(p,trace),
    hold_trace=trace.proofs,overlap=overlap.report(),leaves=p.S.native_leaf_events,
@@ -85,7 +86,8 @@ def build(root):
    per_two_moves_extra_wait_ms=3000,reshape_minimum_ms=4000))
   fresh[fid]=fs[0];fresh[did]=fs[1]
   print('TOP',reagent,sum(int(old[i].get('Timeout')) for i in (fid,did)),'->',sum(f.timeout for f in fs),flush=True)
- def publish(p,fs,ids,audit,overlap,label,mass,wasted,keep_a06=False,unchanged=False):
+ def publish(p,fs,ids,audit,overlap,label,mass,wasted,keep_a06=False):
+  unchanged = set(ids).isdisjoint(changed_collectors)
   for f,i in zip(fs,ids):
    if keep_a06:
     f.cmds[0].relays[0].dur=int(old[i][0][0].get('Duration'));f.cmds[0].timeout=int(old[i][0].get('Timeout'))
@@ -111,12 +113,12 @@ def build(root):
   p=seed(last_hv(ordered[ordered.index(old[ids[0]])-1]),[('',vol)]);p.magnet_state='up'
   if vol==6.16:p.S.flush()
   audit=FixedAudit(p,vol*16);overlap=Overlap(p);p.supernatant_off(seg,old[ids[0]].get('Name').split(' · ')[0])
-  publish(p,prepare_scripts(p.segs,root.get('ChipsetType'),1)[0][0].flows,list(ids),audit,overlap,'R captured' if vol==5. else 'C captured',vol*16,vol*16,unchanged=vol==6.16)
+  publish(p,prepare_scripts(p.segs,root.get('ChipsetType'),1)[0][0].flows,list(ids),audit,overlap,'R captured' if vol==5. else 'C captured',vol*16,vol*16)
  p=seed(old[50004][0][0],[('',2.),('K',1.2)]);audit=FixedAudit(p,51.2);overlap=Overlap(p)
  bisect_barcode(p.S,p.ALL);c=p.cmd(old[50004][0].get('Name'))
  rigid.egress_pieces(p.S,[(ln,p.S.get('BKWA'+ln.id)) for ln in p.ALL],p.blob)
  p.flow('B',old[50004].get('Name'),[c,p.cmd(old[50004][-1].get('Name'))])
- publish(p,prepare_scripts(p.segs,root.get('ChipsetType'),1)[0][0].flows,[50004],audit,overlap,'B07',51.2,9.6,unchanged=True)
+ publish(p,prepare_scripts(p.segs,root.get('ChipsetType'),1)[0][0].flows,[50004],audit,overlap,'B07',51.2,9.6)
  for fid,label in ((2068,'R19'),(4048,'C15'),(75020,'C18')):
   p=seed(last_hv(ordered[ordered.index(old[fid])-1]),[('',3.)]);p.magnet_state='down'
   if set(p.S.relays[0].codes)!=set(old[fid][0][0].get('RelayCode').split(';')):p.S.flush()
@@ -124,7 +126,7 @@ def build(root):
   rigid.egress_pieces(p.S,[(ln,p.S.get(ln.name)) for ln in p.ALL],p.blob,final=True,single_stop=label!='R19')
   p.flow('C' if label.startswith('C') else 'R1',old[fid].get('Name'),[p.cmd(old[fid][-1].get('Name'))])
   publish(p,prepare_scripts(p.segs,root.get('ChipsetType'),1)[0][0].flows,[fid],audit,overlap,label,48.,48.)
- assert set(fresh)==TARGET
+ assert set(fresh)==changed_collectors|{i for c in CASES for i in c[3:5]}
  return fresh,tops,waste
 
 

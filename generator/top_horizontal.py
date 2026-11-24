@@ -19,18 +19,52 @@ PLANS={
 }
 
 
+def cut_sites(nodes, width, height, columns, scene):
+    """Choose ordered sites that minimize the longest mother's horizontal trip."""
+    columns = min(columns, len(nodes))
+    rows = (len(nodes) + columns - 1) // columns
+    row_pitch = max(height, max(d.rect[3] for d in nodes)) + 6
+    keep_rows = columns == 8 and len({d.rect[1] for d in nodes}) > 1
+    spacing = width + 12  # two three-cell outward sweeps and a six-cell gap
+    sites = []
+    for row in range(rows):
+        current = [d.rect[0] for d in nodes[row*columns:(row+1)*columns]]
+        y = 4 + (row if keep_rows else rows-1-row) * row_pitch
+        if not getattr(scene, 'nearby_cut_sites', False):
+            sites.extend((16+i*spacing, y) for i in range(len(current)))
+            continue
+        right = scene.cut_right_limit - width - 3
+        def feasible(distance):
+            left = 13  # leftmost child stays at or beyond SAFE_X
+            positions = []
+            for origin in current:
+                x = max(left, origin-distance)
+                if x > min(right, origin+distance):
+                    return None
+                positions.append(x)
+                left = x + spacing
+            return positions
+        low, high = 0, geom.GRID_W
+        while low < high:
+            middle = (low+high)//2
+            if feasible(middle) is None:
+                low = middle + 1
+            else:
+                high = middle
+        positions = feasible(low)
+        assert positions is not None, '顶部没有足够空间供这组母滴同时切分'
+        for i in reversed(range(len(positions))):
+            ceiling = right if i+1 == len(positions) else positions[i+1]-spacing
+            positions[i] = max(positions[i], min(current[i], ceiling))
+        sites.extend((x, y) for x in positions)
+    return sites
+
+
 def _arrange(S,nodes,W,H,columns=4,padding_limit=2):
     import rigid as R
     nodes=sorted(nodes,key=lambda d:(d.rect[1],d.rect[0]))
-    columns=min(columns,len(nodes));rows=(len(nodes)+columns-1)//columns
-    old_h=max(d.rect[3] for d in nodes)
-    pitch_y=max(H,old_h)+6
-    # At the eight-mother stage, move the left four down before sliding either
-    # row sideways. Their horizontal six-cell gaps remain open throughout.
-    keep_rows=columns==8 and len({d.rect[1] for d in nodes})>1
-    positions=[(16+(i%columns)*(W+12),4+(i//columns if keep_rows else rows-1-i//columns)*pitch_y)
-               for i in range(len(nodes))]
-    assert max(y+max(H,old_h) for x,y in positions)<=23
+    positions=cut_sites(nodes,W,H,columns,S)
+    assert max(y+max(H,d.rect[3]) for d,(x,y) in zip(nodes,positions))<=23
     deferred=getattr(S,'top_deferred_parking',[])
     if getattr(S,'top_parallel_moves',False):
         jobs=[(d,R.go(d,[('y',y),('x',x)])) for d,(x,y) in zip(nodes,positions)]
@@ -111,6 +145,7 @@ def deliver(S,reagent,vol,cols,tag,on_before_load=None,on_load=None,controlled=F
         if getattr(S,'host_motion',None):
             S.background=S.host_motion.previous;S.host_motion=None
         S.concurrent_host_targets={}
+        S.nearby_cut_sites=False
 
 
 def _deliver(S,reagent,vol,cols,tag,on_before_load=None,on_load=None,controlled=False):
@@ -154,6 +189,7 @@ def _deliver(S,reagent,vol,cols,tag,on_before_load=None,on_load=None,controlled=
     S.native_padding_events=getattr(S,'native_padding_events',[])
     S.pipeline_events.append(dict(kind='start',reagent=reagent,per_lane_ul=vol,
                                   initial_volumes=initial,step=S.nsteps))
+    S.nearby_cut_sites = large_cdna or reagent != 'G4'
     families=list(enumerate(roots,1))
     paired=reagent in ('AMP','LIG','G16')
     groups=([families[i:i+2] for i in range(0,len(families),2)]
@@ -191,9 +227,10 @@ def _deliver(S,reagent,vol,cols,tag,on_before_load=None,on_load=None,controlled=
             yield ('merge_native',(d.rect[0],ln.Y0,w+host.rect[2],h),host.name,d.vol)
         locks.pop(ln.id)
     for group_index,family_group in enumerate(groups):
-        if reagent!='G14' and not large_cdna and len(family_group)==1:
+        if not S.nearby_cut_sites and len(family_group)==1:
             root=family_group[0][1]
             R.run(S,[(root,R.go(root,[('x',16),('y',4)]))])
+        S.cut_right_limit=148 if reagent=='G14' and group_index==0 else 246
         nodes=[root for k,root in family_group]
         if reagent=='G14' and group_index:
             # The two parked mothers are cut where they wait. Their children
@@ -212,11 +249,8 @@ def _deliver(S,reagent,vol,cols,tag,on_before_load=None,on_load=None,controlled=
                 # Destinations are fixed by the old final layout, not by
                 # whichever cut/transport job happens to finish first.
                 ordered=sorted(nodes,key=lambda d:(d.rect[1],d.rect[0]));cs=min(columns,len(ordered))
-                rows_count=(len(ordered)+cs-1)//cs;old_h=max(d.rect[3] for d in ordered)
-                pitch=max(H,old_h)+6;keep=cs==8 and len({d.rect[1] for d in ordered})>1
                 virtual=[]
-                for i,d in enumerate(ordered):
-                    x=16+i%cs*(W+12);y=4+(i//cs if keep else rows_count-1-i//cs)*pitch
+                for d,(x,y) in zip(ordered,cut_sites(ordered,W,H,cs,S)):
                     virtual.extend([(d.name+'_0',x-3,y),(d.name+'_1',x+W//2+3,y)])
                 destinations={}
                 for k,root in family_group:
