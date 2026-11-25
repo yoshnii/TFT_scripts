@@ -14,20 +14,21 @@
   <Command Position="0,30" SequenceTypeId="0" ID="1008" Name="往复混匀 · 单轮闭合循环（全部液滴带电）" Type="2" ScriptHead=""/>
   <Command Position="0,60" ID="1009" Name="混匀10次 · 计时 570s（同步结束）" Type="2"/>
  </Flow>
-<Flow Position="35,431.624" ID="1010" Name="A05 cDNA合成 37℃10min→85℃5s→4℃ [热盖105℃]" Type="0" Expandgroup="">
-  <Command Position="0,0" SequenceTypeId="0" ID="1011" Name="液滴停 TEC 区" Type="2" ScriptHead=""/>
-  <Command Position="0,30" ID="1012" Name="Heater1_37℃" Type="2"/>
-  <Command Position="0,60" ID="1013" Name="保温 37℃ 600s" Type="2"/>
-  <Command Position="0,90" ID="1014" Name="Heater1_85℃" Type="2"/>
-  <Command Position="0,120" ID="1015" Name="保温 85℃ 5s" Type="2"/>
-  <Command Position="0,150" ID="1016" Name="Heater1_4℃" Type="2"/>
-  <Command Position="0,180" ID="1017" Name="保温 4℃ 30s" Type="2"/>
-  <Command Position="0,210" SequenceTypeId="0" ID="1018" Name="液滴持续通电保持（循环至温控结束）" Type="2" ScriptHead=""/>
- </Flow>
-<Flow Position="35,640.436" ID="1022" Name="A07 加靶向扩增反应液 2.00µL(台面预混) · 加液承接（上电后手工加液）" Type="0" Expandgroup="">
-  <Command Position="0,0" SequenceTypeId="0" ID="1023" Name="承接准备 · 样本定位与后续试剂分液并行" Type="2" ScriptHead=""/>
-  <Command Position="0,30" SequenceTypeId="0" ID="1024" Name="【手工加液・流程组结束】E1/E2 AMP 32.00µL · A1-A16 · 第1/1批 · 加好后运行下一流程组" Type="2" ScriptHead=""/>
- </Flow>
+<Flow Position="35,431.624" ID="1010" Name="A05 cDNA合成 37℃10min→85℃5s→4℃ [热盖105℃] · E1/E2提前手工加液" Type="0" Expandgroup="">
+  <Command Position="0,0" SequenceTypeId="0" ID="1011" Name="液滴停 TEC 区" Type="2" ScriptHead="" />
+  <Command Position="0,30" ID="1012" Name="Heater1_37℃" Type="2" />
+  <Command Position="0,60" ID="1013" Name="保温 37℃ 600s" Type="2" />
+  <Command Position="0,90" ID="1014" Name="Heater1_85℃" Type="2" />
+  <Command Position="0,120" ID="1015" Name="保温 85℃ 5s" Type="2" />
+  <Command Position="0,150" ID="1016" Name="Heater1_4℃" Type="2" />
+  <Command Position="0,180" ID="1017" Name="保温 4℃ 30s" Type="2" />
+  <Command Position="0,210" SequenceTypeId="0" ID="1018" Name="液滴持续通电保持（循环至温控结束）" Type="2" ScriptHead="" />
+  <Command Position="0,240" SequenceTypeId="0" ID="78000" Name="【手工加液・流程组结束】E1/E2 AMP 32.00µL · A1-A16 · 第1/1批 · 加好后运行下一流程组" Type="2" ScriptHead="" />
+</Flow>
+<Flow Position="35,640.436" ID="1022" Name="A07 加靶向扩增反应液 2.00µL(台面预混) · 配送续行" Type="0" Expandgroup="">
+  <Command Position="0,0" SequenceTypeId="0" ID="1023" Name="配送续行 · 样本定位与试剂并行" Type="2" ScriptHead="" />
+  <Command Position="0,30" SequenceTypeId="0" ID="1024" Name="配送续行 · 样本定位与试剂并行" Type="2" ScriptHead="" />
+</Flow>
 <Flow Position="35,744.842" ID="50001" Name="A08 加靶向扩增反应液 2.00µL(台面预混) · 加液后分液、移液及融合" Type="0" Expandgroup="">
   <Command Position="0,0" SequenceTypeId="0" ID="1025" Name="AMP 加液已完成 → 顶部拆成液珠 → 经空隙逐道送入 A/C/E 列" Type="2" ScriptHead=""/>
  </Flow>
@@ -170,18 +171,20 @@
   <Command Position="0,0" SequenceTypeId="0" ID="3019" Name="各道同配比1.20µL接头预混液原位等分：0.60µL保留、0.60µL弃液，逐格拉开" Type="2" ScriptHead=""/>
   <Command Position="0,30" SequenceTypeId="0" ID="3020" Name="接头余液保持原形排废，孔旁收尾后撤电 · 【手工吸液・组结束】F1 9.600µL · 运行期间配合吸液，回收电极已撤除；确认吸净后运行下一组" Type="2" ScriptHead=""/>
  </Flow>
- <Flow Position="35,3981.43" ID="51001" Name="B08 同配比接头预混液每道加1.20µL（16道共19.20µL），等分弃0.60µL、投入0.60µL · 吸液完成后的续行" Type="0" Expandgroup="">
-  <Command Position="0,0" SequenceTypeId="0" ID="3021" Name="全部保留的0.60µL接头液就绪后与各道产物同步合并" Type="2" ScriptHead=""/>
- </Flow>
+ <Flow Position="35,3981.43" ID="51001" Name="B08 同配比接头预混液每道加1.20µL（16道共19.20µL），等分弃0.60µL、投入0.60µL · 吸液完成后的续行 · E1/E2提前手工加液" Type="0" Expandgroup="">
+  <Command Position="0,0" SequenceTypeId="0" ID="3021" Name="全部保留的0.60µL接头液就绪后与各道产物同步合并" Type="2" ScriptHead="" />
+  <Command Position="0,30" SequenceTypeId="0" ID="78010" Name="【手工加液・流程组结束】E1/E2 LIG 22.40µL · A1-A16 · 第1/1批 · 加好后运行下一流程组" Type="2" ScriptHead="" />
+</Flow>
  <Flow Position="35,4085.83" ID="3022" Name="B09 往复混匀" Type="0" Expandgroup="">
-  <Command Position="0,0" SequenceTypeId="0" ID="3023" Name="液滴左端定位 · 随后启动混匀（全部液滴带电）" Type="2" ScriptHead=""/>
-  <Command Position="0,30" SequenceTypeId="0" ID="3024" Name="往复混匀 · 单轮闭合循环（全部液滴带电）" Type="2" ScriptHead=""/>
-  <Command Position="0,60" ID="3025" Name="混匀10次 · 计时 470s（同步结束）" Type="2"/>
- </Flow>
-<Flow Position="35,3772.62" ID="3026" Name="B10 加连接反应预混液 1.40µL (Buffer 1.00 + Ligase 0.40) · 加液承接（上电后手工加液）" Type="0" Expandgroup="">
-  <Command Position="0,0" SequenceTypeId="0" ID="3027" Name="承接准备 · 样本定位与后续试剂分液并行" Type="2" ScriptHead=""/>
-  <Command Position="0,30" SequenceTypeId="0" ID="3028" Name="【手工加液・流程组结束】E1/E2 LIG 22.40µL · A1-A16 · 第1/1批 · 加好后运行下一流程组" Type="2" ScriptHead=""/>
- </Flow>
+  <Command Position="0,0" SequenceTypeId="0" ID="3023" Name="液滴左端定位 · 随后启动混匀（全部液滴带电）" Type="2" ScriptHead="" />
+  <Command Position="0,30" SequenceTypeId="0" ID="3024" Name="往复混匀 · 单轮闭合循环（全部液滴带电）" Type="2" ScriptHead="" />
+  <Command Position="0,60" ID="3025" Name="混匀前7轮 · 同步结束" Type="2" />
+  <Command Position="0,90" SequenceTypeId="0" ID="78011" Name="混匀余下3轮 · 与试剂配送并行（共10轮）" Type="2" ScriptHead="" />
+</Flow>
+<Flow Position="35,3772.62" ID="3026" Name="B10 加连接反应预混液 1.40µL (Buffer 1.00 + Ligase 0.40) · 配送续行" Type="0" Expandgroup="">
+  <Command Position="0,0" SequenceTypeId="0" ID="3027" Name="配送续行 · 样本定位与试剂并行" Type="2" ScriptHead="" />
+  <Command Position="0,30" SequenceTypeId="0" ID="3028" Name="配送续行 · 样本定位与试剂并行" Type="2" ScriptHead="" />
+</Flow>
 <Flow Position="35,3877.02" ID="50005" Name="B11 加连接反应预混液 1.40µL (Buffer 1.00 + Ligase 0.40) · 加液后分液、移液及融合" Type="0" Expandgroup="">
   <Command Position="0,0" SequenceTypeId="0" ID="3029" Name="LIG 加液已完成 → 顶部拆成液珠 → 经空隙逐道送入 A/C/E 列" Type="2" ScriptHead=""/>
  </Flow>
@@ -202,18 +205,20 @@
   <Command Position="0,0" SequenceTypeId="0" ID="3042" Name="承接准备 · 样本定位与后续试剂分液并行" Type="2" ScriptHead=""/>
   <Command Position="0,30" SequenceTypeId="0" ID="3043" Name="【手工加液・流程组结束】E1 EDTA 6.40µL · A1-A16 · 第1/1批 · 加好后运行下一流程组" Type="2" ScriptHead=""/>
  </Flow>
-<Flow Position="35,4294.65" ID="50006" Name="B15 加 EDTA 终止液 0.40µL · 加液后分液、移液及融合" Type="0" Expandgroup="">
-  <Command Position="0,0" SequenceTypeId="0" ID="3044" Name="EDTA 加液已完成 → 顶部拆成液珠 → 经空隙逐道送入 A/C/E 列" Type="2" ScriptHead=""/>
- </Flow>
+<Flow Position="35,4294.65" ID="50006" Name="B15 加 EDTA 终止液 0.40µL · 加液后分液、移液及融合 · E1/E2提前手工加液" Type="0" Expandgroup="">
+  <Command Position="0,0" SequenceTypeId="0" ID="3044" Name="EDTA 加液已完成 → 顶部拆成液珠 → 经空隙逐道送入 A/C/E 列" Type="2" ScriptHead="" />
+  <Command Position="0,30" SequenceTypeId="0" ID="78020" Name="【手工加液・流程组结束】E1/E2 G16 28.16µL · A1-A16 · 第1/1批 · 加好后运行下一流程组" Type="2" ScriptHead="" />
+</Flow>
 <Flow Position="35,4399.05" ID="3045" Name="B16 EDTA终止后轻柔往复混匀（片上移液不等同枪头吹打）" Type="0" Expandgroup="">
-  <Command Position="0,0" SequenceTypeId="0" ID="3046" Name="液滴左端定位 · 随后启动混匀（全部液滴带电）" Type="2" ScriptHead=""/>
-  <Command Position="0,30" SequenceTypeId="0" ID="3047" Name="往复混匀 · 单轮闭合循环（全部液滴带电）" Type="2" ScriptHead=""/>
-  <Command Position="0,60" ID="3048" Name="混匀10次 · 计时 290s（同步结束）" Type="2"/>
- </Flow>
-<Flow Position="35,4503.46" ID="4000" Name="C01 加磁珠(0.4××4.40µL) 1.76µL · 加液承接（上电后手工加液）" Type="0" Expandgroup="">
-  <Command Position="0,0" SequenceTypeId="0" ID="4001" Name="承接准备 · 样本定位与后续试剂分液并行" Type="2" ScriptHead=""/>
-  <Command Position="0,30" SequenceTypeId="0" ID="4002" Name="【手工加液・流程组结束】E1/E2 G16 28.16µL · A1-A16 · 第1/1批 · 加好后运行下一流程组" Type="2" ScriptHead=""/>
- </Flow>
+  <Command Position="0,0" SequenceTypeId="0" ID="3046" Name="液滴左端定位 · 随后启动混匀（全部液滴带电）" Type="2" ScriptHead="" />
+  <Command Position="0,30" SequenceTypeId="0" ID="3047" Name="往复混匀 · 单轮闭合循环（全部液滴带电）" Type="2" ScriptHead="" />
+  <Command Position="0,60" ID="3048" Name="混匀前5轮 · 同步结束" Type="2" />
+  <Command Position="0,90" SequenceTypeId="0" ID="78021" Name="混匀余下5轮 · 与试剂配送并行（共10轮）" Type="2" ScriptHead="" />
+</Flow>
+<Flow Position="35,4503.46" ID="4000" Name="C01 加磁珠(0.4××4.40µL) 1.76µL · 配送续行" Type="0" Expandgroup="">
+  <Command Position="0,0" SequenceTypeId="0" ID="4001" Name="配送续行 · 样本定位与试剂并行" Type="2" ScriptHead="" />
+  <Command Position="0,30" SequenceTypeId="0" ID="4002" Name="配送续行 · 样本定位与试剂并行" Type="2" ScriptHead="" />
+</Flow>
 <Flow Position="35,4607.86" ID="50007" Name="C02 加磁珠(0.4××4.40µL) 1.76µL · 加液后分液、移液及融合" Type="0" Expandgroup="">
   <Command Position="0,0" SequenceTypeId="0" ID="4003" Name="G16 加液已完成 → 顶部拆成液珠 → 经空隙逐道送入 A/C/E 列" Type="2" ScriptHead=""/>
  </Flow>

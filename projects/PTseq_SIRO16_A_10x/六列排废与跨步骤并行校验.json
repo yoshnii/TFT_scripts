@@ -1,0 +1,21 @@
+{
+  "baseline": "d20d41d1eebc349bef67bec993979004e4e4f8a9",
+  "sections": 61,
+  "full_before_s": 34750,
+  "full_after_s": 33982,
+  "saved_s": {
+    "A05 A06 A07 A08": 274,
+    "B08 B09 B10 B11": 129,
+    "B15 B16 C01 C02": 136,
+    "R05 R06": 73,
+    "C05 C06": 156
+  },
+  "net_s": 768,
+  "predicted_s": 706,
+  "captured_c_cuts": {
+    "splits": 112,
+    "per_child_gap_and_final_holds_passed": true
+  },
+  "native_sha256": "ba5ac49b4b99ea07dfe4954ebda0a03db673f30d0e32ae78f56a538ce7780f78",
+  "instrument_run": false
+}

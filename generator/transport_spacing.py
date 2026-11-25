@@ -101,13 +101,10 @@ def queue_exit(S,d,gx,path):
         # later, at the common channel head, so packets cannot queue behind
         # an earlier ticket physically trapped upstream.
         strict_six=getattr(S,'c05_cut_gap',None)==2
-        # C05/C06 left leaves can wait farther inside the well. This lets
-        # an upper row refill without its sideways entrance blocking a lower
-        # waiting row. Right leaves have a held sibling there, so retain
-        # their original deepest-first, one-row-down entrance.
-        inset=strict_six and d.rect[0]<=gx-6-d.rect[2]-3
-        lower=(strict_six and not inset and well(d.rect) is not None and d.rect[3]<=4)
-        stage=gx-6-d.rect[2]-(3 if inset else 0)
+        # Use the same lower entrance for both C05/C06 leaves. Holding a
+        # second inset approach used to obstruct the next row's admission.
+        lower=strict_six and well(d.rect) is not None and d.rect[3]<=4
+        stage=gx-6-d.rect[2]
         if d.rect[0]<stage:yield from R.go(d,[('x',stage)])
         # Do not nose into the clearance of an approaching channel packet.
         # Reserve enough vertical space for this horizontal entrance to finish
@@ -121,7 +118,7 @@ def queue_exit(S,d,gx,path):
                 if q.rect[0]>gx:continue
                 clearance=TRAIN_GAP if q.batch_round==d.batch_round and getattr(S,'c05_cut_gap',None)!=2 else 6
                 if q.rect[0]<=stage and not getattr(q,'waste_entering',False):
-                    if not inset and q.batch_round==d.batch_round and q.rect[1]>d.rect[1] and q.rect[1]-y-d.rect[3]<clearance:return False
+                    if q.batch_round==d.batch_round and q.rect[1]>d.rect[1] and q.rect[1]-y-d.rect[3]<clearance:return False
                     continue
                 if q.batch_round==d.batch_round and q.rect[0]<gx:
                     if q.rect[1]>=y+d.rect[3]+clearance or q.rect[1]+q.rect[3]<=y-clearance:continue
