@@ -224,27 +224,55 @@ def _deliver(S,reagent,vol,cols,tag,on_before_load=None,on_load=None,controlled=
     paired=reagent in ('AMP','LIG','G16')
     groups=([families[i:i+2] for i in range(0,len(families),2)]
             if reagent=='G14' or large_cdna or paired else [[family] for family in families])
+    dual = geom.COLS == 4
+    if dual and reagent == 'G14':
+        groups = [families]
     # E3/E4 reshape together with E1/E2 and wait on their loading footprints.
     S.top_waiting_roots = roots[len(groups[0]):] if reagent=='G14' else []
     pool=S.top_delivery_pool=DeliveryPool(S) if reagent=='G14' or getattr(S,'cross_stage_leaves',False) else None
     locks={};gx=geom.gap_x(geom.reagent_gap(c))
+    admitted = 0
     def route(d,ln,lower=(),staging=False):
+        nonlocal admitted
         if staging and reagent not in ('G14','LIG','EDTA'):yield ('hold',d.rect,geom.HOLD_MS)
         d.controlled_entry=True
         if reagent=='G4' and d not in lower:
             while any(S.drops.get(q.name) is q and q.rect[1]<27 for q in lower):yield 'wait'
-        if reagent=='G16' and d.port==2:
+        if reagent=='G16' and d.port==2 and not dual:
             # Deep wells use E1. Admit E2 behind the last E1 packet in the narrow inlet.
             while any(q.name.startswith('DG16E1') or
                       (getattr(q,'native_packet',False) and getattr(q,'port',None)==1 and q.rect[1]<23)
                       for q in S.drops.values()):
                 yield 'wait'
-        yield from R.go(d,[('x',geom.SAFE_X)])
-        if d.rect[1]<geom.SAFE_Y:yield from R.go(d,[('y',geom.SAFE_Y)])
-        yield from R.go(d,[('x',gx),('y',ln.Y0)])
+        if dual and reagent in ('LIG','G16'):
+            rail = 8
+            yield from R.go(d,[('x',rail),('y',23)])
+            # Assign by actual admission. All aliquots are the same reagent.
+            ln = ops.Lane(c,len(lanes)-admitted//per_lane)
+            admitted += 1
+            d.row = ln.r
+            next(e for e in S.native_leaf_events if e['name']==d.name)['row']=ln.r
+            yield from R.go(d,[('y',ln.Y0-1)])
+        else:
+            rail = gx
+            if dual:
+                near = ln.X0-w
+                rail = near-w-6 if d.rect[1]<10 else near
+            if dual and d.rect[0] < rail and d.rect[1]>=10:
+                # The leftmost lower-bank packet can descend immediately.
+                yield from R.go(d,[('y',ln.Y0)])
+                rail = d.rect[0]
+            waypoint = geom.SAFE_X if not dual or (rail < 7 and d.rect[1]<8) else rail
+            yield from R.go(d,[('x',waypoint)])
+            if d.rect[1]<geom.SAFE_Y:yield from R.go(d,[('y',geom.SAFE_Y)])
+            yield from R.go(d,[('x',rail),('y',ln.Y0)])
         while S.get(ln.name).rect[0]!=getattr(S,'concurrent_host_targets',{}).get(ln.name,S.get(ln.name).rect[0]):yield 'wait'
         while ln.id in locks:yield 'wait'
         locks[ln.id]=True;host=S.drops.get(f'{tag}{ln.id}')
+        if dual and reagent in ('LIG','G16'):
+            if host is not None:
+                d.allow = (host.name,)
+            yield from R.go(d,[('x',ln.X0),('y',ln.Y0)])
         if host is None:
             x=S.get(ln.name).rect[0]-geom.PREFERRED_GAP-w
             yield from R.go(d,[('x',x)])
@@ -258,7 +286,7 @@ def _deliver(S,reagent,vol,cols,tag,on_before_load=None,on_load=None,controlled=
         if not S.nearby_cut_sites and len(family_group)==1:
             root=family_group[0][1]
             R.run(S,[(root,R.go(root,[('x',16),('y',4)]))])
-        S.cut_right_limit=148 if reagent=='G14' and group_index==0 else 246
+        S.cut_right_limit=148 if not dual and reagent=='G14' and group_index==0 else 246
         nodes=[root for k,root in family_group]
         if reagent=='G14' and group_index:
             # The two parked mothers are cut where they wait. Their children
@@ -296,6 +324,7 @@ def _deliver(S,reagent,vol,cols,tag,on_before_load=None,on_load=None,controlled=
                     leaves=sorted([q for q in virtual if q[0].startswith(root.name+'_')],key=lambda q:(-q[2],q[1]))
                     count=n//per_lane;hi=max(ln.r for ln in lanes)-(k-1)*count
                     rows=[r for r in range(hi,hi-count,-1) for _ in range(per_lane)]
+                    if dual and reagent != 'G16': rows = list(range(hi,hi-count,-1))*per_lane
                     for i,(q,row) in enumerate(zip(leaves,rows)):destinations[q[0]]=(k,row,i)
                 def release(leaves):
                     for d in leaves:

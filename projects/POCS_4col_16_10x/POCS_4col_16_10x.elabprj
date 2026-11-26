@@ -1,0 +1,5 @@
+<?xml version='1.0' encoding='utf-8'?>
+<project Target="POCS_4col_16_10x" ActiveTec="1" Smart8Dir="" Description="" Instrument="3" TargetVersion="v0.0.0.1" ChipModel="ChipArea_192_256_64_SIRO_4col" InstrumentName="TFT" DbName="">
+  <file include="main" BuildMd5="" />
+  <file include="PTseq_16_A" BuildMd5="" />
+</project>

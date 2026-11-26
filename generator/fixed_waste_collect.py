@@ -100,7 +100,8 @@ def approach_during_collection(S, job, d, lane, gx):
     d.allow = (host.name,)
     if from_above:
         yield from R.go(d, [('y', top)])
-    yield from R.go(d, [('x', left)])
+    dock = min(max(d.rect[0],left),left+width-d.rect[2]) if geom.COLS==4 else left
+    yield from R.go(d, [('x', dock)])
     absorb(S, job, d)
 
 
@@ -130,7 +131,10 @@ def path(S,job,d,ticket,gx,at_head=False,dispatch=None):
     released=False
     if under:
         d.waste_receiver=host.name;d.allow=(host.name,)
-        yield from R.go(d,[('y',top),('x',left)])
+        dock = min(max(gx,left),left+width-d.rect[2]) if geom.COLS==4 else left
+        if geom.COLS==4:
+            job['lane_mouth'][lane]+=1;released=True
+        yield from R.go(d,[('y',top),('x',dock)])
     else:
         yield from R.go(d,[('y',lane)])
         for action in R.go(d,[('x',left-d.rect[2]-6)]):
@@ -147,7 +151,7 @@ def continuous_path(S,dispatch,d,gx):
     """Assign equal-volume packets in their actual arrival order at Y164."""
     yield from R.go(d,[('x',gx),('y',164)])
     job=next(j for j in dispatch if j['issued']<j['expected'])
-    lanes=(172,182) if job['port']!=1 and job['packet_signature'][1]==(4,4) and any(abs(job['packet_signature'][0]-v)<1e-8 for v in (.625,.75)) else (172,)
+    lanes=(172,182) if job['port']!=1 and job['packet_signature'][1]==(4,4) and (geom.COLS==4 or any(abs(job['packet_signature'][0]-v)<1e-8 for v in (.625,.75))) else (172,)
     lane=lanes[job['issued']%len(lanes)]
     ticket=job['lane_issued'][lane];job['lane_issued'][lane]+=1
     job['issued']+=1;d.waste_fk=job['port'];d.bottom_lane_y=lane

@@ -63,11 +63,15 @@ def native(flow):
 
 def in_well(r, margin=0):
     x,y,w,h=r
-    return 10-margin<=x and x+w<=46+margin and 27<=y<168 and (y-27)%9+h<=6
+    import geom
+    left=geom.physical_zone(1,1)[0]
+    return left-margin<=x and x+w<=left+36+margin and 27<=y<168 and (y-27)%9+h<=6
 
 
 def transfer(load_at,work,bridge,delivery,new_id):
     """Load before work. Keep every resident movement and time every guest frame once."""
+    import geom
+    door=geom.physical_zone(1,1)[0]
     original=native(work)
     between=native(bridge)
     post=between+native(delivery)
@@ -80,13 +84,16 @@ def transfer(load_at,work,bridge,delivery,new_id):
         guest=rects-host
         if not guest and not guests:
             guest=initial[1]
-        if len(host)!=16 or not guest or any(y+h>23 and x+w>10 for x,y,w,h in guest):
+        if len(host)!=16 or not guest or any(y+h>23 and x+w>door for x,y,w,h in guest):
             break
         assert len({(r[1]-27)//9 for r in host})==16
         hosts.append((setting,host))
         guests.append((setting,guest))
     keep=max((i for i in range(1,len(hosts)) if hosts[i]!=hosts[i-1]),default=0)+4
-    for n in range(min(len(hosts)-max(keep,len(between)),len(original)),0,-1):
+    limit = len(original)
+    if work.get('SyncEndingCmdList'):
+        limit -= seconds(work[0])+seconds(work[1])
+    for n in range(min(len(hosts)-max(keep,len(between)),limit),0,-1):
         resident=original[-n:]+hosts[:-n]
         if all(a[0]==b[0] and apart(a[1],b[1]) for a,b in zip(resident,guests)):
             break

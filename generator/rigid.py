@@ -17,7 +17,7 @@ def in_reaction(r):
     row = (y - 27) // 9 + 1
     if not (1 <= row <= 16):
         return False
-    for col in range(1, 7):
+    for col in range(1, geom.COLS+1):
         x0, y0 = geom.physical_zone(col, row)
         # 行内和门口的整高矩形受9格行距约束，最多留3格。
         # 完整进入通道后纵向错开即可留4格；不可在转移前要求同一行距留4格。

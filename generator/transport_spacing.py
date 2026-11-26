@@ -10,7 +10,7 @@ def well(rect):
 @lru_cache(maxsize=32768)
 def _well(rect):
     x,y,w,h=rect
-    for c in range(1,7):
+    for c in range(1,geom.COLS+1):
         for r in range(1,17):
             X,Y=geom.physical_zone(c,r)
             if X<=x and x+w<=X+36 and Y<=y and y+h<=Y+6:return c,r
@@ -37,7 +37,7 @@ def required(S,a,ra,b,rb):
     # Two independent channel packets still require six cells.
     for d,r,other in ((a,ra,rb),(b,rb,ra)):
         if (getattr(d,'c02_entry_exception',False) and well(other) is not None
-                and 27<=r[1]<172 and 6<=r[0]<10):return geom.MIN_GAP
+                and 27<=r[1]<172 and geom.zone(1,1)[0]-4<=r[0]<geom.zone(1,1)[0]):return geom.MIN_GAP
     if ra[1]+ra[3]<=23 and rb[1]+rb[3]<=23:return 6
     moving=lambda d:getattr(d,'native_packet',False) or getattr(d,'waste_grid_packet',False)
     # 20261021 user-approved exception: one whole-column waste batch enters

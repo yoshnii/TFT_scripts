@@ -1,0 +1,429 @@
+{
+  "baseline": "839e0f825e9a21fe04491be0675dd39ecf5c3899",
+  "samples": 16,
+  "volume_scale": "10x",
+  "active_column": 1,
+  "column_x": [
+    22,
+    81,
+    139,
+    198
+  ],
+  "full_s": 32118,
+  "baseline_s": 33982,
+  "through_recovery_s": 29487,
+  "overlap_s": {
+    "A05 A06 A07 A08": 278,
+    "B08 B09 B10 B11": 237,
+    "B15 B16 C01 C02": 260,
+    "R05 R06": 58,
+    "C05 C06": 62
+  },
+  "stages": {
+    "A01": {
+      "six": 1,
+      "four": 1
+    },
+    "A02": {
+      "six": 4,
+      "four": 4
+    },
+    "A03": {
+      "six": 383,
+      "four": 342
+    },
+    "A04": {
+      "six": 596,
+      "four": 596
+    },
+    "A05": {
+      "six": 821,
+      "four": 821
+    },
+    "A06": {
+      "six": 562,
+      "four": 550
+    },
+    "A07": {
+      "six": 3,
+      "four": 3
+    },
+    "A08": {
+      "six": 578,
+      "four": 267
+    },
+    "A09": {
+      "six": 552,
+      "four": 552
+    },
+    "A10": {
+      "six": 9904,
+      "four": 9904
+    },
+    "R01": {
+      "six": 3,
+      "four": 3
+    },
+    "R02": {
+      "six": 1424,
+      "four": 531
+    },
+    "R03": {
+      "six": 345,
+      "four": 345
+    },
+    "R04": {
+      "six": 496,
+      "four": 496
+    },
+    "R05": {
+      "six": 1038,
+      "four": 1026
+    },
+    "R06": {
+      "six": 970,
+      "four": 973
+    },
+    "R07": {
+      "six": 1,
+      "four": 1
+    },
+    "R08": {
+      "six": 521,
+      "four": 521
+    },
+    "R09": {
+      "six": 300,
+      "four": 300
+    },
+    "R11": {
+      "six": 199,
+      "four": 199
+    },
+    "R12": {
+      "six": 1,
+      "four": 1
+    },
+    "R13": {
+      "six": 521,
+      "four": 521
+    },
+    "R14": {
+      "six": 300,
+      "four": 300
+    },
+    "R16": {
+      "six": 199,
+      "four": 199
+    },
+    "R17": {
+      "six": 1,
+      "four": 1
+    },
+    "R18": {
+      "six": 521,
+      "four": 521
+    },
+    "R19": {
+      "six": 966,
+      "four": 954
+    },
+    "B01": {
+      "six": 1,
+      "four": 1
+    },
+    "B02": {
+      "six": 3,
+      "four": 3
+    },
+    "B03": {
+      "six": 447,
+      "four": 440
+    },
+    "B04": {
+      "six": 599,
+      "four": 599
+    },
+    "B05": {
+      "six": 395,
+      "four": 395
+    },
+    "B06": {
+      "six": 1,
+      "four": 1
+    },
+    "B07": {
+      "six": 233,
+      "four": 232
+    },
+    "B08": {
+      "six": 10,
+      "four": 10
+    },
+    "B09": {
+      "six": 476,
+      "four": 476
+    },
+    "B10": {
+      "six": 3,
+      "four": 3
+    },
+    "B11": {
+      "six": 641,
+      "four": 268
+    },
+    "B12": {
+      "six": 426,
+      "four": 426
+    },
+    "B13": {
+      "six": 751,
+      "four": 751
+    },
+    "B14": {
+      "six": 3,
+      "four": 3
+    },
+    "B15": {
+      "six": 403,
+      "four": 387
+    },
+    "B16": {
+      "six": 305,
+      "four": 305
+    },
+    "C01": {
+      "six": 3,
+      "four": 3
+    },
+    "C02": {
+      "six": 719,
+      "four": 551
+    },
+    "C03": {
+      "six": 95,
+      "four": 95
+    },
+    "C04": {
+      "six": 304,
+      "four": 304
+    },
+    "C05": {
+      "six": 1298,
+      "four": 1269
+    },
+    "C06": {
+      "six": 1260,
+      "four": 1231
+    },
+    "C07": {
+      "six": 1,
+      "four": 1
+    },
+    "C08": {
+      "six": 521,
+      "four": 521
+    },
+    "C09": {
+      "six": 379,
+      "four": 379
+    },
+    "C10": {
+      "six": 1,
+      "four": 1
+    },
+    "C11": {
+      "six": 521,
+      "four": 521
+    },
+    "C12": {
+      "six": 379,
+      "four": 379
+    },
+    "C13": {
+      "six": 1,
+      "four": 1
+    },
+    "C14": {
+      "six": 521,
+      "four": 521
+    },
+    "C15": {
+      "six": 966,
+      "four": 954
+    },
+    "C16": {
+      "six": 1,
+      "four": 1
+    },
+    "C17": {
+      "six": 139,
+      "four": 196
+    },
+    "C18": {
+      "six": 966,
+      "four": 958
+    }
+  },
+  "route_checks": {
+    "A03": {
+      "packets": 16,
+      "per_well_ul": 0.4,
+      "packet_w_h": [
+        3,
+        4
+      ],
+      "all_rows_ready": true
+    },
+    "A08": {
+      "packets": 32,
+      "per_well_ul": 2.0,
+      "packet_w_h": [
+        4,
+        5
+      ],
+      "all_rows_ready": true
+    },
+    "R02": {
+      "packets": 32,
+      "per_well_ul": 2.5,
+      "packet_w_h": [
+        5,
+        5
+      ],
+      "all_rows_ready": true
+    },
+    "B03": {
+      "packets": 16,
+      "per_well_ul": 0.7,
+      "packet_w_h": [
+        4,
+        4
+      ],
+      "all_rows_ready": true
+    },
+    "B11": {
+      "packets": 16,
+      "per_well_ul": 1.4,
+      "packet_w_h": [
+        7,
+        4
+      ],
+      "all_rows_ready": true
+    },
+    "B15": {
+      "packets": 16,
+      "per_well_ul": 0.4,
+      "packet_w_h": [
+        2,
+        4
+      ],
+      "all_rows_ready": true
+    },
+    "C02": {
+      "packets": 32,
+      "per_well_ul": 1.76,
+      "packet_w_h": [
+        5,
+        4
+      ],
+      "all_rows_ready": true
+    },
+    "R05+R06": {
+      "waste_ul": 80.0,
+      "packets": 128,
+      "withdrawals": 2
+    },
+    "C05+C06": {
+      "waste_ul": 98.56,
+      "packets": 128,
+      "withdrawals": 2
+    },
+    "A06": {
+      "waste_ul": 24.0,
+      "packets": 32,
+      "withdrawals": 1
+    },
+    "B07": {
+      "waste_ul": 9.6,
+      "packets": 16,
+      "withdrawals": 1
+    },
+    "R19": {
+      "waste_ul": 48.0,
+      "packets": 64,
+      "withdrawals": 1
+    },
+    "C15": {
+      "waste_ul": 48.0,
+      "packets": 64,
+      "withdrawals": 1
+    },
+    "C18": {
+      "waste_ul": 48.0,
+      "packets": 64,
+      "withdrawals": 1
+    }
+  },
+  "checks": {
+    "ingress_tracks": {
+      "A03": {
+        "descending_x": [
+          10,
+          19
+        ],
+        "simultaneous_dual_descent_frames": 116
+      },
+      "A08": {
+        "descending_x": [
+          8,
+          10,
+          18
+        ],
+        "simultaneous_dual_descent_frames": 148
+      },
+      "R02": {
+        "descending_x": [
+          6,
+          17
+        ],
+        "simultaneous_dual_descent_frames": 246
+      },
+      "B03": {
+        "descending_x": [
+          8,
+          16,
+          18
+        ],
+        "simultaneous_dual_descent_frames": 145
+      },
+      "B11": {
+        "descending_x": [
+          8
+        ],
+        "simultaneous_dual_descent_frames": 0
+      },
+      "B15": {
+        "descending_x": [
+          12,
+          18,
+          20
+        ],
+        "simultaneous_dual_descent_frames": 145
+      },
+      "C02": {
+        "descending_x": [
+          8
+        ],
+        "simultaneous_dual_descent_frames": 0
+      }
+    },
+    "native_flows": 61,
+    "native_relay_frames": 12440,
+    "reaction_zones": 64,
+    "holes": 152,
+    "layout_command_refs": true,
+    "real_time_instrument_measurement": false
+  },
+  "physical_run": false
+}
