@@ -201,7 +201,15 @@ def run():
         report=dict(baseline=BASELINE,samples=16,volume_scale='10x',active_column=1,column_x=board.COLUMNS,
             full_s=total,baseline_s=retime(release),through_recovery_s=sum(seconds(f) for f in full[:list(full).index(flows['C12'])+1]),
             overlap_s=overlap,stages=timing,route_checks=audit,checks=checks,physical_run=False)
-        (folder/'四列排程校验.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n')
+        from update_waste_inlet_local import INPUTS, transform, current_overview, historic_name
+        revised=transform({key:(folder/key).read_bytes() for key in INPUTS},4,report)
+        revised[historic_name(4)]=current_overview(4,report,revised,folder)
+        from loading_sections import consolidate
+        consolidate(revised,4,historic_name(4))
+        from dual_outlet import update as update_outlet
+        update_outlet(revised,historic_name(4))
+        for key,data in revised.items():(folder/key).write_bytes(data)
+        total=json.loads(revised[historic_name(4)])['full_s']
         DEST.mkdir(exist_ok=True)
         for file in sorted(folder.iterdir()):file.replace(DEST/file.name)
         print('Complete:',total,flush=True)
@@ -248,6 +256,18 @@ def manual_files(folder,full):
     (folder/'手工加液运行.html').write_text('<!doctype html><html lang="zh"><meta charset="utf-8"><title>四列芯片手工操作</title>'
         '<style>body{font:16px/1.5 system-ui}table{border-collapse:collapse}td,th{padding:5px;border:1px solid #bbb}</style>'
         '<h1>四列芯片 · A列16样本 · 10×</h1><h2>手工加液</h2>'+tables[0]+'<h2>手工吸液</h2>'+tables[1]+'</html>\n')
+
+
+def ingress_tracks(flow):
+    previous=set(); dual_frames=0;used=set()
+    for relay in flow.iter('RelayItem'):
+        now=set(boxes(relay.get('RelayCode')))
+        movers={(x,w) for x,y,w,h in now if 28<=y<=162 and x+w<=board.COLUMNS[0]
+                and (x,y-1,w,h) in previous and (x,y,w,h) not in previous}
+        dual_frames+=int(any(b>=a+w+6 for a,w in movers for b,_ in movers))
+        used.update(x for x,_ in movers)
+        previous=now
+    return dict(descending_x=sorted(used),simultaneous_dual_descent_frames=dual_frames)
 
 
 def verify(folder,release,full):
@@ -304,15 +324,7 @@ def verify(folder,release,full):
     for flow in full:
         step=flow.get('Name').split()[0]
         if step not in ('R02','A03','A08','B03','B11','B15','C02'):continue
-        previous=set(); dual_frames=0;used=set()
-        for relay in flow.iter('RelayItem'):
-            now=set(boxes(relay.get('RelayCode')))
-            movers={(x,w) for x,y,w,h in now if 28<=y<=162 and x+w<=board.COLUMNS[0]
-                    and (x,y-1,w,h) in previous and (x,y,w,h) not in previous}
-            dual_frames+=int(any(b>=a+w+6 for a,w in movers for b,_ in movers))
-            used.update(x for x,_ in movers)
-            previous=now
-        rails[step]=dict(descending_x=sorted(used),simultaneous_dual_descent_frames=dual_frames)
+        rails[step]=ingress_tracks(flow)
     assert rails['R02']['simultaneous_dual_descent_frames']>0
     suction={'R05','R06','C05','C06','A06','B07','C15','C18','R19'}
     def outlet_tail(flow):

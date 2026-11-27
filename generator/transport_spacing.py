@@ -20,6 +20,10 @@ def _well(rect):
 TRAIN_GAP=5
 
 
+def wide_outlet(S):
+    return getattr(S,'dual_waste_outlet',False)
+
+
 def in_channel(S,r):
     gx=getattr(S,'batch_channel_x',None)
     # The channel itself plus the door strip a packet crosses from its well.
@@ -47,6 +51,7 @@ def required(S,a,ra,b,rb):
     if (moving(a) and moving(b) and getattr(a,'batch_round',None) is not None
             and getattr(a,'batch_round',None)==getattr(b,'batch_round',None)
             and getattr(S,'c05_cut_gap',None)!=2
+            and not wide_outlet(S)
             and in_channel(S,ra) and in_channel(S,rb)):
         return TRAIN_GAP
     if moving(a) and moving(b):
@@ -100,11 +105,25 @@ def queue_exit(S,d,gx,path):
         # whenever its local corridor is free. Receiver order is assigned
         # later, at the common channel head, so packets cannot queue behind
         # an earlier ticket physically trapped upstream.
-        strict_six=getattr(S,'c05_cut_gap',None)==2
+        cleanup=hasattr(S,'cleanup_outer_rows')
+        aliquot=hasattr(S,'aliquot_outer_rows')
+        outer_crossing=(cleanup or aliquot) and getattr(d,'waste_rail_x',gx)>gx
+        if aliquot and outer_crossing and d.rect[2:]==(3,4):
+            # Barcode packets start at the well edge. Leave the neighbouring
+            # outer crossing free until the lower packet has passed the door.
+            y=d.rect[1]
+            while any(q is not d and getattr(q,'waste_rail_x',gx)>gx and
+                      0<q.rect[1]-y<18 and q.rect[0]<gx+10 for q in S.drops.values()):
+                yield 'wait'
+        strict_six=getattr(S,'c05_cut_gap',None)==2 or wide_outlet(S) or outer_crossing
         # Use the same lower entrance for both C05/C06 leaves. Holding a
         # second inset approach used to obstruct the next row's admission.
-        lower=strict_six and well(d.rect) is not None and d.rect[3]<=4
+        lower=(strict_six or cleanup or aliquot) and well(d.rect) is not None and d.rect[3]<=4
         stage=gx-6-d.rect[2]
+        if outer_crossing and cleanup:
+            # Queue one packet width farther inside the well so inner-rail
+            # packets can pass the door while the outer crossing is reserved.
+            stage-=d.rect[2]
         if d.rect[0]<stage:yield from R.go(d,[('x',stage)])
         # Do not nose into the clearance of an approaching channel packet.
         # Reserve enough vertical space for this horizontal entrance to finish
@@ -116,7 +135,7 @@ def queue_exit(S,d,gx,path):
             for q in S.drops.values():
                 if q is d or not getattr(q,'continuous_waste_exit',False):continue
                 if q.rect[0]>gx:continue
-                clearance=TRAIN_GAP if q.batch_round==d.batch_round and getattr(S,'c05_cut_gap',None)!=2 else 6
+                clearance=TRAIN_GAP if q.batch_round==d.batch_round and not strict_six else 6
                 if q.rect[0]<=stage and not getattr(q,'waste_entering',False):
                     if q.batch_round==d.batch_round and q.rect[1]>d.rect[1] and q.rect[1]-y-d.rect[3]<clearance:return False
                     continue

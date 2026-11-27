@@ -88,6 +88,11 @@ def _first_half(S,items,blobs,plans,jobs,gx):
     leaves=cut(S,[(ln,d) for (ln,_),d in zip(items,right)])
     sent=[]
     def send(leaves,index):
+        if getattr(S,'dual_waste_outlet',False):
+            # Return the borrowed four-cell strip after a cut, before individual
+            # packets start moving on rails with six-cell transport clearance.
+            ops.move_rects(S,{d.name:min(d.rect[0],ln.X0+32)
+                              for (ln,_),d in zip(items,leaves)})
         pieces=[]
         for (ln,_),d in zip(items,leaves):
             assert d.vol==.625 and d.rect[2:]==(4,4)
@@ -97,7 +102,10 @@ def _first_half(S,items,blobs,plans,jobs,gx):
     send([p[1] for p in leaves],0);send([p[0] for p in leaves],1)
     # The next maximally opened cut reaches the right well edge. Let the
     # current train clear the reaction rows before reserving that full span.
-    W._drain(S,lambda:all(S.drops.get(d.name) is not d or d.rect[1]>=172 for d in sent))
+    W._drain(S,lambda:all(
+        S.drops.get(d.name) is not d or d.rect[1]>=172 or
+        (getattr(S,'dual_waste_outlet',False) and d.rect[0]>=gx+geom.CH_W+6)
+        for d in sent))
     for d in pending:
         assert d.vol==1.25 and d.rect[2:]==(6,5)
         d.electrode_area=32;d.margin_budget=32-geom.cells(d.vol)

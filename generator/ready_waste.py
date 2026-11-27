@@ -138,9 +138,17 @@ def quarter(S,items,branches,plans,start_round,gx,blobs,jobs,kind,expanded,gap,c
                 def enqueue(child=child,ordinal=ordinal):
                     child.native_packet=True;child.native_leaf_shape=(4,4)
                     plan=dict(plans[start_round+ordinal],early_exit=(kind=='cleanup' or kind=='R04' and getattr(S,'r05_parallel',False)))
-                    waiting[ordinal].append((ln,child))
-                    if len(waiting[ordinal])==len(items):
-                        F.send(S,waiting[ordinal],gx,blobs,plan,jobs,record=False)
+                    if getattr(S,'cleanup_row_dispatch',False):
+                        # Register this leaf immediately. The shared receiver is allocated
+                        # on arrival and the entrance still checks every occupied cell.
+                        assert kind=='cleanup' and len(plan['assign'])==len(items)==16
+                        plan['assign']=[plan['assign'][16-ln.r]]
+                        plan['ready_round']=start_round+ordinal
+                        F.send(S,[(ln,child)],gx,blobs,plan,jobs,record=False)
+                    else:
+                        waiting[ordinal].append((ln,child))
+                        if len(waiting[ordinal])==len(items):
+                            F.send(S,waiting[ordinal],gx,blobs,plan,jobs,record=False)
                     S.row_ready_events.append(dict(row=ln.r,round=start_round+ordinal,frame=S.nsteps))
                     return 1000,[],[]
                 yield enqueue

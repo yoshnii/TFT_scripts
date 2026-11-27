@@ -149,16 +149,19 @@ def path(S,job,d,ticket,gx,at_head=False,dispatch=None):
 
 def continuous_path(S,dispatch,d,gx):
     """Assign equal-volume packets in their actual arrival order at Y164."""
-    yield from R.go(d,[('x',gx),('y',164)])
+    rail=getattr(d,"waste_rail_x",gx)
+    yield from R.go(d,[('x',rail),('y',164)])
     job=next(j for j in dispatch if j['issued']<j['expected'])
     lanes=(172,182) if job['port']!=1 and job['packet_signature'][1]==(4,4) and (geom.COLS==4 or any(abs(job['packet_signature'][0]-v)<1e-8 for v in (.625,.75))) else (172,)
     lane=lanes[job['issued']%len(lanes)]
+    if hasattr(d,'waste_rail_x') and len(lanes)>1 and not hasattr(S,'aliquot_outer_rows'):
+        lane=172 if rail>gx else 182
     ticket=job['lane_issued'][lane];job['lane_issued'][lane]+=1
     job['issued']+=1;d.waste_fk=job['port'];d.bottom_lane_y=lane
     S.waste_arrival_events=getattr(S,'waste_arrival_events',[])
     S.waste_arrival_events.append(dict(packet=d.name,port=job['port'],ticket=ticket,
         batch=d.batch_round,frame=S.nsteps,actual_ul=d.vol,lane_y=lane))
-    yield from path(S,job,d,ticket,gx,at_head=True,dispatch=dispatch)
+    yield from path(S,job,d,ticket,rail,at_head=True,dispatch=dispatch)
 
 
 def send(S,pieces,gx,blobs,plan,jobs,record=True):
@@ -167,8 +170,10 @@ def send(S,pieces,gx,blobs,plan,jobs,record=True):
     assert len(pending)==len(plan['assign'])
     S.waste_grid_events=getattr(S,'waste_grid_events',[])
     S.waste_batch_events=getattr(S,'waste_batch_events',[])
-    S.batch_members=getattr(S,'batch_members',{});batch=len(S.batch_members)
-    members=S.batch_members[batch]=[];S.batch_channel_x=gx
+    S.batch_members=getattr(S,'batch_members',{})
+    batch=plan.get('ready_round',len(S.batch_members))
+    members=S.batch_members.setdefault(batch,[])
+    S.batch_channel_x=gx
     S.waste_batch_events.append(dict(tile_shape=list(pending[0][1].rect[2:]),
         count=len(pending),ports=plan['ports'],collection_group=plan['stop'],
         flush_after=plan['flush'],whole_port_pipeline=True,packed=True,
@@ -188,7 +193,34 @@ def send(S,pieces,gx,blobs,plan,jobs,record=True):
         d.pre_advance_exit=True;d.early_exit=plan.get('early_exit',False)
         d.batch_round=batch;d.tile_area=len(d.target_cells())
         members.append(d)
+        if getattr(S,'dual_waste_outlet',False):
+            assert geom.COLS==4 and d.rect[2:]==(4,4)
+            d.waste_rail_x=gx+10 if ln.r<=7 else gx
+        if hasattr(S,'cleanup_outer_rows') and S.cleanup_outer_rows[batch]:
+            assert geom.COLS==4 and d.vol==.75 and d.rect[2:]==(4,4)
+            d.waste_rail_x=gx+10 if ln.r<=S.cleanup_outer_rows[batch] else gx
         from transport_spacing import queue_exit
         pool.items.append((d,queue_exit(S,d,gx,continuous_path(S,dispatch,d,gx)),R._door_rule(gx)))
     if record:S.step(geom.HOLD_MS,changed=[])
     return members
+
+def send_ready_rows(S,pieces,gx,blobs,plan,jobs,index,previous):
+    """Offer a packet when its own preceding sibling clears the well."""
+    import waste_grid as W
+    assert geom.COLS==4 and len(pieces)==len(plan['assign'])==16
+    pending=sorted(pieces,key=lambda pair:-pair[0].r)
+    def available(row):
+        first=previous.get(row)
+        return first is None or S.drops.get(first.name) is not first or first.rect[0]>=gx
+
+    while pending:
+        W._drain(S,lambda:any(available(ln.r) for ln,_ in pending))
+        for ln,d in pending[:]:
+            if not available(ln.r):continue
+            if S.aliquot_outer_rows[index]:
+                d.waste_rail_x=gx+10 if ln.r<=S.aliquot_outer_rows[index] else gx
+            local=dict(plan,ready_round=index,assign=[plan['assign'][16-ln.r]])
+            send(S,[(ln,d)],gx,blobs,local,jobs,record=False)
+            previous[ln.r]=d
+            pending.remove((ln,d))
+        S.step(geom.HOLD_MS,changed=[])

@@ -111,7 +111,10 @@ def quarter(S,items,branches,plans,start_round,gx,blobs,jobs,stage,expanded=Fals
             W._drain(S,lambda:all(S.drops.get(d.name) is not d or d.rect[0]>=gx for d in tiles))
         send([p[1] for p in leaves],0);send([p[0] for p in leaves],1)
         # Reserve the entire borrowed width only after those trains pass.
-        W._drain(S,lambda:all(S.drops.get(d.name) is not d or d.rect[1]>=172 for d in sent))
+        W._drain(S,lambda:all(
+            S.drops.get(d.name) is not d or d.rect[1]>=172 or
+            (getattr(S,'dual_waste_outlet',False) and d.rect[0]>=gx+geom.CH_W+6)
+            for d in sent))
         if expanded:shape(S,pending_items,8,4,32)
         leaves=cut(S,pending_items)
         send([p[1] for p in leaves],2);send([p[0] for p in leaves],3)

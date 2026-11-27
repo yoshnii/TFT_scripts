@@ -101,6 +101,8 @@ class Protocol:
         if park:
             if getattr(S,'cross_stage_hosts',False):
                 S.concurrent_host_targets={ln.name:ln.park_x('reagent',S.get(ln.name).rect[2]) for ln in self.ALL}
+                if reagent == 'AMP' and getattr(S, 'amp_hold_residents', False):
+                    S.concurrent_host_targets = {ln.name: S.get(ln.name).rect[0] for ln in self.ALL}
                 cmds.append(self.cmd('常驻液滴暂驻 · 加液后与试剂准备并行定位'))
             else:ops.park_all(S,self.ALL,'reagent');cmds.append(self.cmd('常驻液滴让开进液端'))
         for ph, lab, lanes in self.phases():

@@ -75,6 +75,7 @@ def bites(S,items,blobs,final=True,pellets=None,collect_three=False,collect_a05=
     if kind=='A05' and n==32 or kind=='barcode':
         from retained_ready import start
         retained_background=start(S,items,'' if kind=='A05' else 'K',27 if kind=='A05' else 16)
+    prior_outgoing={}
     for index in range(round_count):
         while len(stacks[items[0][0].id][-1].target_cells())>w*h:
             active=[(ln,stacks[ln.id][-1]) for ln,d in items]
@@ -100,11 +101,17 @@ def bites(S,items,blobs,final=True,pellets=None,collect_three=False,collect_a05=
             child.native_packet=True;child.native_leaf_shape=(w,h)
             pieces.append((ln,child))
         plan=plans[index]
-        tiles=W._send_pipeline(S,pieces,gx,blobs,plan,jobs)
+        refill=hasattr(S,'aliquot_outer_rows') and kind in ('A05','barcode')
+        if refill:
+            from fixed_waste_collect import send_ready_rows
+            send_ready_rows(S,pieces,gx,blobs,plan,jobs,index,prior_outgoing)
+        else:
+            tiles=W._send_pipeline(S,pieces,gx,blobs,plan,jobs)
         if plan['flush']:
             W._drain(S,lambda:not S.waste_pool.items)
             W.flush(S,blobs)
-        else:W._drain(S,lambda:all(S.drops.get(d.name) is not d or d.rect[0]>=gx for d in tiles))
+        elif not refill:
+            W._drain(S,lambda:all(S.drops.get(d.name) is not d or d.rect[0]>=gx for d in tiles))
     assert not any(stacks.values())
     if retained_background:S.background=retained_background
     if pellets:

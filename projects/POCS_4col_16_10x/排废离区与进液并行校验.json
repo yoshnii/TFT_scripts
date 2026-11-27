@@ -1,0 +1,54 @@
+{
+  "source_revision": "b9e15e6f053af4258b00035f481084f342e063f9",
+  "columns": 4,
+  "samples": 16,
+  "before_s": 32118,
+  "after_s": 32002,
+  "saved_s": 116,
+  "stage_savings_s": {
+    "A08": 88,
+    "B08": 8,
+    "B09": 2,
+    "B11": 18
+  },
+  "A06": {
+    "exit_s": 178,
+    "retained_ready_s": 178,
+    "first_entry_s": 234,
+    "all_wells_final_frame_s": 588,
+    "waste_end_s": 474,
+    "prepared_trace_seconds_before_release": 178,
+    "synchronous_merge_s": 588,
+    "window_s": 596
+  },
+  "B07": {
+    "exit_s": 14,
+    "barcode_merge_start_s": 14,
+    "barcode_merge_final_frame_s": 19,
+    "ligation_prep_first_move_s": 4,
+    "waste_end_s": 232,
+    "ligation_entry_after_mix_s": 14
+  },
+  "hardware_run": false,
+  "native_sha256": "948cd78953966fbc340be5d621ec329c5821c7f4742ef44e7b026cf3dac489b0",
+  "timing_origin": "A06起点；B07按原排废指令3019起点（组内第2秒）",
+  "before_loading_consolidation_s": 32002,
+  "loading_consolidation_saved_s": 2,
+  "published_full_s": 30525,
+  "B16_C02": {
+    "single_s": 859,
+    "dual_s": 802,
+    "single_merge_s": 858,
+    "dual_merge_s": 801,
+    "mix_s": 305,
+    "saved_s": 57,
+    "overlap_s": 154,
+    "packet_ul": 0.88,
+    "per_well_ul": 1.76,
+    "descending_x": [
+      5,
+      16
+    ],
+    "simultaneous_dual_descent_frames": 194
+  }
+}

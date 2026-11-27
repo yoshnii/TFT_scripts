@@ -232,6 +232,9 @@ def _deliver(S,reagent,vol,cols,tag,on_before_load=None,on_load=None,controlled=
     pool=S.top_delivery_pool=DeliveryPool(S) if reagent=='G14' or getattr(S,'cross_stage_leaves',False) else None
     locks={};gx=geom.gap_x(geom.reagent_gap(c))
     admitted = 0
+    dual_beads = dual and reagent == 'G16' and getattr(S, 'bead_refill_enabled', False)
+    assigned = [0, 0]
+    at_gate = [0, 0]
     def route(d,ln,lower=(),staging=False):
         nonlocal admitted
         if staging and reagent not in ('G14','LIG','EDTA'):yield ('hold',d.rect,geom.HOLD_MS)
@@ -245,14 +248,28 @@ def _deliver(S,reagent,vol,cols,tag,on_before_load=None,on_load=None,controlled=
                       for q in S.drops.values()):
                 yield 'wait'
         if dual and reagent in ('LIG','G16'):
-            rail = 8
-            yield from R.go(d,[('x',rail),('y',23)])
-            # Assign by actual admission. All aliquots are the same reagent.
-            ln = ops.Lane(c,len(lanes)-admitted//per_lane)
+            if dual_beads:
+                preferred = 0 if d.rect[1] < 10 else 1
+                queues = [assigned[i]-at_gate[i] for i in range(2)]
+                eligible = [i for i in range(2) if assigned[i] < 16]
+                track = min(eligible, key=lambda i: (queues[i]>2 and queues[1-i]==0, i!=preferred))
+                assigned[track] += 1
+                rail = (5,16)[track]
+                if d.rect[1]>=10 and d.rect[0]<rail:
+                    yield from R.go(d,[('y',26),('x',rail)])
+                else:
+                    yield from R.go(d,[('x',max(7,rail)),('y',max(11,d.rect[1])),('x',rail),('y',25)])
+                # Select a well on admission; reserve two aliquots per well.
+                ln = ops.Lane(c,16-8*track-at_gate[track]//per_lane)
+                at_gate[track] += 1
+            else:
+                yield from R.go(d,[('x',8),('y',23)])
+                ln = ops.Lane(c,len(lanes)-admitted//per_lane)
             admitted += 1
             d.row = ln.r
             next(e for e in S.native_leaf_events if e['name']==d.name)['row']=ln.r
-            yield from R.go(d,[('y',ln.Y0-1)])
+            entry_y = ln.Y0 if dual_beads and ln.r==9 else ln.Y0-1
+            yield from R.go(d,[('y',entry_y)])
         else:
             rail = gx
             if dual:
@@ -282,6 +299,13 @@ def _deliver(S,reagent,vol,cols,tag,on_before_load=None,on_load=None,controlled=
             yield from R.go(d,[('x',host.rect[0]-w)])
             yield ('merge_native',(d.rect[0],ln.Y0,w+host.rect[2],h),host.name,d.vol)
         locks.pop(ln.id)
+        if dual_beads and host is not None and ln.r in (8,10):
+            # Leave the original approach clearance on both sides of row 9.
+            if ln.r==8:
+                adjacent = f'{tag}{ops.Lane(c,7).id}'
+                while adjacent not in S.drops or S.get(adjacent).vol < 2*pv-.01:
+                    yield 'wait'
+            yield from R.go(d,[('y',ln.Y0+(-1 if ln.r==8 else 1))])
     for group_index,family_group in enumerate(groups):
         if not S.nearby_cut_sites and len(family_group)==1:
             root=family_group[0][1]
@@ -325,6 +349,10 @@ def _deliver(S,reagent,vol,cols,tag,on_before_load=None,on_load=None,controlled=
                     count=n//per_lane;hi=max(ln.r for ln in lanes)-(k-1)*count
                     rows=[r for r in range(hi,hi-count,-1) for _ in range(per_lane)]
                     if dual and reagent != 'G16': rows = list(range(hi,hi-count,-1))*per_lane
+                    if reagent == 'AMP' and k == 1 and getattr(S, 'amp_hold_residents', False):
+                        # Launch row 9 first; its other aliquot and both row 16 aliquots stay assigned.
+                        assert rows == list(range(16, 8, -1)) * 2
+                        rows[0], rows[-1] = rows[-1], rows[0]
                     for i,(q,row) in enumerate(zip(leaves,rows)):destinations[q[0]]=(k,row,i)
                 def release(leaves):
                     for d in leaves:
@@ -369,6 +397,10 @@ def _deliver(S,reagent,vol,cols,tag,on_before_load=None,on_load=None,controlled=
         finally:S.pipeline_active=False
     if pool:
         pool.finish()
+        if dual_beads:
+            assert at_gate == assigned == [16,16]
+            neighbours = [(S.get(f'{tag}{ln.id}'),ln) for ln in lanes if ln.r in (8,10)]
+            R.run(S,[(d,R.go(d,[('y',ln.Y0)])) for d,ln in neighbours])
         S.pipeline_events.append(dict(kind='overlap_delivery',frames=pool.frames,
             moving_frames=pool.moving_frames,mother_and_packet_moving_frames=pool.overlap_frames))
     for ln in lanes:
